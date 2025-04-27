@@ -33,10 +33,8 @@ Tilmeldelse til planlagt eller spontan kørsel.
 
 Vigtige krav
 Ingen økonomiske transaktioner
-Systemet skal være baseret på frivillighed og turnusordninger – ingen penge mellem deltagere.
 
 Både planlagt og spontan kørsel
-Systemet skal understøtte både fastlagte samkørsler og ad hoc-kørsler.
 
 Inspiration
 Uber (uden betaling)
