@@ -17,9 +17,9 @@ public partial class Trip
 
     public int TripSeats { get; set; }
 
-    public int DriverId { get; set; }
-
     public TimeOnly TripTime { get; set; }
+
+    public int DriverId { get; set; }
 
     public virtual Driver Driver { get; set; }
 
