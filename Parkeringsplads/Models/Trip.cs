@@ -2,26 +2,44 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Parkeringsplads.Models;
 
+[Table("Trip")]
 public partial class Trip
 {
+    [Key]
+    [Column("Trip_Id")]
     public int TripId { get; set; }
 
+    [Required]
+    [Column("From_Destination")]
+    [StringLength(40)]
+    [Unicode(false)]
     public string FromDestination { get; set; }
 
+    [Required]
+    [Column("To_Destination")]
+    [StringLength(40)]
+    [Unicode(false)]
     public string ToDestination { get; set; }
 
+    [Column("Trip_Date")]
     public DateOnly TripDate { get; set; }
 
+    [Column("Trip_Seats")]
     public int TripSeats { get; set; }
 
-    public TimeOnly TripTime { get; set; }
-
+    [Column("Driver_Id")]
     public int DriverId { get; set; }
 
+    [ForeignKey("DriverId")]
+    [InverseProperty("Trips")]
     public virtual Driver Driver { get; set; }
 
+    [InverseProperty("Trip")]
     public virtual ICollection<Request> Requests { get; set; } = new List<Request>();
 }

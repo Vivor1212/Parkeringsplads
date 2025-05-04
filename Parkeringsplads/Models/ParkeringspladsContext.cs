@@ -8,265 +8,69 @@ namespace Parkeringsplads.Models;
 
 public partial class ParkeringspladsContext : DbContext
 {
+    public ParkeringspladsContext()
+    {
+    }
+
     public ParkeringspladsContext(DbContextOptions<ParkeringspladsContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<Address> Addresses { get; set; }
+    public virtual DbSet<Address> Address { get; set; }
 
     public virtual DbSet<Car> Cars { get; set; }
 
-    public virtual DbSet<City> Cities { get; set; }
+    public virtual DbSet<City> City { get; set; }
 
-    public virtual DbSet<Driver> Drivers { get; set; }
+    public virtual DbSet<Driver> Driver { get; set; }
 
-    public virtual DbSet<Request> Requests { get; set; }
+    public virtual DbSet<Request> Request { get; set; }
 
-    public virtual DbSet<School> Schools { get; set; }
+    public virtual DbSet<School> School { get; set; }
 
     public virtual DbSet<Trip> Trips { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<User> User { get; set; }
+
+    public virtual DbSet<UserAddress> UserAddress { get; set; }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ParkeringsPladsTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Address>(entity =>
-        {
-            entity.HasKey(e => e.AddressId).HasName("PK__Address__03BDEBBA1FE8050E");
+        // Defining the composite primary key for UserAddress
+        modelBuilder.Entity<UserAddress>()
+            .HasKey(ua => new { ua.User_Id, ua.Address_Id });
 
-            entity.ToTable("Address");
+        // Configuring the relationship between User and UserAddress
+        modelBuilder.Entity<UserAddress>()
+            .HasOne(ua => ua.User)
+            .WithMany(u => u.UserAddress)
+            .HasForeignKey(ua => ua.User_Id)
+            .OnDelete(DeleteBehavior.ClientSetNull);  // Configure delete behavior
 
-            entity.Property(e => e.AddressId).HasColumnName("Address_Id");
-            entity.Property(e => e.AddressNumber)
-                .IsRequired()
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("Address_Number");
-            entity.Property(e => e.AddressRoad)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("Address_Road");
-            entity.Property(e => e.CityId).HasColumnName("City_Id");
+        // Configuring the relationship between Address and UserAddress
+        modelBuilder.Entity<UserAddress>()
+            .HasOne(ua => ua.Address)
+            .WithMany(a => a.UserAddress)
+            .HasForeignKey(ua => ua.Address_Id)
+            .OnDelete(DeleteBehavior.ClientSetNull);  // Configure delete behavior
 
-            entity.HasOne(d => d.City).WithMany(p => p.Addresses)
-                .HasForeignKey(d => d.CityId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Address__City_Id__60A75C0F");
-        });
 
-        modelBuilder.Entity<Car>(entity =>
-        {
-            entity.HasKey(e => e.CarId).HasName("PK__Car__523653F9B1A0521C");
+        modelBuilder.Entity<School>()
+    .HasOne(s => s.Address)   // A School has one Address
+    .WithMany(a => a.Schools)  // Address can have many Schools
+    .HasForeignKey(s => s.AddressId)
+    .OnDelete(DeleteBehavior.ClientSetNull); // Handle delete behavior
 
-            entity.ToTable("Car");
 
-            entity.Property(e => e.CarId).HasColumnName("Car_Id");
-            entity.Property(e => e.CarCapacity).HasColumnName("Car_Capacity");
-            entity.Property(e => e.CarModel)
-                .IsRequired()
-                .HasMaxLength(30)
-                .IsUnicode(false)
-                .HasColumnName("Car_Model");
-            entity.Property(e => e.CarPlate)
-                .IsRequired()
-                .HasMaxLength(15)
-                .IsUnicode(false)
-                .HasColumnName("Car_Plate");
-            entity.Property(e => e.DriverId).HasColumnName("Driver_Id");
-
-            entity.HasOne(d => d.Driver).WithMany(p => p.Cars)
-                .HasForeignKey(d => d.DriverId)
-                .HasConstraintName("FK__Car__Driver_Id__6E01572D");
-        });
-
-        modelBuilder.Entity<City>(entity =>
-        {
-            entity.HasKey(e => e.CityId).HasName("PK__City__DE9DE0004515387E");
-
-            entity.ToTable("City");
-
-            entity.Property(e => e.CityId).HasColumnName("City_Id");
-            entity.Property(e => e.CityName)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("City_Name");
-            entity.Property(e => e.PostalCode)
-                .IsRequired()
-                .HasMaxLength(4)
-                .IsUnicode(false)
-                .HasColumnName("Postal_Code");
-        });
-
-        modelBuilder.Entity<Driver>(entity =>
-        {
-            entity.HasKey(e => e.DriverId).HasName("PK__Driver__F4664EB9F3890456");
-
-            entity.ToTable("Driver");
-
-            entity.Property(e => e.DriverId).HasColumnName("Driver_Id");
-            entity.Property(e => e.DriverCpr)
-                .IsRequired()
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasColumnName("Driver_CPR");
-            entity.Property(e => e.DriverLicense)
-                .IsRequired()
-                .HasMaxLength(15)
-                .IsUnicode(false)
-                .HasColumnName("Driver_License");
-            entity.Property(e => e.UserId).HasColumnName("User_Id");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Drivers)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Driver__User_Id__6A30C649");
-        });
-
-        modelBuilder.Entity<Request>(entity =>
-        {
-            entity.HasKey(e => e.RequestId).HasName("PK__Request__E9C5B37369811FB5");
-
-            entity.ToTable("Request");
-
-            entity.Property(e => e.RequestId).HasColumnName("Request_Id");
-            entity.Property(e => e.RequestAddress)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("Request_Address");
-            entity.Property(e => e.RequestMessage)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("Request_Message");
-            entity.Property(e => e.RequestStatus).HasColumnName("Request_Status");
-            entity.Property(e => e.RequestTime)
-                .HasPrecision(2)
-                .HasColumnName("Request_Time");
-            entity.Property(e => e.TripId).HasColumnName("Trip_Id");
-            entity.Property(e => e.UserId).HasColumnName("User_Id");
-
-            entity.HasOne(d => d.Trip).WithMany(p => p.Requests)
-                .HasForeignKey(d => d.TripId)
-                .HasConstraintName("FK__Request__Trip_Id__778AC167");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Requests)
-                .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Request__User_Id__76969D2E");
-        });
-
-        modelBuilder.Entity<School>(entity =>
-        {
-            entity.HasKey(e => e.SchoolId).HasName("PK__School__DF2813629B4561E2");
-
-            entity.ToTable("School");
-
-            entity.Property(e => e.SchoolId).HasColumnName("School_Id");
-            entity.Property(e => e.AddressId).HasColumnName("Address_Id");
-            entity.Property(e => e.SchoolName)
-                .IsRequired()
-                .HasMaxLength(30)
-                .IsUnicode(false)
-                .HasColumnName("School_Name");
-
-            entity.HasOne(d => d.Address).WithMany(p => p.Schools)
-                .HasForeignKey(d => d.AddressId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__School__Address___6383C8BA");
-        });
-
-        modelBuilder.Entity<Trip>(entity =>
-        {
-            entity.HasKey(e => e.TripId).HasName("PK__Trip__6852735EDC71DB31");
-
-            entity.ToTable("Trip");
-
-            entity.Property(e => e.TripId).HasColumnName("Trip_Id");
-            entity.Property(e => e.DriverId).HasColumnName("Driver_Id");
-            entity.Property(e => e.FromDestination)
-                .IsRequired()
-                .HasMaxLength(40)
-                .IsUnicode(false)
-                .HasColumnName("From_Destination");
-            entity.Property(e => e.ToDestination)
-                .IsRequired()
-                .HasMaxLength(40)
-                .IsUnicode(false)
-                .HasColumnName("To_Destination");
-            entity.Property(e => e.TripDate).HasColumnName("Trip_Date");
-            entity.Property(e => e.TripSeats).HasColumnName("Trip_Seats");
-            entity.Property(e => e.TripTime)
-                .HasPrecision(2)
-                .HasColumnName("Trip_Time");
-
-            entity.HasOne(d => d.Driver).WithMany(p => p.Trips)
-                .HasForeignKey(d => d.DriverId)
-                .HasConstraintName("FK__Trip__Driver_Id__71D1E811");
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PK__User__206D917017E3B905");
-
-            entity.ToTable("User");
-
-            entity.HasIndex(e => e.Email, "UQ__User__A9D10534D7BC0834").IsUnique();
-
-            entity.Property(e => e.UserId).HasColumnName("User_Id");
-            entity.Property(e => e.Email)
-                .IsRequired()
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .IsRequired()
-                .HasMaxLength(30)
-                .IsUnicode(false)
-                .HasColumnName("First_Name");
-            entity.Property(e => e.LastName)
-                .IsRequired()
-                .HasMaxLength(40)
-                .IsUnicode(false)
-                .HasColumnName("Last_Name");
-            entity.Property(e => e.Password)
-                .IsRequired()
-                .HasMaxLength(30)
-                .IsUnicode(false);
-            entity.Property(e => e.Phone)
-                .IsRequired()
-                .HasMaxLength(15)
-                .IsUnicode(false);
-            entity.Property(e => e.SchoolId).HasColumnName("School_Id");
-            entity.Property(e => e.Title)
-                .IsRequired()
-                .HasMaxLength(1)
-                .IsUnicode(false)
-                .IsFixedLength();
-
-            entity.HasOne(d => d.School).WithMany(p => p.Users)
-                .HasForeignKey(d => d.SchoolId)
-                .HasConstraintName("FK__User__School_Id__6754599E");
-
-            entity.HasMany(d => d.Addresses).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserAddress",
-                    r => r.HasOne<Address>().WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__UserAddre__Addre__7B5B524B"),
-                    l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK__UserAddre__User___7A672E12"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "AddressId").HasName("PK__UserAddr__90564FCBC64DB242");
-                        j.ToTable("UserAddress");
-                        j.IndexerProperty<int>("UserId").HasColumnName("User_Id");
-                        j.IndexerProperty<int>("AddressId").HasColumnName("Address_Id");
-                    });
-        });
-
-        OnModelCreatingPartial(modelBuilder);
+        base.OnModelCreating(modelBuilder);
     }
+
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
