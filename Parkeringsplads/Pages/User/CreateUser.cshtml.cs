@@ -34,19 +34,7 @@ public class CreateUserModel : PageModel
     public async Task OnGetAsync()
     {
         // Populate the dropdown lists for schools and cities
-        Schools = await _context.School
-            .Select(s => new SelectListItem
-            {
-                Value = s.SchoolId.ToString(),
-                Text = s.SchoolName
-            }).ToListAsync();
-
-        City = await _context.City
-            .Select(c => new SelectListItem
-            {
-                Value = c.CityId.ToString(),
-                Text = c.CityName
-            }).ToListAsync();
+        await LoadDropdownsAsync();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -78,7 +66,16 @@ public class CreateUserModel : PageModel
                 addressId = existingAddress.AddressId;
             }
 
-            // 2. Create the user and link them to the address through UserAddress
+            var existingUser = await _context.User.FirstOrDefaultAsync(u => u.Email == User.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("User.Email", "Email is already in use.");
+                await LoadDropdownsAsync(); // Reload dropdown
+
+                return Page(); 
+            }
+
+            // If above doesnt equal null, aka if the existingUser, gains data via email which is being checked, do not add User, instead throw AddModelError.
             _context.User.Add(User);
             await _context.SaveChangesAsync();
 
@@ -94,20 +91,12 @@ public class CreateUserModel : PageModel
             return RedirectToPage("/Index");
         }
 
-        // debug log for console
-        Schools = await _context.School
-            .Select(s => new SelectListItem
-            {
-                Value = s.SchoolId.ToString(),
-                Text = s.SchoolName
-            }).ToListAsync();
 
-        City = await _context.City
-            .Select(c => new SelectListItem
-            {
-                Value = c.CityId.ToString(),
-                Text = c.CityName
-            }).ToListAsync();
+
+        // debug log for console
+        
+
+
         if (!ModelState.IsValid)
         {
             foreach (var modelState in ModelState)
@@ -121,26 +110,28 @@ public class CreateUserModel : PageModel
                 }
             }
 
-            // Re-populate dropdowns
-            Schools = await _context.School
-                .Select(s => new SelectListItem
-                {
-                    Value = s.SchoolId.ToString(),
-                    Text = s.SchoolName
-                }).ToListAsync();
-
-            City = await _context.City
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CityId.ToString(),
-                    Text = c.CityName
-                }).ToListAsync();
-
             return RedirectToPage("/Index");
 
         }
 
         return RedirectToPage("/Index");
 
+    }
+
+    private async Task LoadDropdownsAsync() // This is a method to display the number of schools in the dropdown, made a method for cleaner code
+    {
+        Schools = await _context.School
+            .Select(s => new SelectListItem
+            {
+                Value = s.SchoolId.ToString(),
+                Text = s.SchoolName
+            }).ToListAsync();
+
+        City = await _context.City
+            .Select(c => new SelectListItem
+            {
+                Value = c.CityId.ToString(),
+                Text = c.CityName
+            }).ToListAsync();
     }
 }
