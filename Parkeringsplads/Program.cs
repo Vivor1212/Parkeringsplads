@@ -1,7 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using Parkeringsplads.Models;
+using Parkeringsplads.Services.EFServices;
+using Parkeringsplads.Services.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddScoped<ITripService, EFTripService>();
+builder.Services.AddDbContext<ParkeringspladsContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Simply")));
 
 var app = builder.Build();
 

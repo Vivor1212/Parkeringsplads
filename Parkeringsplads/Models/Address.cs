@@ -20,4 +20,6 @@ public partial class Address
     public virtual ICollection<School> Schools { get; set; } = new List<School>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public string FullAddress => $"{AddressRoad} {AddressNumber}, {City?.PostalCode} {City?.CityName}";
+
 }

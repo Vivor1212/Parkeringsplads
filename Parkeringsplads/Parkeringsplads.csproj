@@ -11,9 +11,6 @@
     <Folder Include="Pages\Account\" />
     <Folder Include="Pages\Profile\" />
     <Folder Include="Pages\Requests\" />
-    <Folder Include="Pages\Trip\" />
-    <Folder Include="Services\Interfaces\" />
-    <Folder Include="Services\EFServices\" />
   </ItemGroup>
 
   <ItemGroup>
