@@ -23,7 +23,7 @@ public partial class Request
     public TimeOnly RequestTime { get; set; }
 
     [Column("Request_Address")]
-    [StringLength(50)]
+    [StringLength(100)]
     [Unicode(false)]
     public string RequestAddress { get; set; }
 

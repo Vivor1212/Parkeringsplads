@@ -33,6 +33,10 @@ public partial class Trip
     [Column("Trip_Seats")]
     public int TripSeats { get; set; }
 
+    [Column("Trip_Time")]
+    [Precision(2)]
+    public TimeOnly TripTime { get; set; }
+
     [Column("Driver_Id")]
     public int DriverId { get; set; }
 

@@ -27,6 +27,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     
                     <ul class="navbar-nav flex-grow-1">
+
                         <!-- Login Button, shown only if the user is NOT logged in -->
                         @if (!isUserLoggedIn)
                         {
@@ -40,6 +41,9 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-page="/Test">Test</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Trip/CreateTrip">Opret tur</a>
                             </li>
                         }
                     </ul>   
@@ -70,6 +74,7 @@
                                 </a>
                             </li>
                         }
+
                     </ul>
 
                 </div>

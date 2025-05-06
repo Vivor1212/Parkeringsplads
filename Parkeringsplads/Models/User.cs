@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Parkeringsplads.Models;
 
 [Table("User")]
-[Index("Email", Name = "UQ__User__A9D1053457092B84", IsUnique = true)]
+[Index("Email", Name = "UQ__User__A9D10534D7BC0834", IsUnique = true)]
 public partial class User
 {
     [Key]

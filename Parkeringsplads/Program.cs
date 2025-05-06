@@ -1,7 +1,7 @@
-﻿using Parkeringsplads.Models;
 using Microsoft.EntityFrameworkCore;
-using Parkeringsplads.Interfaces;
-using Parkeringsplads.Services;
+using Parkeringsplads.Models;
+using Parkeringsplads.Services.EFServices;
+using Parkeringsplads.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,12 +11,14 @@ builder.Services.AddDbContext<TestParkeringspladsContext>(options =>
 
 // Register the CityService (ICityService) with dependency injection
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<ITripService, EFTripService>();
 
 // Add logging services (this is where you add logging)
 builder.Services.AddLogging();  // Adds default logging services
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
 
 // Add session service with automatic idle logout
 builder.Services.AddSession(options =>

@@ -6,13 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Parkeringsplads.Models;
 
-public partial class TestParkeringspladsContext : DbContext
-{
-    public TestParkeringspladsContext()
-    {
-    }
 
-    public TestParkeringspladsContext(DbContextOptions<TestParkeringspladsContext> options)
+public partial class ParkeringspladsContext : DbContext
+{
+    public ParkeringspladsContext(DbContextOptions<ParkeringspladsContext> options)
         : base(options)
     {
     }
@@ -37,64 +34,71 @@ public partial class TestParkeringspladsContext : DbContext
     {
         modelBuilder.Entity<Address>(entity =>
         {
-            entity.HasKey(e => e.AddressId).HasName("PK__Address__03BDEBBA4885F6BE");
+            entity.HasKey(e => e.AddressId).HasName("PK__Address__03BDEBBA1FE8050E");
 
             entity.HasOne(d => d.City).WithMany(p => p.Addresses)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Address__City_Id__267ABA7A");
+                .HasConstraintName("FK__Address__City_Id__60A75C0F");
         });
 
         modelBuilder.Entity<Car>(entity =>
         {
-            entity.HasKey(e => e.CarId).HasName("PK__Car__523653F933A34B0F");
+            entity.HasKey(e => e.CarId).HasName("PK__Car__523653F9B1A0521C");
 
-            entity.HasOne(d => d.Driver).WithMany(p => p.Cars).HasConstraintName("FK__Car__Driver_Id__36B12243");
+            entity.HasOne(d => d.Driver).WithMany(p => p.Cars).HasConstraintName("FK__Car__Driver_Id__6E01572D");
+
         });
 
         modelBuilder.Entity<City>(entity =>
         {
-            entity.HasKey(e => e.CityId).HasName("PK__City__DE9DE0006724F1C2");
+            entity.HasKey(e => e.CityId).HasName("PK__City__DE9DE0004515387E");
+
         });
 
         modelBuilder.Entity<Driver>(entity =>
         {
-            entity.HasKey(e => e.DriverId).HasName("PK__Driver__F4664EB9FF03625E");
+            entity.HasKey(e => e.DriverId).HasName("PK__Driver__F4664EB9F3890456");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Drivers).HasConstraintName("FK__Driver__User_Id__33D4B598");
+            entity.HasOne(d => d.User).WithMany(p => p.Drivers).HasConstraintName("FK__Driver__User_Id__6A30C649");
+
         });
 
         modelBuilder.Entity<Request>(entity =>
         {
-            entity.HasKey(e => e.RequestId).HasName("PK__Request__E9C5B37336667E95");
+            entity.HasKey(e => e.RequestId).HasName("PK__Request__E9C5B37369811FB5");
 
-            entity.HasOne(d => d.Trip).WithMany(p => p.Requests).HasConstraintName("FK__Request__Trip_Id__45F365D3");
+            entity.HasOne(d => d.Trip).WithMany(p => p.Requests).HasConstraintName("FK__Request__Trip_Id__778AC167");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Requests).HasConstraintName("FK__Request__User_Id__44FF419A");
+            entity.HasOne(d => d.User).WithMany(p => p.Requests).HasConstraintName("FK__Request__User_Id__76969D2E");
+
         });
 
         modelBuilder.Entity<School>(entity =>
         {
-            entity.HasKey(e => e.SchoolId).HasName("PK__School__DF2813628DFF4EEA");
+            entity.HasKey(e => e.SchoolId).HasName("PK__School__DF2813629B4561E2");
 
             entity.HasOne(d => d.Address).WithMany(p => p.Schools)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__School__Address___29572725");
+                .HasConstraintName("FK__School__Address___6383C8BA");
+
         });
 
         modelBuilder.Entity<Trip>(entity =>
         {
-            entity.HasKey(e => e.TripId).HasName("PK__Trip__6852735E9173AC5D");
+            entity.HasKey(e => e.TripId).HasName("PK__Trip__6852735EDC71DB31");
 
-            entity.HasOne(d => d.Driver).WithMany(p => p.Trips).HasConstraintName("FK__Trip__Driver_Id__398D8EEE");
+            entity.HasOne(d => d.Driver).WithMany(p => p.Trips).HasConstraintName("FK__Trip__Driver_Id__71D1E811");
+
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__User__206D9170D99449B2");
+            entity.HasKey(e => e.UserId).HasName("PK__User__206D917017E3B905");
 
             entity.Property(e => e.Title).IsFixedLength();
 
-            entity.HasOne(d => d.School).WithMany(p => p.Users).HasConstraintName("FK__User__School_Id__2D27B809");
+            entity.HasOne(d => d.School).WithMany(p => p.Users).HasConstraintName("FK__User__School_Id__6754599E");
+
 
             entity.HasMany(d => d.Addresses).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
@@ -102,13 +106,13 @@ public partial class TestParkeringspladsContext : DbContext
                     r => r.HasOne<Address>().WithMany()
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__UserAddre__Addre__300424B4"),
+                        .HasConstraintName("FK__UserAddre__Addre__7B5B524B"),
                     l => l.HasOne<User>().WithMany()
                         .HasForeignKey("UserId")
-                        .HasConstraintName("FK__UserAddre__User___30F848ED"),
+                        .HasConstraintName("FK__UserAddre__User___7A672E12"),
                     j =>
                     {
-                        j.HasKey("UserId", "AddressId").HasName("PK__UserAddr__90564FCBF2D429DD");
+                        j.HasKey("UserId", "AddressId").HasName("PK__UserAddr__90564FCBC64DB242");
                         j.ToTable("UserAddress");
                         j.IndexerProperty<int>("UserId").HasColumnName("User_Id");
                         j.IndexerProperty<int>("AddressId").HasColumnName("Address_Id");
