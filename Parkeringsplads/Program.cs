@@ -6,7 +6,7 @@ using Parkeringsplads.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ParkeringspladsContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Simply")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ICityService, EFCityService>();
 builder.Services.AddScoped<IUser, EFUserService>();
