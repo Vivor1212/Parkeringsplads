@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Parkeringsplads.Models;
 
+
 public partial class ParkeringspladsContext : DbContext
 {
     public ParkeringspladsContext(DbContextOptions<ParkeringspladsContext> options)
@@ -45,11 +46,13 @@ public partial class ParkeringspladsContext : DbContext
             entity.HasKey(e => e.CarId).HasName("PK__Car__523653F9B1A0521C");
 
             entity.HasOne(d => d.Driver).WithMany(p => p.Cars).HasConstraintName("FK__Car__Driver_Id__6E01572D");
+
         });
 
         modelBuilder.Entity<City>(entity =>
         {
             entity.HasKey(e => e.CityId).HasName("PK__City__DE9DE0004515387E");
+
         });
 
         modelBuilder.Entity<Driver>(entity =>
@@ -57,6 +60,7 @@ public partial class ParkeringspladsContext : DbContext
             entity.HasKey(e => e.DriverId).HasName("PK__Driver__F4664EB9F3890456");
 
             entity.HasOne(d => d.User).WithMany(p => p.Drivers).HasConstraintName("FK__Driver__User_Id__6A30C649");
+
         });
 
         modelBuilder.Entity<Request>(entity =>
@@ -66,6 +70,7 @@ public partial class ParkeringspladsContext : DbContext
             entity.HasOne(d => d.Trip).WithMany(p => p.Requests).HasConstraintName("FK__Request__Trip_Id__778AC167");
 
             entity.HasOne(d => d.User).WithMany(p => p.Requests).HasConstraintName("FK__Request__User_Id__76969D2E");
+
         });
 
         modelBuilder.Entity<School>(entity =>
@@ -75,6 +80,7 @@ public partial class ParkeringspladsContext : DbContext
             entity.HasOne(d => d.Address).WithMany(p => p.Schools)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__School__Address___6383C8BA");
+
         });
 
         modelBuilder.Entity<Trip>(entity =>
@@ -82,6 +88,7 @@ public partial class ParkeringspladsContext : DbContext
             entity.HasKey(e => e.TripId).HasName("PK__Trip__6852735EDC71DB31");
 
             entity.HasOne(d => d.Driver).WithMany(p => p.Trips).HasConstraintName("FK__Trip__Driver_Id__71D1E811");
+
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -91,6 +98,7 @@ public partial class ParkeringspladsContext : DbContext
             entity.Property(e => e.Title).IsFixedLength();
 
             entity.HasOne(d => d.School).WithMany(p => p.Users).HasConstraintName("FK__User__School_Id__6754599E");
+
 
             entity.HasMany(d => d.Addresses).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
