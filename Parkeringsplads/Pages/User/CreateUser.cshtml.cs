@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -6,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.EFServices;
 using Parkeringsplads.Services.Interfaces;
+using BCrypt.Net;
 
 public class CreateUserModel : PageModel
 {
     private readonly IUser _createUserService;
     private readonly ParkeringspladsContext _context;
+
     public CreateUserModel(IUser createUserService, ParkeringspladsContext context)
     {
         _createUserService = createUserService;
@@ -41,11 +42,15 @@ public class CreateUserModel : PageModel
     {
         if (ModelState.IsValid)
         {
+            // Hash the user's password before saving
+            User.Password = BCrypt.Net.BCrypt.HashPassword(User.Password);
+
+            // Call the service to create the user
             bool createUser = await _createUserService.CreateUserAsync(User, AddressRoad, AddressNumber, CityId);
 
             if (createUser)
             {
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Account/login/login");
             }
             else
             {
@@ -61,6 +66,7 @@ public class CreateUserModel : PageModel
 
     private async Task LoadDropdownsAsync()
     {
+        // Load schools and cities for dropdown lists
         Schools = await _context.School
             .Select(s => new SelectListItem
             {
