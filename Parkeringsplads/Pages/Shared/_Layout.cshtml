@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var isUserLoggedIn = Context?.Session?.GetString("UserEmail") != null;
+    var userEmail = isUserLoggedIn ? Context.Session.GetString("UserEmail") : string.Empty;
+}
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,6 +13,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Parkeringsplads.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -18,14 +25,53 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                        <!-- Login Button, shown only if the user is NOT logged in -->
+                        @if (!isUserLoggedIn)
+                        {
+                            @* <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Login">Login</a>
+                            </li> *@
+                        }
+
+                        <!-- These items will be shown only if the user is logged in -->
+                        @if (isUserLoggedIn)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Test">Test</a>
+                            </li>
+                        }
+                    </ul>   
+
+                    <!-- Conditional Login/Logout buttons -->
+                    <ul class="navbar-nav ml-auto">
+                        @if (isUserLoggedIn)
+                        {
+                            <!-- Profile Button -->
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="@Url.Page("/Profile")">
+                                    <i class="fas fa-user"></i> Profile <!-- Profile Icon and Text -->
+                                </a>
+                            </li>
+                            <!-- Logout Button -->
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="@Url.Page("/Logout")">
+                                    <i class="fas fa-sign-out-alt"></i> Logout <!-- Logout Icon and Text -->
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Login Button -->
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="@Url.Page("/Login")">
+                                    <i class="fas fa-sign-in-alt"></i> Login <!-- Login Icon and Text -->
+                                </a>
+                            </li>
+                        }
                     </ul>
+
                 </div>
             </div>
         </nav>
