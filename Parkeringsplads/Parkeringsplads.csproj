@@ -11,18 +11,22 @@
 		<Compile Remove="Pages\Profile\**" />
 		<Compile Remove="Pages\Requests\**" />
 		<Compile Remove="Pages\Trip\**" />
+		<Compile Remove="Services\**" />
 		<Content Remove="Pages\Account\**" />
 		<Content Remove="Pages\Profile\**" />
 		<Content Remove="Pages\Requests\**" />
 		<Content Remove="Pages\Trip\**" />
+		<Content Remove="Services\**" />
 		<EmbeddedResource Remove="Pages\Account\**" />
 		<EmbeddedResource Remove="Pages\Profile\**" />
 		<EmbeddedResource Remove="Pages\Requests\**" />
 		<EmbeddedResource Remove="Pages\Trip\**" />
+		<EmbeddedResource Remove="Services\**" />
 		<None Remove="Pages\Account\**" />
 		<None Remove="Pages\Profile\**" />
 		<None Remove="Pages\Requests\**" />
 		<None Remove="Pages\Trip\**" />
+		<None Remove="Services\**" />
 	</ItemGroup>
 
 	<ItemGroup>
