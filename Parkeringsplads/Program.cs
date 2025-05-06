@@ -5,12 +5,11 @@ using Parkeringsplads.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Register DbContext
-builder.Services.AddDbContext<TestParkeringspladsContext>(options =>
+builder.Services.AddDbContext<ParkeringspladsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Simply")));
 
-// Register the CityService (ICityService) with dependency injection
-builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<ICityService, EFCityService>();
+builder.Services.AddScoped<IUser, EFUserService>();
 builder.Services.AddScoped<ITripService, EFTripService>();
 
 // Add logging services (this is where you add logging)
@@ -18,10 +17,12 @@ builder.Services.AddLogging();  // Adds default logging services
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<ITripService, EFTripService>();
-builder.Services.AddDbContext<ParkeringspladsContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Simply")));
-
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);  // Session lasts 30 minutes of inactivity
+    options.Cookie.HttpOnly = true;                  // Increases security (not accessible via JavaScript)
+    options.Cookie.IsEssential = true;               // Required if user hasn't consented to cookies
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

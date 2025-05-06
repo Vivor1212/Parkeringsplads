@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Parkeringsplads.Models;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
+namespace Parkeringsplads.Models;
+
+[Table("Address")]
 public partial class Address
 {
     [Key]
@@ -25,16 +27,14 @@ public partial class Address
     public int CityId { get; set; }
 
     [ForeignKey("CityId")]
-    [InverseProperty("Address")]
+    [InverseProperty("Addresses")]
     public virtual City City { get; set; }
 
-    // Change this to reference UserAddress instead of User directly
     [InverseProperty("Address")]
-    public virtual ICollection<UserAddress> UserAddress { get; set; } = new List<UserAddress>();
+    public virtual ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
 
-
-    // Navigation property for Schools related to this address
     [InverseProperty("Address")]
     public virtual ICollection<School> Schools { get; set; } = new List<School>();
+
     public string FullAddress => $"{AddressRoad} {AddressNumber}, {City?.PostalCode} {City?.CityName}";
 }

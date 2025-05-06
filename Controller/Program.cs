@@ -7,15 +7,15 @@ class Program
     {
         #region Password convertion
         // Replace with your actual DB connection string
-        var optionsBuilder = new DbContextOptionsBuilder<TestParkeringspladsContext>();
-        optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ProjectTest;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        var optionsBuilder = new DbContextOptionsBuilder<ParkeringspladsContext>();
+        optionsBuilder.UseSqlServer("");
 
-        using var context = new TestParkeringspladsContext(optionsBuilder.Options);
+        using var context = new ParkeringspladsContext(optionsBuilder.Options);
 
         // Replace this with the email of the user you want to hash
-        string targetEmail = "Example@email.com";
+        string targetEmail = "Emil@mail.dk";
 
-        var user = context.Users.FirstOrDefault(u => u.Email == targetEmail);
+        var user = context.User.FirstOrDefault(u => u.Email == targetEmail);
 
         if (user == null)
         {

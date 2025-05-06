@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Parkeringsplads.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Parkeringsplads.Models;
+
+[Table("User")]
 public partial class User
 {
     [Key]
@@ -44,14 +46,16 @@ public partial class User
     [Column("School_Id")]
     public int? SchoolId { get; set; }
 
-    [InverseProperty("User")]
-    public virtual ICollection<Driver> Drivers { get; set; } = new List<Driver>();
-
     [ForeignKey("SchoolId")]
     [InverseProperty("Users")]
     public virtual School? School { get; set; }
 
-    // Change this to reference UserAddress instead of Address directly
     [InverseProperty("User")]
-    public virtual ICollection<UserAddress> UserAddress { get; set; } = new List<UserAddress>();
+    public virtual ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
+
+    [InverseProperty("User")]
+    public virtual ICollection<Driver> Drivers { get; set; } = new List<Driver>();
+
+    [InverseProperty("Users")]
+    public virtual ICollection<Request> Requests { get; set; } = new List<Request>();
 }

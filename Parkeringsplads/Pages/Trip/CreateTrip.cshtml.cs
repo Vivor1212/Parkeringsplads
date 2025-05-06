@@ -58,12 +58,12 @@ namespace Parkeringsplads.Pages.Trip
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
                         .ThenInclude(a => a.City)
-                .Include(u => u.UserAddress)
+                .Include(u => u.UserAddresses)
                 .ThenInclude(a => a.Address)
                     .ThenInclude(a => a.City)
                 .FirstOrDefault(u => u.Email == userEmail);
 
-            UserAddresses = user.UserAddress
+            UserAddresses = user.UserAddresses
                 .Select(a => a.Address.FullAddress)
                 .ToList();
 
@@ -112,7 +112,7 @@ namespace Parkeringsplads.Pages.Trip
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
                         .ThenInclude(a => a.City)
-                .Include(u => u.UserAddress)
+                .Include(u => u.UserAddresses)
                     .ThenInclude(a => a.Address)
                     .ThenInclude(a => a.City)
                 .FirstOrDefault(u => u.Email == userEmail);
@@ -121,7 +121,7 @@ namespace Parkeringsplads.Pages.Trip
 
             string chosenAddress = UseCustomAddress
                 ? CustomAddress?.Trim()
-                : SelectedAddress ?? user.UserAddress.FirstOrDefault()?.Address.FullAddress;
+                : SelectedAddress ?? user.UserAddresses.FirstOrDefault()?.Address.FullAddress;
 
             if (Direction == "FromSchool")
             {

@@ -1,18 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 
-namespace Parkeringsplads.Models
+namespace Parkeringsplads.Models;
+
+[Table("UserAddress")]
+public partial class UserAddress
 {
-    [Table("UserAddress")]
-    public partial class UserAddress
-    {
-        public int User_Id { get; set; }
-        public int Address_Id { get; set; }
+    [Column("User_Id")]
+    public int User_Id { get; set; }
 
-        public virtual User User { get; set; }
-        public virtual Address Address { get; set; }
-    }
+    [Column("Address_Id")]
+    public int Address_Id { get; set; }
 
+    [ForeignKey("User_Id")]
+    [InverseProperty("UserAddresses")]
+    public virtual User User { get; set; }
 
-
+    [ForeignKey("Address_Id")]
+    [InverseProperty("UserAddresses")]
+    public virtual Address Address { get; set; }
 }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Parkeringsplads.Models;
 using System.Text;
 
-namespace Parkeringsplads.Pages
+namespace Parkeringsplads.Pages.Account
 {
     public class LoginModel : PageModel
     {
@@ -37,7 +37,7 @@ namespace Parkeringsplads.Pages
             {
                 // Password matches, set session and redirect
                 HttpContext.Session.SetString("UserEmail", user.Email);
-                return RedirectToPage("/Profile"); // Redirect to a protected page
+                return RedirectToPage("/Account/Profile"); // Redirect to a protected page
             }
 
             // If login failed, show an error message

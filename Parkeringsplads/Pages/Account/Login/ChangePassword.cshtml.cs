@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Parkeringsplads.Models;
 using BCrypt.Net;
 
-namespace Parkeringsplads.Pages
+namespace Parkeringsplads.Pages.Account
 {
     public class ChangePasswordModel : PageModel
     {

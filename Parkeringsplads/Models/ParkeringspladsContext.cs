@@ -42,14 +42,14 @@ public partial class ParkeringspladsContext : DbContext
         // Configuring the relationship between User and UserAddress
         modelBuilder.Entity<UserAddress>()
             .HasOne(ua => ua.User)
-            .WithMany(u => u.UserAddress)
+            .WithMany(u => u.UserAddresses)
             .HasForeignKey(ua => ua.User_Id)
             .OnDelete(DeleteBehavior.ClientSetNull);  // Configure delete behavior
 
         // Configuring the relationship between Address and UserAddress
         modelBuilder.Entity<UserAddress>()
             .HasOne(ua => ua.Address)
-            .WithMany(a => a.UserAddress)
+            .WithMany(a => a.UserAddresses)
             .HasForeignKey(ua => ua.Address_Id)
             .OnDelete(DeleteBehavior.ClientSetNull);  // Configure delete behavior
 

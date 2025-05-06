@@ -54,13 +54,13 @@
                         {
                             <!-- Profile Button -->
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="@Url.Page("/Profile")">
+                                <a class="nav-link text-dark" href="@Url.Page("account/Profile")">
                                     <i class="fas fa-user"></i> Profile <!-- Profile Icon and Text -->
                                 </a>
                             </li>
                             <!-- Logout Button -->
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="@Url.Page("/Logout")">
+                                <a class="nav-link text-dark" href="@Url.Page("/account/login/Logout")">
                                     <i class="fas fa-sign-out-alt"></i> Logout <!-- Logout Icon and Text -->
                                 </a>
                             </li>
@@ -69,12 +69,18 @@
                         {
                             <!-- Login Button -->
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="@Url.Page("/Login")">
+                                <a class="nav-link text-dark" href="@Url.Page("/account/login/login")">
                                     <i class="fas fa-sign-in-alt"></i> Login <!-- Login Icon and Text -->
                                 </a>
                             </li>
                         }
+                        
 
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="/user/createuser">
+                                <i class="fas fa-sign-in-alt"></i> Create User>
+                            </a>
+                        </li>
                     </ul>
 
                 </div>

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Parkeringsplads.Pages
+namespace Parkeringsplads.Pages.Account
 {
     public class LogoutModel : PageModel
     {

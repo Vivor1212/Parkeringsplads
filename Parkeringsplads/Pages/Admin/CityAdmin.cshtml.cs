@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Parkeringsplads.Pages
+namespace Parkeringsplads.Pages.Admin
 {
-    public class TestModel : PageModel
+    public class CityModel : PageModel
     {
         private readonly ICityService _cityService;
-        private readonly ILogger<TestModel> _logger;
+        private readonly ILogger<CityModel> _logger;
 
         [BindProperty]
         public string CityName { get; set; }
@@ -19,7 +19,7 @@ namespace Parkeringsplads.Pages
         [BindProperty]
         public string PostalCode { get; set; }
 
-        public TestModel(ICityService cityService, ILogger<TestModel> logger)
+        public CityModel(ICityService cityService, ILogger<CityModel> logger)
         {
             _cityService = cityService;
             _logger = logger;
