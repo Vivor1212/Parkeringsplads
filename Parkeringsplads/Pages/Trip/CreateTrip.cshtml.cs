@@ -47,23 +47,24 @@ namespace Parkeringsplads.Pages.Trip
         {
             var userEmail = "Syhlerp@yahoo.dk";
 
-            var driver = _context.Drivers
+            var driver = _context.Driver
                 .Include(d => d.Cars)
                 .Include(d => d.User)
                 .FirstOrDefault(d => d.User.Email == userEmail);
 
             Cars = driver.Cars.ToList();
 
-            var user = _context.Users
+            var user = _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
                         .ThenInclude(a => a.City)
-                .Include(u => u.Addresses)
+                .Include(u => u.UserAddress)
+                .ThenInclude(a => a.Address)
                     .ThenInclude(a => a.City)
                 .FirstOrDefault(u => u.Email == userEmail);
 
-            UserAddresses = user.Addresses
-                .Select(a => a.FullAddress)
+            UserAddresses = user.UserAddress
+                .Select(a => a.Address.FullAddress)
                 .ToList();
 
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
@@ -103,15 +104,16 @@ namespace Parkeringsplads.Pages.Trip
         {
             var userEmail = "Syhlerp@yahoo.dk";
 
-            var driver = _context.Drivers
+            var driver = _context.Driver
                 .Include(d => d.User)
                 .FirstOrDefault(d => d.User.Email == userEmail);
 
-            var user = _context.Users
+            var user = _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
                         .ThenInclude(a => a.City)
-                .Include(u => u.Addresses)
+                .Include(u => u.UserAddress)
+                    .ThenInclude(a => a.Address)
                     .ThenInclude(a => a.City)
                 .FirstOrDefault(u => u.Email == userEmail);
 
@@ -119,7 +121,7 @@ namespace Parkeringsplads.Pages.Trip
 
             string chosenAddress = UseCustomAddress
                 ? CustomAddress?.Trim()
-                : SelectedAddress ?? user.Addresses.FirstOrDefault()?.FullAddress;
+                : SelectedAddress ?? user.UserAddress.FirstOrDefault()?.Address.FullAddress;
 
             if (Direction == "FromSchool")
             {

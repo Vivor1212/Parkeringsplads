@@ -3,11 +3,11 @@ using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
 using System.Threading.Tasks;
 
-public class EFCreateUserService : ICreateUser
+public class EFUserService : IUser
 {
     private readonly ParkeringspladsContext _context;
 
-    public EFCreateUserService(ParkeringspladsContext context)
+    public EFUserService(ParkeringspladsContext context)
     {
         _context = context;
     }

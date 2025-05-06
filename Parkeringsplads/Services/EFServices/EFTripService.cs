@@ -12,7 +12,7 @@ namespace Parkeringsplads.Services.EFServices
         }
         public void CreateTrip(Trip trip)
         {
-            _context.Trips.Add(trip);
+            _context.Trip.Add(trip);
             _context.SaveChanges();
         }
     }

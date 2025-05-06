@@ -1,15 +1,15 @@
-﻿using Parkeringsplads.Interfaces;
-using Parkeringsplads.Models;
+﻿using Parkeringsplads.Models;
 using Microsoft.EntityFrameworkCore;
+using Parkeringsplads.Services.Interfaces;
 
-namespace Parkeringsplads.Services
+namespace Parkeringsplads.Services.EFServices
 {
-    public class CityService : ICityService
+    public class EFCityService : ICityService
     {
-        private readonly TestParkeringspladsContext _context;
+        private readonly ParkeringspladsContext _context;
 
         // Constructor injection for the DbContext
-        public CityService(TestParkeringspladsContext context)
+        public EFCityService(ParkeringspladsContext context)
         {
             _context = context;
         }
@@ -17,13 +17,13 @@ namespace Parkeringsplads.Services
         // Get all cities
         public async Task<List<City>> GetAllCitiesAsync()
         {
-            return await _context.Cities.ToListAsync();
+            return await _context.City.ToListAsync();
         }
 
         // Get a specific city by ID
         public async Task<City> GetCityByIdAsync(int cityId)
         {
-            return await _context.Cities.FirstOrDefaultAsync(c => c.CityId == cityId);
+            return await _context.City.FirstOrDefaultAsync(c => c.CityId == cityId);
         }
 
         // Add a new city
@@ -34,7 +34,7 @@ namespace Parkeringsplads.Services
                 Console.WriteLine($"Attempting to add city: {city.CityName}, {city.PostalCode}");
 
                 // Check for duplicates
-                var exactMatch = await _context.Cities
+                var exactMatch = await _context.City
                     .AnyAsync(c => c.CityName == city.CityName && c.PostalCode == city.PostalCode);
 
                 if (exactMatch)
@@ -43,7 +43,7 @@ namespace Parkeringsplads.Services
                 }
 
                 // Check for postal code conflict
-                var postalCodeConflict = await _context.Cities
+                var postalCodeConflict = await _context.City
                     .AnyAsync(c => c.PostalCode == city.PostalCode && c.CityName != city.CityName);
 
                 if (postalCodeConflict)
@@ -52,7 +52,7 @@ namespace Parkeringsplads.Services
                 }
 
                 // Add to the database
-                await _context.Cities.AddAsync(city);
+                await _context.City.AddAsync(city);
                 await _context.SaveChangesAsync();
 
                 Console.WriteLine("City added successfully!");
@@ -67,17 +67,17 @@ namespace Parkeringsplads.Services
         // Update an existing city
         public async Task UpdateCityAsync(City city)
         {
-            _context.Cities.Update(city);
+            _context.City.Update(city);
             await _context.SaveChangesAsync();
         }
 
         // Delete a city by ID
         public async Task DeleteCityAsync(int cityId)
         {
-            var city = await _context.Cities.FindAsync(cityId);
+            var city = await _context.City.FindAsync(cityId);
             if (city != null)
             {
-                _context.Cities.Remove(city);
+                _context.City.Remove(city);
                 await _context.SaveChangesAsync();
             }
         }

@@ -7,9 +7,9 @@ namespace Parkeringsplads.Pages
 {
     public class ProfileModel : PageModel
     {
-        private readonly TestParkeringspladsContext _context;
+        private readonly ParkeringspladsContext _context;
 
-        public ProfileModel(TestParkeringspladsContext context)
+        public ProfileModel(ParkeringspladsContext context)
         {
             _context = context;
         }
@@ -32,7 +32,7 @@ namespace Parkeringsplads.Pages
             }
 
             // Query the database to retrieve user information based on the email
-            var user = _context.Users
+            var user = _context.User
                                .Where(u => u.Email == userEmail)
                                .FirstOrDefault();
 

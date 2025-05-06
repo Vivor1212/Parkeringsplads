@@ -14,110 +14,52 @@ public partial class ParkeringspladsContext : DbContext
     {
     }
 
-    public virtual DbSet<Address> Addresses { get; set; }
+    public virtual DbSet<Address> Address { get; set; }
 
-    public virtual DbSet<Car> Cars { get; set; }
+    public virtual DbSet<Car> Car { get; set; }
 
-    public virtual DbSet<City> Cities { get; set; }
+    public virtual DbSet<City> City { get; set; }
 
-    public virtual DbSet<Driver> Drivers { get; set; }
+    public virtual DbSet<Driver> Driver { get; set; }
 
-    public virtual DbSet<Request> Requests { get; set; }
+    public virtual DbSet<Request> Request { get; set; }
 
-    public virtual DbSet<School> Schools { get; set; }
+    public virtual DbSet<School> School { get; set; }
 
-    public virtual DbSet<Trip> Trips { get; set; }
+    public virtual DbSet<Trip> Trip { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<User> User { get; set; }
+
+    public virtual DbSet<UserAddress> UserAddress { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Address>(entity =>
-        {
-            entity.HasKey(e => e.AddressId).HasName("PK__Address__03BDEBBA1FE8050E");
 
-            entity.HasOne(d => d.City).WithMany(p => p.Addresses)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Address__City_Id__60A75C0F");
-        });
+        // Defining the composite primary key for UserAddress
+        modelBuilder.Entity<UserAddress>()
+            .HasKey(ua => new { ua.User_Id, ua.Address_Id });
 
-        modelBuilder.Entity<Car>(entity =>
-        {
-            entity.HasKey(e => e.CarId).HasName("PK__Car__523653F9B1A0521C");
+        // Configuring the relationship between User and UserAddress
+        modelBuilder.Entity<UserAddress>()
+            .HasOne(ua => ua.User)
+            .WithMany(u => u.UserAddress)
+            .HasForeignKey(ua => ua.User_Id)
+            .OnDelete(DeleteBehavior.ClientSetNull);  // Configure delete behavior
 
-            entity.HasOne(d => d.Driver).WithMany(p => p.Cars).HasConstraintName("FK__Car__Driver_Id__6E01572D");
-
-        });
-
-        modelBuilder.Entity<City>(entity =>
-        {
-            entity.HasKey(e => e.CityId).HasName("PK__City__DE9DE0004515387E");
-
-        });
-
-        modelBuilder.Entity<Driver>(entity =>
-        {
-            entity.HasKey(e => e.DriverId).HasName("PK__Driver__F4664EB9F3890456");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Drivers).HasConstraintName("FK__Driver__User_Id__6A30C649");
-
-        });
-
-        modelBuilder.Entity<Request>(entity =>
-        {
-            entity.HasKey(e => e.RequestId).HasName("PK__Request__E9C5B37369811FB5");
-
-            entity.HasOne(d => d.Trip).WithMany(p => p.Requests).HasConstraintName("FK__Request__Trip_Id__778AC167");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Requests).HasConstraintName("FK__Request__User_Id__76969D2E");
-
-        });
-
-        modelBuilder.Entity<School>(entity =>
-        {
-            entity.HasKey(e => e.SchoolId).HasName("PK__School__DF2813629B4561E2");
-
-            entity.HasOne(d => d.Address).WithMany(p => p.Schools)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__School__Address___6383C8BA");
-
-        });
-
-        modelBuilder.Entity<Trip>(entity =>
-        {
-            entity.HasKey(e => e.TripId).HasName("PK__Trip__6852735EDC71DB31");
-
-            entity.HasOne(d => d.Driver).WithMany(p => p.Trips).HasConstraintName("FK__Trip__Driver_Id__71D1E811");
-
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PK__User__206D917017E3B905");
-
-            entity.Property(e => e.Title).IsFixedLength();
-
-            entity.HasOne(d => d.School).WithMany(p => p.Users).HasConstraintName("FK__User__School_Id__6754599E");
+        // Configuring the relationship between Address and UserAddress
+        modelBuilder.Entity<UserAddress>()
+            .HasOne(ua => ua.Address)
+            .WithMany(a => a.UserAddress)
+            .HasForeignKey(ua => ua.Address_Id)
+            .OnDelete(DeleteBehavior.ClientSetNull);  // Configure delete behavior
 
 
-            entity.HasMany(d => d.Addresses).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserAddress",
-                    r => r.HasOne<Address>().WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__UserAddre__Addre__7B5B524B"),
-                    l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("FK__UserAddre__User___7A672E12"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "AddressId").HasName("PK__UserAddr__90564FCBC64DB242");
-                        j.ToTable("UserAddress");
-                        j.IndexerProperty<int>("UserId").HasColumnName("User_Id");
-                        j.IndexerProperty<int>("AddressId").HasColumnName("Address_Id");
-                    });
-        });
+        modelBuilder.Entity<School>()
+    .HasOne(s => s.Address)   // A School has one Address
+    .WithMany(a => a.Schools)  // Address can have many Schools
+    .HasForeignKey(s => s.AddressId)
+    .OnDelete(DeleteBehavior.ClientSetNull); // Handle delete behavior
+
 
         OnModelCreatingPartial(modelBuilder);
     }

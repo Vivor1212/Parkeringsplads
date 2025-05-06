@@ -1,5 +1,5 @@
 ﻿using Parkeringsplads.Models;
-namespace Parkeringsplads.Interfaces
+namespace Parkeringsplads.Services.Interfaces
 {
     public interface ICityService
     {

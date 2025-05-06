@@ -7,9 +7,9 @@ namespace Parkeringsplads.Pages
 {
     public class ChangePasswordModel : PageModel
     {
-        private readonly TestParkeringspladsContext _context;
+        private readonly ParkeringspladsContext _context;
 
-        public ChangePasswordModel(TestParkeringspladsContext context)
+        public ChangePasswordModel(ParkeringspladsContext context)
         {
             _context = context;
         }
@@ -49,7 +49,7 @@ namespace Parkeringsplads.Pages
             }
 
             // Retrieve user from the database based on email
-            var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
+            var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
 
             if (user == null)
             {

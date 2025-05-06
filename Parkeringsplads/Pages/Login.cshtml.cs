@@ -7,10 +7,10 @@ namespace Parkeringsplads.Pages
 {
     public class LoginModel : PageModel
     {
-        private readonly TestParkeringspladsContext _context;
+        private readonly ParkeringspladsContext _context;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(TestParkeringspladsContext context, ILogger<LoginModel> logger)
+        public LoginModel(ParkeringspladsContext context, ILogger<LoginModel> logger)
         {
             _context = context;
             _logger = logger;
@@ -31,7 +31,7 @@ namespace Parkeringsplads.Pages
         public IActionResult OnPost()
         {
             // Find user by email
-            var user = _context.Users.FirstOrDefault(u => u.Email == Email);
+            var user = _context.User.FirstOrDefault(u => u.Email == Email);
 
             if (user != null && VerifyPassword(Password, user.Password))
             {

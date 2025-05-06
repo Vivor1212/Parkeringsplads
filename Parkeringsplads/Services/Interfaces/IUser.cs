@@ -1,6 +1,8 @@
-﻿namespace Parkeringsplads.Services.Interfaces
+﻿using Parkeringsplads.Models;
+
+namespace Parkeringsplads.Services.Interfaces
 {
-    public interface ICreateUser
+    public interface IUser
     {
         Task<bool> CreateUserAsync(User user, string addressRoad, string addressNumber, int cityId);
 
