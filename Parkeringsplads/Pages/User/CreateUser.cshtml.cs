@@ -1,18 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Parkeringsplads.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-public class CreateUserModel : PageModel
+namespace Parkeringsplads.Pages.User
 {
-    private readonly ParkeringspladsContext _context;
-
-    public CreateUserModel(ParkeringspladsContext context)
+    public class CreateUserModel : PageModel
     {
+
         _context = context;
     }
 
@@ -112,10 +105,11 @@ public class CreateUserModel : PageModel
 
             return RedirectToPage("/Index");
 
+
+        public void OnGet()
+        {
+
         }
-
-        return RedirectToPage("/Index");
-
     }
 
     private async Task LoadDropdownsAsync() // This is a method to display the number of schools in the dropdown, made a method for cleaner code

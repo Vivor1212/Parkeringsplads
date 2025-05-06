@@ -2,34 +2,18 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Parkeringsplads.Models;
 
-[Table("School")]
 public partial class School
 {
-    [Key]
-    [Column("School_Id")]
     public int SchoolId { get; set; }
 
-    [Required]
-    [Column("School_Name")]
-    [StringLength(50)]
-    [Unicode(false)]
     public string SchoolName { get; set; }
 
-    [Column("Address_Id")]
     public int AddressId { get; set; }
 
-    // Foreign key for Address
-    [ForeignKey("AddressId")]
-    [InverseProperty("Schools")]  // Inverse navigation to Address
     public virtual Address Address { get; set; }
 
-    // Navigation property for users related to this school
-    [InverseProperty("School")]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }
