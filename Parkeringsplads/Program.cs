@@ -5,6 +5,17 @@ using Parkeringsplads.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ✅ Register DbContext
+builder.Services.AddDbContext<TestParkeringspladsContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Simply")));
+
+// Register the CityService (ICityService) with dependency injection
+builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<ITripService, EFTripService>();
+
+// Add logging services (this is where you add logging)
+builder.Services.AddLogging();  // Adds default logging services
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<ITripService, EFTripService>();
@@ -27,6 +38,9 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+// Add session middleware support
+app.UseSession();
 
 app.MapRazorPages();
 
