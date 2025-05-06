@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Register DbContext
 builder.Services.AddDbContext<TestParkeringspladsContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CityTestConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Simply")));
 
 // Register the CityService (ICityService) with dependency injection
 builder.Services.AddScoped<ICityService, CityService>();
