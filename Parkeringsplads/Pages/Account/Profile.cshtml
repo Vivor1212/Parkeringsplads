@@ -1,5 +1,11 @@
 ﻿@page
 @model Parkeringsplads.Pages.Account.ProfileModel
+@inject Parkeringsplads.Models.ParkeringspladsContext Context
+
+@{
+    var user = Context.User.FirstOrDefault(u => u.Email == Model.UserEmail);
+    var isDriver = user != null && Context.Driver.Any(d => d.UserId == user.UserId);
+}
 
 <h1>My Profile</h1>
 
@@ -12,6 +18,22 @@
         <p><strong>Phone:</strong> @Model.Phone</p>
         <p><strong>Title:</strong> @Model.Title</p>
     </div>
+
+    @if (!isDriver)
+    {
+        <a asp-page="/Account/BecomeDriver" class="btn btn-primary">Become a Driver</a>
+    }
+    else
+    {
+        @if (Model.Driver != null)
+        {
+            <p class="text-success">You are registered as a driver.</p>
+            <div>
+                <p><strong>Driver License:</strong> @Model.Driver.DriverLicense</p>
+                <p><strong>CPR Number:</strong> @Model.Driver.DriverCpr</p>
+            </div>
+        }
+    }
 
     <!-- Link to Change Password page -->
     <div>

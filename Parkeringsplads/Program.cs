@@ -11,12 +11,14 @@ builder.Services.AddDbContext<ParkeringspladsContext>(options =>
 builder.Services.AddScoped<ICityService, EFCityService>();
 builder.Services.AddScoped<IUser, EFUserService>();
 builder.Services.AddScoped<ITripService, EFTripService>();
+builder.Services.AddScoped<IDriverService, EFDriverService>();
 
 // Add logging services (this is where you add logging)
 builder.Services.AddLogging();  // Adds default logging services
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);  // Session lasts 30 minutes of inactivity

@@ -14,6 +14,7 @@ namespace Parkeringsplads.Pages.Account
             _context = context;
         }
 
+        public Driver? Driver { get; set; }
         public string UserEmail { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -48,6 +49,9 @@ namespace Parkeringsplads.Pages.Account
             LastName = user.LastName;
             Phone = user.Phone;
             Title = user.Title;
+
+            // Load the Driver object if it exists
+            Driver = _context.Driver.FirstOrDefault(d => d.UserId == user.UserId);
 
             return Page(); // Return the Profile page with the user's information
         }
