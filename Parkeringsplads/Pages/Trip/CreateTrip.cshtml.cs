@@ -43,28 +43,36 @@ namespace Parkeringsplads.Pages.Trip
         public List<int> SeatOptions { get; set; } = new();
         public string SchoolAddress { get; set; }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
-            var userEmail = "Syhlerp@yahoo.dk";
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+                return RedirectToPage("/Account/Login");
 
-            var driver = _context.Driver
+            var driver = await _context.Driver
                 .Include(d => d.Cars)
                 .Include(d => d.User)
-                .FirstOrDefault(d => d.User.Email == userEmail);
+                .FirstOrDefaultAsync(d => d.User.Email == userEmail);
+
+            if (driver == null)
+                return Unauthorized();
 
             Cars = driver.Cars.ToList();
 
-            var user = _context.User
+            var user = await _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
                         .ThenInclude(a => a.City)
                 .Include(u => u.UserAddresses)
-                .ThenInclude(a => a.Address)
-                    .ThenInclude(a => a.City)
-                .FirstOrDefault(u => u.Email == userEmail);
+                    .ThenInclude(ua => ua.Address)
+                        .ThenInclude(a => a.City)
+                .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+            if (user == null)
+                return Unauthorized();
 
             UserAddresses = user.UserAddresses
-                .Select(a => a.Address.FullAddress)
+                .Select(ua => ua.Address.FullAddress)
                 .ToList();
 
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
@@ -81,7 +89,6 @@ namespace Parkeringsplads.Pages.Trip
                 TripSeats = carCapacity
             };
 
-            // Brug adressevalg
             string finalAddress = UseCustomAddress
                 ? CustomAddress?.Trim()
                 : SelectedAddress ?? UserAddresses.FirstOrDefault();
@@ -100,22 +107,30 @@ namespace Parkeringsplads.Pages.Trip
             return Page();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
-            var userEmail = "Syhlerp@yahoo.dk";
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+                return RedirectToPage("/Account/Login");
 
-            var driver = _context.Driver
+            var driver = await _context.Driver
                 .Include(d => d.User)
-                .FirstOrDefault(d => d.User.Email == userEmail);
+                .FirstOrDefaultAsync(d => d.User.Email == userEmail);
 
-            var user = _context.User
+            if (driver == null)
+                return Unauthorized();
+
+            var user = await _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
                         .ThenInclude(a => a.City)
                 .Include(u => u.UserAddresses)
-                    .ThenInclude(a => a.Address)
-                    .ThenInclude(a => a.City)
-                .FirstOrDefault(u => u.Email == userEmail);
+                    .ThenInclude(ua => ua.Address)
+                        .ThenInclude(a => a.City)
+                .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+            if (user == null)
+                return Unauthorized();
 
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
 
@@ -136,7 +151,7 @@ namespace Parkeringsplads.Pages.Trip
 
             Trip.DriverId = driver.DriverId;
 
-            _tripService.CreateTrip(Trip);
+            await _tripService.CreateTripAsync(Trip);
 
             return RedirectToPage("/Index");
         }
