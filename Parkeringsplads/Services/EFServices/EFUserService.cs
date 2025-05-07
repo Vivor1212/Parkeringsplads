@@ -67,4 +67,46 @@ public class EFUserService : IUser
 
         return true;
     }
+    public async Task<bool> UpdateUserAsync(User updatedUser)
+    {
+        var existingUser = await _context.User.FindAsync(updatedUser.UserId);
+
+        if (existingUser == null)
+        {
+            return false; // User not found
+        }
+
+        // Check if the new email is already in use by another user
+        var existingEmailUser = await _context.User
+            .FirstOrDefaultAsync(u => u.Email == updatedUser.Email && u.UserId != updatedUser.UserId);
+
+        if (existingEmailUser != null)
+        {
+            return false;  // Email is already in use by someone else
+        }
+
+        if (!string.IsNullOrWhiteSpace(updatedUser.FirstName))
+            existingUser.FirstName = updatedUser.FirstName;
+
+        if (!string.IsNullOrWhiteSpace(updatedUser.LastName))
+            existingUser.LastName = updatedUser.LastName;
+
+        if (!string.IsNullOrWhiteSpace(updatedUser.Email))
+            existingUser.Email = updatedUser.Email;
+
+        if (!string.IsNullOrWhiteSpace(updatedUser.Phone))
+            existingUser.Phone = updatedUser.Phone;
+
+        if (!string.IsNullOrWhiteSpace(updatedUser.Title))
+            existingUser.Title = updatedUser.Title;
+
+
+        if (updatedUser.SchoolId.HasValue)
+            existingUser.SchoolId = updatedUser.SchoolId.Value;
+        // Save changes to the database
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
 }
