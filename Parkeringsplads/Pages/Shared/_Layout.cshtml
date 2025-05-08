@@ -42,12 +42,18 @@
                             </li> *@
                         }
 
-                        <!-- These items will be shown only if the user is logged in -->
+                        <!-- Nav bar for brugere som er logget ind og er passager -->
                         @if (isUserLoggedIn)
                         {
+                            
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Test">Test</a>
+                                <a class="nav-link" asp-page="...">Eksempel</a>
                             </li>
+                        }
+                        <!-- Nav bar for brugere som er logget ind og er driver -->
+                        @if (isUserLoggedIn)
+                        {
+
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/TripPages/CreateTrip">Opret tur</a>
                             </li>
@@ -67,27 +73,37 @@
                     </ul>   
 
                     <!-- Conditional Login/Logout buttons -->
-                    <ul class="navbar-nav ml-auto">
+                    <ul class="navbar-nav ml-auto d-flex flex-row-reverse bd-highligh">
                         @if (isUserLoggedIn)
                         {
-                            <!-- Profile Button -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" href="@Url.Page("account/Profile")">
-                                    <i class="fas fa-user"></i> Profile <!-- Profile Icon and Text -->
-                                </a>
-                            </li>
+                           
                             <!-- Logout Button -->
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="@Url.Page("/account/login/Logout")">
-                                    <i class="fas fa-sign-out-alt"></i> Logout <!-- Logout Icon and Text -->
+                                    <i class="fas fa-sign-out-alt"></i>
+                                      
+                                 
+                                    Logout <!-- Logout Icon and Text -->
                                 </a>
                             </li>
+                            <!-- Profile Button -->
+                           
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="@Url.Page("/account/Profile")">
+                                    <i class="fas fa-user"></i> @userEmail
+                                </a>
+                            </li>
+
                         }
                         else
                         {
                             <!-- Login Button -->
                             <li class="nav-item">
                                 <a class="nav-link text-dark" href="@Url.Page("/account/login/login")">
+                                    @if (!string.IsNullOrEmpty(userEmail))
+                                    {
+                                        <div>@userEmail</div> <!-- or a placeholder name -->
+                                    }
                                     <i class="fas fa-sign-in-alt"></i> Login <!-- Login Icon and Text -->
                                 </a>
                             </li>

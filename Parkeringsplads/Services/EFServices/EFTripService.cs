@@ -1,19 +1,22 @@
 ﻿using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace Parkeringsplads.Services.EFServices
 {
     public class EFTripService : ITripService
     {
         private readonly ParkeringspladsContext _context;
+
         public EFTripService(ParkeringspladsContext context)
         {
             _context = context;
         }
-        public void CreateTrip(Trip trip)
+
+        public async Task CreateTripAsync(Trip trip)
         {
             _context.Trip.Add(trip);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

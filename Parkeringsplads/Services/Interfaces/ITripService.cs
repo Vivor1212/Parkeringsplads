@@ -1,9 +1,10 @@
 ﻿using Parkeringsplads.Models;
+using System.Threading.Tasks;
 
 namespace Parkeringsplads.Services.Interfaces
 {
     public interface ITripService
     {
-        void CreateTrip(Trip trip);
+        Task CreateTripAsync(Trip trip);
     }
 }

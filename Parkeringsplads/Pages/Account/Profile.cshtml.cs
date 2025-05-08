@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using System.Linq;
 
@@ -22,6 +23,10 @@ namespace Parkeringsplads.Pages.Account
         public string Title { get; set; }
         public bool IsDriver { get; set; }
 
+        public School School { get; set; }
+
+        public string SchoolName { get; set; }
+
         public IActionResult OnGet()
         {
             // Retrieve user email from session
@@ -38,6 +43,10 @@ namespace Parkeringsplads.Pages.Account
                                .Where(u => u.Email == userEmail)
                                .FirstOrDefault();
 
+            var userSchool = _context.User
+                   .Include(u => u.School) // Include the School navigation property
+                   .FirstOrDefault(u => u.Email == userEmail);
+
             if (user == null)
             {
                 // If no user found in the database, redirect to login page
@@ -50,6 +59,11 @@ namespace Parkeringsplads.Pages.Account
             LastName = user.LastName;
             Phone = user.Phone;
             Title = user.Title;
+            School = user.School; // Assign the School entity
+
+            SchoolName = user.School?.SchoolName; // Use the null conditional operator to avoid null reference errors
+
+
 
             //Check if user is a driver
             // Load the Driver object if it exists
