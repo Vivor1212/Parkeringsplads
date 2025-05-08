@@ -1,12 +1,9 @@
-﻿@inject Parkeringsplads.Models.ParkeringspladsContext Context1
-@inject IHttpContextAccessor ContextAccessor
-@{
+﻿@{
     var isUserLoggedIn = Context?.Session?.GetString("UserEmail") != null;
     var userEmail = isUserLoggedIn ? Context.Session.GetString("UserEmail") : string.Empty;
 
-    var userEmailForDriver = ContextAccessor.HttpContext.Session.GetString("UserEmail");
-    var user = userEmail != null ? Context1.User.FirstOrDefault(u => u.Email == userEmail) : null;
-    var isDriver = user != null && Context1.Driver.Any(d => d.UserId == user.UserId);
+    var isDriver = Context?.Session?.GetString("IsDriver") != null;
+
 }
 
 

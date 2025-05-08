@@ -70,6 +70,10 @@ namespace Parkeringsplads.Pages.Account
             try
             {
                 await _driverService.CreateDriverAsync(driver);
+
+                // Set the session string "IsDriver" with the DriverId
+                HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
+
                 TempData["SuccessMessage"] = "Successfully registered as a driver!";
                 return RedirectToPage("/Account/Profile");
             }
