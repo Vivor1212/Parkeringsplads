@@ -1,15 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Parkeringsplads.Models;
-
-using FakeUser = Parkeringsplads.Models.User;
-
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Parkeringsplads.Pages.Account
+namespace Parkeringsplads.Pages.UserPages
 {
     public class UpdateUserModel : PageModel
     {
@@ -29,7 +26,7 @@ namespace Parkeringsplads.Pages.Account
 
 
         [BindProperty]
-        public FakeUser User { get; set; }
+        public User User { get; set; }
         public string UserEmail { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

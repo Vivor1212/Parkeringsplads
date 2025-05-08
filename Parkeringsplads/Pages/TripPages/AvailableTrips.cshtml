@@ -1,0 +1,37 @@
+﻿@page
+@model Parkeringsplads.Pages.TripPages.AvailableTripsModel
+@{
+    ViewData["Title"] = "Ledige Ture";
+}
+
+<h2>Ledige Ture</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Dato</th>
+            <th>Tidspunkt</th>
+            <th>Fra</th>
+            <th>Til</th>
+            <th>Chauffør</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var trip in Model.Trips)
+        {
+            <tr>
+                <td>@trip.TripDate</td>
+                <td>@trip.TripTime</td>
+                <td>@trip.FromDestination</td>
+                <td>@trip.ToDestination</td>
+                <td>@trip.Driver.User.FirstName @trip.Driver.User.LastName</td>
+                <td>
+                    <form method="post" asp-page-handler="Request" asp-route-tripId="@trip.TripId">
+                        <button class="btn btn-sm btn-outline-primary">Anmod</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
