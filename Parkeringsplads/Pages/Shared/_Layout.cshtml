@@ -49,9 +49,15 @@
                                 <a class="nav-link text-dark" asp-area="" asp-page="/Test">Test</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-page="/Trip/CreateTrip">Opret tur</a>
+                                <a class="nav-link" asp-page="/TripPages/CreateTrip">Opret tur</a>
                             </li>
-                            @if (!isDriver)
+                            @if (isDriver)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/TripPages/DriversTrips">My Trips</a>
+                                </li>
+                            }
+                            else
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-page="/Account/BecomeDriver">Become a Driver</a>

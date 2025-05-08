@@ -1,0 +1,70 @@
+﻿@page
+@model Parkeringsplads.Pages.TripPages.DriversTripsModel
+@{
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<h2 class="mt-4">Your Trips</h2>
+
+@if (Model.Trips.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>From Destination</th>
+                <th>To Destination</th>
+                <th>Departure Time</th>
+                <th>Available Seats</th>
+                <th>Requests</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trip in Model.Trips)
+            {
+                <tr>
+                    <td>@trip.FromDestination</td>
+                    <td>@trip.ToDestination</td>
+                    <td>@trip.TripTime</td>
+                    <td>@trip.TripSeats</td>
+                    <td>
+                        @if (trip.Requests.Any())
+                        {
+                            <ul>
+                                @foreach (var request in trip.Requests)
+                                {
+                                    <li>
+                                        Request ID: @request.RequestId, Status: @request.RequestStatus
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span>No requests</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No trips created yet.</p>
+}
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
 
-namespace Parkeringsplads.Pages.Trip
+namespace Parkeringsplads.Pages.TripPages
 {
     public class CreateTripModel : PageModel
     {

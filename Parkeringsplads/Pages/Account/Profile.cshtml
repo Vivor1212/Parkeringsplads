@@ -1,11 +1,5 @@
 ﻿@page
 @model Parkeringsplads.Pages.Account.ProfileModel
-@inject Parkeringsplads.Models.ParkeringspladsContext Context
-
-@{
-    var user = Context.User.FirstOrDefault(u => u.Email == Model.UserEmail);
-    var isDriver = user != null && Context.Driver.Any(d => d.UserId == user.UserId);
-}
 
 <h1>My Profile</h1>
 
@@ -19,7 +13,7 @@
         <p><strong>Title:</strong> @Model.Title</p>
     </div>
 
-    @if (!isDriver)
+    @if (!Model.IsDriver)
     {
         <a asp-page="/Account/BecomeDriver" class="btn btn-primary">Become a Driver</a>
     }

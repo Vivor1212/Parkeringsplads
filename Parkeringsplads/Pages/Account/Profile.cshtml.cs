@@ -20,6 +20,7 @@ namespace Parkeringsplads.Pages.Account
         public string LastName { get; set; }
         public string Phone { get; set; }
         public string Title { get; set; }
+        public bool IsDriver { get; set; }
 
         public IActionResult OnGet()
         {
@@ -50,8 +51,11 @@ namespace Parkeringsplads.Pages.Account
             Phone = user.Phone;
             Title = user.Title;
 
+            //Check if user is a driver
             // Load the Driver object if it exists
-            Driver = _context.Driver.FirstOrDefault(d => d.UserId == user.UserId);
+            var driver = _context.Driver.FirstOrDefault(d => d.UserId == user.UserId);
+            IsDriver = driver != null;
+            Driver = driver;
 
             return Page(); // Return the Profile page with the user's information
         }
