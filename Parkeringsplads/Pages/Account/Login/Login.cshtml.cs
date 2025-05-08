@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using System.Text;
 
@@ -27,11 +28,11 @@ namespace Parkeringsplads.Pages.Account
         // Handle GET requests (Display the login form)
         public void OnGet() { }
 
-        // Handle POST requests (Submit the form)
-        public IActionResult OnPost()
+
+        public async Task<IActionResult> OnPostAsync()
         {
             // Find user by email
-            var user = _context.User.FirstOrDefault(u => u.Email == Email);
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == Email);
 
             if (user != null && VerifyPassword(Password, user.Password))
             {

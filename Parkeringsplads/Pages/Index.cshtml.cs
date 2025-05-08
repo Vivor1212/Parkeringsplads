@@ -12,9 +12,10 @@ namespace Parkeringsplads.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
-
+            // Ændre startside til login
+            return RedirectToPage("/account/login/login");
         }
     }
 }
