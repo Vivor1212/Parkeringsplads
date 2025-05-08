@@ -104,7 +104,7 @@ namespace Parkeringsplads.Pages.TripPages
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
-                return RedirectToPage("/Account/Login");
+                return RedirectToPage("/Account/Login/Login");
 
             var driver = await _context.Driver
                 .Include(d => d.User)
@@ -140,7 +140,7 @@ namespace Parkeringsplads.Pages.TripPages
             Trip.DriverId = driver.DriverId;
             await _tripService.CreateTripAsync(Trip);
 
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Account/Profile");
         }
     }
 }

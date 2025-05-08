@@ -35,7 +35,7 @@ namespace Parkeringsplads.Pages.Account
             if (string.IsNullOrEmpty(userEmail))
             {
                 // If no user is logged in, redirect to login page
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login/Login");
             }
 
             // Query the database to retrieve user information based on the email
@@ -50,7 +50,7 @@ namespace Parkeringsplads.Pages.Account
             if (user == null)
             {
                 // If no user found in the database, redirect to login page
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login/Login");
             }
 
             // Assign the retrieved user data to the properties

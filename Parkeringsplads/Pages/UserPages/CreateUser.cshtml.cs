@@ -8,12 +8,14 @@ public class CreateUserModel : PageModel
 {
     private readonly IUser _createUserService;
     private readonly ISchoolService _schoolService;
+    private readonly ICityService _cityService;
     private readonly ParkeringspladsContext _context;
 
-    public CreateUserModel(IUser createUserService, ISchoolService schoolService, ParkeringspladsContext context)
+    public CreateUserModel(IUser createUserService, ISchoolService schoolService,ICityService cityService ,ParkeringspladsContext context)
     {
         _createUserService = createUserService;
         _schoolService = schoolService;
+        _cityService = cityService;
         _context = context;
     }
 
@@ -38,6 +40,7 @@ public class CreateUserModel : PageModel
         // Fetch the dropdown data
         Schools = await _schoolService.SchoolDropDownAsync();
         // You can similarly fetch City dropdown here if required (using _schoolService or another service).
+        City = await _cityService.CityDropDownAsync();
     }
 
     public async Task OnGetAsync()

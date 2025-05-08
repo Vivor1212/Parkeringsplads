@@ -1,6 +1,7 @@
 ﻿using Parkeringsplads.Models;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Parkeringsplads.Services.EFServices
 {
@@ -12,6 +13,20 @@ namespace Parkeringsplads.Services.EFServices
         public EFCityService(ParkeringspladsContext context)
         {
             _context = context;
+        }
+
+
+        public async Task<List<SelectListItem>> CityDropDownAsync()
+        {
+            // Return a list of schools as SelectListItem
+            return await _context.City
+                .Select(s => new SelectListItem
+                {
+                    Value = s.CityId.ToString(),
+                    Text = s.CityName
+                }).ToListAsync();
+
+
         }
 
         // Get all cities

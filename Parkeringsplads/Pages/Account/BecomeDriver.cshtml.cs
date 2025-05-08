@@ -25,7 +25,7 @@ namespace Parkeringsplads.Pages.Account
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
             {
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login/Login");
             }
 
             // Check if user is already a driver
@@ -44,13 +44,13 @@ namespace Parkeringsplads.Pages.Account
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
             {
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login/Login");
             }
 
             var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
             if (user == null)
             {
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login/Login");
             }
 
             // Check if user is already a driver

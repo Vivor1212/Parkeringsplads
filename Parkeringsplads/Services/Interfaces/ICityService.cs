@@ -1,4 +1,5 @@
-﻿using Parkeringsplads.Models;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Parkeringsplads.Models;
 namespace Parkeringsplads.Services.Interfaces
 {
     public interface ICityService
@@ -8,5 +9,6 @@ namespace Parkeringsplads.Services.Interfaces
         Task AddCityAsync(City city);                  // Add a new city
         Task UpdateCityAsync(City city);               // Update an existing city
         Task DeleteCityAsync(int cityId);              // Delete a city by ID
+        Task<List<SelectListItem>> CityDropDownAsync(); // Get a list of cities for dropdown
     }
 }

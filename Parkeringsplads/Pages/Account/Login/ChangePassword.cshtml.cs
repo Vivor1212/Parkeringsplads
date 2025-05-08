@@ -33,7 +33,7 @@ namespace Parkeringsplads.Pages.Account
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
             {
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login");
             }
 
             return Page();
@@ -45,7 +45,7 @@ namespace Parkeringsplads.Pages.Account
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
             {
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login/Login");
             }
 
             // Retrieve user from the database based on email
@@ -53,7 +53,7 @@ namespace Parkeringsplads.Pages.Account
 
             if (user == null)
             {
-                return RedirectToPage("/Login");
+                return RedirectToPage("./Login/Login");
             }
 
             // Verify the current password
@@ -80,7 +80,7 @@ namespace Parkeringsplads.Pages.Account
             SuccessMessage = "Password changed successfully.";
 
             // Redirect to the profile page (or wherever you'd like)
-            return RedirectToPage("/Profile");
+            return RedirectToPage("/Account/Profile");
         }
     }
 }
