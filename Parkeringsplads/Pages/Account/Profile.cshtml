@@ -14,6 +14,22 @@
         <p><strong>Skole:</strong> @Model.SchoolName</p>
     </div>
 
+    @if (!Model.IsDriver)
+    {
+        <a asp-page="/Account/BecomeDriver" class="btn btn-primary">Become a Driver</a>
+    }
+    else
+    {
+        @if (Model.Driver != null)
+        {
+            <p class="text-success">You are registered as a driver.</p>
+            <div>
+                <p><strong>Driver License:</strong> @Model.Driver.DriverLicense</p>
+                <p><strong>CPR Number:</strong> @Model.Driver.DriverCpr</p>
+            </div>
+        }
+    }
+
     <!-- Link to Change Password page -->
     <div>
         <a href="/ChangePassword">Change Password</a>

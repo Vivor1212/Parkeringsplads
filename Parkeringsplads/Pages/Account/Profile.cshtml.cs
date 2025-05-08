@@ -15,11 +15,13 @@ namespace Parkeringsplads.Pages.Account
             _context = context;
         }
 
+        public Driver? Driver { get; set; }
         public string UserEmail { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Phone { get; set; }
         public string Title { get; set; }
+        public bool IsDriver { get; set; }
 
         public School School { get; set; }
 
@@ -62,6 +64,12 @@ namespace Parkeringsplads.Pages.Account
             SchoolName = user.School?.SchoolName; // Use the null conditional operator to avoid null reference errors
 
 
+
+            //Check if user is a driver
+            // Load the Driver object if it exists
+            var driver = _context.Driver.FirstOrDefault(d => d.UserId == user.UserId);
+            IsDriver = driver != null;
+            Driver = driver;
 
             return Page(); // Return the Profile page with the user's information
         }

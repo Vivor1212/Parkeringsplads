@@ -42,7 +42,6 @@ namespace Parkeringsplads.Pages.TripPages
         public List<string> UserAddresses { get; set; } = new();
         public List<int> SeatOptions { get; set; } = new();
         public string SchoolAddress { get; set; }
-
         public async Task<IActionResult> OnGetAsync()
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
@@ -54,9 +53,6 @@ namespace Parkeringsplads.Pages.TripPages
                 .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.User.Email == userEmail);
 
-            if (driver == null)
-                return Unauthorized();
-
             Cars = driver.Cars.ToList();
 
             var user = await _context.User
@@ -67,9 +63,6 @@ namespace Parkeringsplads.Pages.TripPages
                     .ThenInclude(ua => ua.Address)
                         .ThenInclude(a => a.City)
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
-
-            if (user == null)
-                return Unauthorized();
 
             UserAddresses = user.UserAddresses
                 .Select(ua => ua.Address.FullAddress)
@@ -117,9 +110,6 @@ namespace Parkeringsplads.Pages.TripPages
                 .Include(d => d.User)
                 .FirstOrDefaultAsync(d => d.User.Email == userEmail);
 
-            if (driver == null)
-                return Unauthorized();
-
             var user = await _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
@@ -129,8 +119,6 @@ namespace Parkeringsplads.Pages.TripPages
                         .ThenInclude(a => a.City)
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
 
-            if (user == null)
-                return Unauthorized();
 
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
 
@@ -150,7 +138,6 @@ namespace Parkeringsplads.Pages.TripPages
             }
 
             Trip.DriverId = driver.DriverId;
-
             await _tripService.CreateTripAsync(Trip);
 
             return RedirectToPage("/Index");

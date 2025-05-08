@@ -1,6 +1,12 @@
-﻿@{
+﻿@inject Parkeringsplads.Models.ParkeringspladsContext Context1
+@inject IHttpContextAccessor ContextAccessor
+@{
     var isUserLoggedIn = Context?.Session?.GetString("UserEmail") != null;
     var userEmail = isUserLoggedIn ? Context.Session.GetString("UserEmail") : string.Empty;
+
+    var userEmailForDriver = ContextAccessor.HttpContext.Session.GetString("UserEmail");
+    var user = userEmail != null ? Context1.User.FirstOrDefault(u => u.Email == userEmail) : null;
+    var isDriver = user != null && Context1.Driver.Any(d => d.UserId == user.UserId);
 }
 
 
@@ -49,8 +55,20 @@
                         {
 
                             <li class="nav-item">
-                                <a class="nav-link" asp-page="/Trip/CreateTrip">Opret tur</a>
+                                <a class="nav-link" asp-page="/TripPages/CreateTrip">Opret tur</a>
                             </li>
+                            @if (isDriver)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/TripPages/DriversTrips">My Trips</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/Account/BecomeDriver">Become a Driver</a>
+                                </li>
+                            }
                         }
                     </ul>   
 
