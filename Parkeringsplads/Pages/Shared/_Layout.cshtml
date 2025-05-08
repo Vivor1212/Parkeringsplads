@@ -36,12 +36,18 @@
                             </li> *@
                         }
 
-                        <!-- These items will be shown only if the user is logged in -->
+                        <!-- Nav bar for brugere som er logget ind og er passager -->
                         @if (isUserLoggedIn)
                         {
+                            
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Test">Test</a>
+                                <a class="nav-link" asp-page="...">Eksempel</a>
                             </li>
+                        }
+                        <!-- Nav bar for brugere som er logget ind og er driver -->
+                        @if (isUserLoggedIn)
+                        {
+
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/Trip/CreateTrip">Opret tur</a>
                             </li>
