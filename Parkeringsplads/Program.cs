@@ -11,6 +11,7 @@ builder.Services.AddDbContext<ParkeringspladsContext>(options =>
 builder.Services.AddScoped<ICityService, EFCityService>();
 builder.Services.AddScoped<IUser, EFUserService>();
 builder.Services.AddScoped<ITripService, EFTripService>();
+builder.Services.AddScoped<ISchoolService , EFSchoolService>();
 
 // Add logging services (this is where you add logging)
 builder.Services.AddLogging();  // Adds default logging services

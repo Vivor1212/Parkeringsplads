@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parkeringsplads", "Parkeringsplads.csproj", "{A4A37F97-3064-420F-998C-880F8D62AA94}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parkeringsplads", "Parkeringsplads.csproj", "{A4A37F97-3064-420F-998C-880F8D62AA94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller", "..\Controller\Controller.csproj", "{AE4B5FA9-9E0A-4570-A620-7F6C01F76EB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Controller", "..\Controller\Controller.csproj", "{AE4B5FA9-9E0A-4570-A620-7F6C01F76EB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A15A95F3-2DAA-4696-B0CD-B09DCEC60B26}
 	EndGlobalSection
 EndGlobal

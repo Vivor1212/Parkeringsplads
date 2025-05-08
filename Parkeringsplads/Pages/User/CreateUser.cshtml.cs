@@ -1,20 +1,19 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Parkeringsplads.Models;
-using Parkeringsplads.Services.EFServices;
 using Parkeringsplads.Services.Interfaces;
-using BCrypt.Net;
 
 public class CreateUserModel : PageModel
 {
     private readonly IUser _createUserService;
+    private readonly ISchoolService _schoolService;
     private readonly ParkeringspladsContext _context;
 
-    public CreateUserModel(IUser createUserService, ParkeringspladsContext context)
+    public CreateUserModel(IUser createUserService, ISchoolService schoolService, ParkeringspladsContext context)
     {
         _createUserService = createUserService;
+        _schoolService = schoolService;
         _context = context;
     }
 
@@ -33,9 +32,18 @@ public class CreateUserModel : PageModel
     public List<SelectListItem> Schools { get; set; }
     public List<SelectListItem> City { get; set; }
 
+    // This method loads schools and cities
+    private async Task LoadDropdownDataAsync()
+    {
+        // Fetch the dropdown data
+        Schools = await _schoolService.SchoolDropDownAsync();
+        // You can similarly fetch City dropdown here if required (using _schoolService or another service).
+    }
+
     public async Task OnGetAsync()
     {
-        await LoadDropdownsAsync();
+        // Load dropdown data
+        await LoadDropdownDataAsync();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -50,35 +58,14 @@ public class CreateUserModel : PageModel
 
             if (createUser)
             {
-                return RedirectToPage("/Account/login/login");
+                return RedirectToPage("/Account/Login/Login");
             }
-            else
-            {
-                ModelState.AddModelError("User.Email", "Email is already in use.");
-                await LoadDropdownsAsync();
-                return Page();
-            }
+
+            ModelState.AddModelError("User.Email", "Email is already in use.");
         }
 
-        await LoadDropdownsAsync();
+        // Repopulate dropdowns if something fails
+        await LoadDropdownDataAsync();
         return Page();
-    }
-
-    private async Task LoadDropdownsAsync()
-    {
-        // Load schools and cities for dropdown lists
-        Schools = await _context.School
-            .Select(s => new SelectListItem
-            {
-                Value = s.SchoolId.ToString(),
-                Text = s.SchoolName
-            }).ToListAsync();
-
-        City = await _context.City
-            .Select(c => new SelectListItem
-            {
-                Value = c.CityId.ToString(),
-                Text = c.CityName
-            }).ToListAsync();
     }
 }
