@@ -1,4 +1,5 @@
-﻿using Parkeringsplads.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Parkeringsplads.Models;
 
 namespace Parkeringsplads.Services.Interfaces
 {
@@ -7,6 +8,12 @@ namespace Parkeringsplads.Services.Interfaces
         Task<bool> CreateUserAsync(User user, string addressRoad, string addressNumber, int cityId);
 
         Task<bool> UpdateUserAsync(User updatedUser);
+
+        Task<bool> DeleteUserAsync(int userId);
+
+        Task<bool> GetUserAsync(string email);
+
+        Task<List<User>> GetAllUsersAsync();
 
     }
 }

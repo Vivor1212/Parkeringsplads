@@ -1,0 +1,48 @@
+﻿@page
+@model Parkeringsplads.Pages.UserPages.AllUsersModel
+@{
+}
+
+<h2>Alle profiler</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Fornavn</th>
+            <th>Efternavn</th>
+            <th>Telefonnummer</th>
+            <th>Email</th>
+            <th>Addresse</th>
+          
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.FirstName</td>
+                <td>@user.LastName</td>
+                <td>@user.Phone</td>
+                <td>@user.Email</td>
+                <td>
+                    @foreach (var ua in user.UserAddresses)
+                    {
+                        <div>
+                            @ua.Address.AddressRoad @ua.Address.AddressNumber, @ua.Address.City.CityName
+                        </div>
+                    }
+                </td>
+
+
+                <td>
+                    <form method="post">
+                        <a asp-page="/ConfirmDelete" asp-route-type="User" asp-route-id="@user.UserId" class="btn btn-danger">Delete</a>
+
+                    </form>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>

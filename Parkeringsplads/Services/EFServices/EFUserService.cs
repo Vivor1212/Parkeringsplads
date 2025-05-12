@@ -109,4 +109,34 @@ public class EFUserService : IUser
         return true;
     }
 
+    public async Task<bool> DeleteUserAsync(int userId)
+    {
+        var user = await _context.User.FindAsync(userId);
+        if (user == null)
+        {
+            return false; // User not found
+        }
+
+        _context.User.Remove(user);
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> GetUserAsync(string email)
+    {
+        var user = await _context.User.FirstOrDefaultAsync(u => u.Email == email);
+        return user != null;
+    }
+
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        return await _context.User
+               .Include(u => u.School)
+        .Include(u => u.UserAddresses)
+            .ThenInclude(ua => ua.Address)
+                .ThenInclude(a => a.City) 
+                     .ToListAsync();
+    }
+
 }

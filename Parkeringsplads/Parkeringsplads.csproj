@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\ISchool.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Pages\Shared\RequestPages\" />
   </ItemGroup>
 
