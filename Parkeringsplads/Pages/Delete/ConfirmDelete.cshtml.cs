@@ -35,13 +35,15 @@ public class ConfirmDeleteModel : PageModel
                 DisplayName = user != null ? $"{user.FirstName} {user.LastName}" : null;
                 break;
 
-            /* case "school":
+            /* Mangler crud--- 
+            
+            case "school":
                  var school = await _schoolService.GetByIdAsync(Id);
                  DisplayName = school?.Name;
                  break;
 
-                 */
-
+                 
+                    */
 
             default:
                 return BadRequest("Unsupported type.");
@@ -64,7 +66,7 @@ public class ConfirmDeleteModel : PageModel
 
                  */
 
-            // Add other types
+            
 
             default:
                 return BadRequest("Unsupported type.");
