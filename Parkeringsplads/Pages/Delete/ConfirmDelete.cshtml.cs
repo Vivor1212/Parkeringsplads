@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Parkeringsplads.Services.Interfaces;
 
+
+namespace Parkeringsplads.Pages.Delete
+{ 
 public class ConfirmDeleteModel : PageModel
 {
     private readonly IUser _userService;
@@ -32,12 +35,12 @@ public class ConfirmDeleteModel : PageModel
                 DisplayName = user != null ? $"{user.FirstName} {user.LastName}" : null;
                 break;
 
-           /* case "school":
-                var school = await _schoolService.GetByIdAsync(Id);
-                DisplayName = school?.Name;
-                break;
+            /* case "school":
+                 var school = await _schoolService.GetByIdAsync(Id);
+                 DisplayName = school?.Name;
+                 break;
 
-                */
+                 */
 
 
             default:
@@ -55,11 +58,11 @@ public class ConfirmDeleteModel : PageModel
                 await _userService.DeleteUserAsync(Id);
                 break;
 
-           /* case "school":
-                await _schoolService.DeleteSchoolAsync(Id);
-                break;
+            /* case "school":
+                 await _schoolService.DeleteSchoolAsync(Id);
+                 break;
 
-                */
+                 */
 
             // Add other types
 
@@ -69,4 +72,5 @@ public class ConfirmDeleteModel : PageModel
 
         return RedirectToPage("/UserPages/AllUsers"); // Or make this dynamic
     }
+}
 }
