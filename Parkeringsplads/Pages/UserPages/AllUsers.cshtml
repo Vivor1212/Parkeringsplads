@@ -40,6 +40,11 @@
                         <a asp-page="/Delete/ConfirmDelete" asp-route-type="User" asp-route-id="@user.UserId" class="btn btn-danger">Delete</a>
 
                     </form>
+
+                    <form method="post">
+                        <a asp-page="/UserPages/UpdateUser" asp-route-type="User" asp-route-id="@user.UserId" class="btn btn-primary">Update</a>
+
+                    </form>
                 </td>
             </tr>
         }

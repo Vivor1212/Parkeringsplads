@@ -117,6 +117,14 @@ public class EFUserService : IUser
             return false; // User not found
         }
 
+        // Find all requests linked to this user
+        var requests = await _context.Request
+            .Where(r => r.UserId == userId)
+            .ToListAsync();
+
+        // Delete the requests
+        _context.Request.RemoveRange(requests);
+
         _context.User.Remove(user);
         await _context.SaveChangesAsync();
 

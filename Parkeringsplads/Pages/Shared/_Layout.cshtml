@@ -50,14 +50,21 @@
                         <!-- Nav bar for brugere som er logget ind og er driver -->
                         @if (isUserLoggedIn)
                         {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/TripPages/AvailableTrips">Rejser</a>
+                            </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" asp-page="/TripPages/CreateTrip">Opret tur</a>
+                                <a class="nav-link" asp-page="/UserPages/MyRequests">Mine requests</a>
                             </li>
+                          
                             @if (isDriver)
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-page="/TripPages/DriversTrips">My Trips</a>
+                                    <a class="nav-link" asp-page="/TripPages/CreateTrip">Opret rejser</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/TripPages/DriversTrips">Mine rejser</a>
                                 </li>
                             }
                             else
