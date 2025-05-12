@@ -9,16 +9,16 @@
 
 @if (!string.IsNullOrEmpty(Model.DisplayName))
 {
-    <p>Are you sure you want to delete this <strong>@Model.Type</strong>: <strong>@Model.DisplayName</strong>?</p>
+    <p>Er du sikker på du vil slette <strong>@Model.Type</strong>: <strong>@Model.DisplayName</strong>?</p>
 }
 else
 {
-    <p>Are you sure you want to delete this <strong>@Model.Type</strong> with ID <strong>@Model.Id</strong>?</p>
+    <p>Er du sikker på du vil slette <strong>@Model.Type</strong> med ID <strong>@Model.Id</strong>?</p>
 }
 
 <form method="post">
     <input type="hidden" name="Type" value="@Model.Type" />
     <input type="hidden" name="Id" value="@Model.Id" />
-    <button type="submit" class="btn btn-danger">Confirm Delete</button>
-    <a asp-page="/UserPages/AllUsers" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-danger">Slet</button>
+    <a asp-page="/UserPages/AllUsers" class="btn btn-secondary">Afbryd</a>
 </form>
