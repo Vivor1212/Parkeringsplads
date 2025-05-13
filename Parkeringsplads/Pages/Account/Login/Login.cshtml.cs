@@ -25,8 +25,17 @@ namespace Parkeringsplads.Pages.Account
 
         public string ErrorMessage { get; set; }
 
-        // Handle GET requests (Display the login form)
-        public void OnGet() { }
+        public IActionResult OnGet() 
+        {
+            var UserEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (!string.IsNullOrEmpty(UserEmail))
+            {
+                return RedirectToPage("/Account/Profile");
+            }
+
+            return Page();
+        }
 
 
        public async Task<IActionResult> OnPostAsync()
