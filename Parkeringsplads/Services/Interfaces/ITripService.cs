@@ -1,4 +1,6 @@
 ﻿using Parkeringsplads.Models;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Parkeringsplads.Services.Interfaces
@@ -6,5 +8,13 @@ namespace Parkeringsplads.Services.Interfaces
     public interface ITripService
     {
         Task CreateTripAsync(Trip trip);
+
+        Task<List<Trip>> GetAllAvailableTripsAsync(
+            string? directionFilter,
+            DateTime? dateFilter,
+            int? hourFilter,
+            string schoolAddress);
+
+        Task<Trip?> GetTripByIdAsync(int tripId);
     }
 }
