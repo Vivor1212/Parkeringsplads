@@ -17,7 +17,7 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task<List<SelectListItem>> SchoolDropDownAsync()
         {
-            // Return a list of schools as SelectListItem
+            // Til brug hvor der er skole dropdowns, metoden sørger for at skoler bliver vist i dropdown, se eksempel på createuser
             return await _context.School
                 .Select(s => new SelectListItem
                 {

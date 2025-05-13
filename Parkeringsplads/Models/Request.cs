@@ -21,12 +21,12 @@ public partial class Request
     [Column("Request_Address")]
     [StringLength(100)]
     [Unicode(false)]
-    public string RequestAddress { get; set; }
+    public string? RequestAddress { get; set; }
 
     [Column("Request_Message")]
     [StringLength(255)]
     [Unicode(false)]
-    public string RequestMessage { get; set; }
+    public string? RequestMessage { get; set; }
 
     [Column("User_Id")]
     public int? UserId { get; set; }

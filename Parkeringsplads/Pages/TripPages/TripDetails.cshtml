@@ -1,0 +1,200 @@
+﻿@page
+@model Parkeringsplads.Pages.TripPages.TripDetailsModel
+@{
+    var acceptedRequests = Model.Trip.Requests.Where(r => r.RequestStatus == true).ToList();
+    var pendingRequests = Model.Trip.Requests.Where(r => r.RequestStatus == null).ToList();
+    var rejectedRequests = Model.Trip.Requests.Where(r => r.RequestStatus == false).ToList();
+}
+
+<div class="container py-4">
+    <h1 class="fw-bold mb-4">Trip Details</h1>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model.Trip != null)
+    {
+        <div class="card shadow-sm mb-5">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold">Trip: @Model.Trip.FromDestination to @Model.Trip.ToDestination</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="card-text">
+                            <strong>Departure Time:</strong> @Model.Trip.TripTime.ToString("HH:mm")<br />
+                            <strong>Departure Date:</strong> @Model.Trip.TripDate.ToString("d MMM yyyy")
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="card-text">
+                            <strong>Available Seats:</strong> @Model.Trip.TripSeats<br />
+                            <strong>Trip ID:</strong> @Model.Trip.TripId
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="fw-bold mb-4">Requests</h2>
+
+        @if (Model.Trip.Requests != null && Model.Trip.Requests.Any())
+        {
+            <!-- Accepted Requests -->
+            <h3 class="fw-semibold mb-3">Accepted Requests</h3>
+            @if (acceptedRequests.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Pickup Location</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var request in acceptedRequests)
+                            {
+                                <tr>
+                                    <td>
+                                        @request.Users?.FirstName @request.Users?.LastName
+                                        <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
+                                    </td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "I will show up at start address")</td>
+                                    <td>
+                                        @{
+                                            var message = !string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided";
+                                            var truncatedMessage = message.Length > 50 ? message.Substring(0, 50) + "..." : message;
+                                        }
+                                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="@message">@truncatedMessage</span>
+                                    </td>
+                                    <td><span class="badge bg-success">Accepted</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No accepted requests.</p>
+            }
+
+            <!-- Pending Requests -->
+            <h3 class="fw-semibold mb-3">Pending Requests</h3>
+            @if (pendingRequests.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Pickup Location</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var request in pendingRequests)
+                            {
+                                <tr>
+                                    <td>
+                                        @request.Users?.FirstName @request.Users?.LastName
+                                        <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
+                                    </td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "I will show up at start address")</td>
+                                    <td>
+                                        @{
+                                            var message = !string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided";
+                                            var truncatedMessage = message.Length > 50 ? message.Substring(0, 50) + "..." : message;
+                                        }
+                                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="@message">@truncatedMessage</span>
+                                    </td>
+                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                    <td>
+                                        <form method="post" asp-page-handler="AcceptRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                                <i class="bi bi-check-circle"></i> Accept
+                                            </button>
+                                        </form>
+                                        <form method="post" asp-page-handler="RejectRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-x-circle"></i> Reject
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No pending requests.</p>
+            }
+
+            <!-- Rejected Requests -->
+            <h3 class="fw-semibold mb-3">Rejected Requests</h3>
+            @if (rejectedRequests.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Pickup Location</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var request in rejectedRequests)
+                            {
+                                <tr>
+                                    <td>
+                                        @request.Users?.FirstName @request.Users?.LastName
+                                        <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
+                                    </td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
+                                    <td><span class="badge bg-danger">Rejected</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No rejected requests.</p>
+            }
+        }
+        else
+        {
+            <p class="text-muted">No requests for this trip.</p>
+        }
+    }
+    else
+    {
+        <p class="text-danger">Trip not found.</p>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

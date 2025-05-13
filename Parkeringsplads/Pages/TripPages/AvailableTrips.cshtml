@@ -4,34 +4,127 @@
     ViewData["Title"] = "Ledige Ture";
 }
 
+<style>
+    .dot {
+        height: 12px;
+        width: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 3px;
+    }
+
+    .bg-success {
+        background-color: green;
+    }
+
+    .bg-warning {
+        background-color: gold;
+    }
+
+    .bg-primary {
+        background-color: dodgerblue;
+    }
+
+    .bg-dark {
+        background-color: dimgray;
+    }
+</style>
+
 <h2>Ledige Ture</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Dato</th>
-            <th>Tidspunkt</th>
-            <th>Fra</th>
-            <th>Til</th>
-            <th>Chauffør</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var trip in Model.Trips)
-        {
+<div class="mb-3">
+    <span class="dot bg-dark"></span> Chauffør
+    <span class="dot bg-warning ms-3"></span> Studerende
+    <span class="dot bg-primary ms-3"></span> Personale
+    <span class="dot bg-success ms-3"></span> Ledig plads
+</div>
+
+<form method="get" class="mb-4">
+    <div class="row g-3 align-items-center">
+        <div class="col-auto">
+            <label for="directionFilter" class="form-label">Filtrer retning:</label>
+        </div>
+        <div class="col-auto">
+            <select asp-for="DirectionFilter" asp-items="Model.DirectionOptions" class="form-select w-auto d-inline-block"></select>
+        </div>
+        <div class="col-auto">
+            <label for="dateFilter" class="form-label">Filtrer dato:</label>
+        </div>
+        <div class="col-auto">
+            <input asp-for="DateFilter" type="date" class="form-control w-auto d-inline-block" />
+        </div>
+        <div class="col-auto">
+            <label for="timeFilter" class="form-label">Filtrer tidspunkt (timer):</label>
+        </div>
+        <div class="col-auto">
+            <select asp-for="HourFilter" asp-items="Model.HourOptions" class="form-select w-auto d-inline-block">
+                <option value="">Alle tidspunkter</option>
+            </select>
+
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Filtrer</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Trips != null && Model.Trips.Any())
+{
+    <table class="table table-bordered">
+        <thead>
             <tr>
-                <td>@trip.TripDate</td>
-                <td>@trip.TripTime</td>
-                <td>@trip.FromDestination</td>
-                <td>@trip.ToDestination</td>
-                <td>@trip.Driver.User.FirstName @trip.Driver.User.LastName</td>
-                <td>
-                    <form method="post" asp-page-handler="Request" asp-route-tripId="@trip.TripId">
-                        <button class="btn btn-sm btn-outline-primary">Anmod</button>
-                    </form>
-                </td>
+                <th>Dato</th>
+                <th>Tidspunkt</th>
+                <th>Fra</th>
+                <th>Til</th>
+                <th>Chauffør</th>
+                <th>Pladser</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var trip in Model.Trips)
+            {
+                <tr>
+                    <td>@trip.TripDate.ToShortDateString()</td>
+                    <td>@trip.TripTime.ToString(@"hh\:mm")</td>
+                    <td>@trip.FromDestination</td>
+                    <td>@trip.ToDestination</td>
+                    <td>@trip.Driver.User.FirstName @trip.Driver.User.LastName</td>
+                    <td>
+                        @{
+                            var totalSeats = trip.TripSeats;
+                            var acceptedRequests = trip.Requests.ToList();
+                            var seatsTaken = acceptedRequests.Count;
+
+                            <span class="dot bg-dark" title="Chauffør: @trip.Driver.User.FirstName @trip.Driver.User.LastName"></span>
+
+                            for (int i = 1; i < totalSeats; i++)
+                            {
+                                if (i <= seatsTaken)
+                                {
+                                    var user = acceptedRequests[i - 1].Users; // du sagde vi skulle lade det være
+                                    var color = user?.Title?.ToLower() == "s" ? "bg-warning" : "bg-primary";
+                                    <span class="dot @color" title="@user?.FirstName @user?.LastName"></span>
+                                }
+                                else
+                                {
+                                    <span class="dot bg-success" title="Ledig plads"></span>
+                                }
+                            }
+                        }
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="Request" asp-route-tripId="@trip.TripId">
+                            <button class="btn btn-sm btn-outline-primary">Anmod</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Der blev ikke fundet nogen ture med dine filtre.</p>
+}
