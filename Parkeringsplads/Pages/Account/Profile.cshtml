@@ -3,6 +3,15 @@
 
 <h1>My Profile</h1>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
 @if (!string.IsNullOrEmpty(Model.UserEmail))
 {
     <div>
