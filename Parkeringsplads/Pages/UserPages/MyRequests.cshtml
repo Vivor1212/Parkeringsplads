@@ -1,0 +1,46 @@
+﻿@page
+@model Parkeringsplads.Pages.UserPages.MyRequestsModel
+@{
+}
+
+<h2>Alle profiler</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Chauffør</th>
+            <th>Fra</th>
+            <th>Til</th>
+            <th>Dato</th>
+            <th>Tid</th>
+            <th>Status</th>
+            
+
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model.Requests)
+        {
+            <tr>
+                <td>@request.Trip.Driver.User.FirstName @request.Trip.Driver.User.LastName</td>
+                <td>@request.Trip.FromDestination</td>
+                <td>@request.Trip.ToDestination</td>
+                <td>@request.Trip.TripDate</td>
+                <td>@request.Trip.TripTime</td>
+               
+                <td>@Model.GetRequestStatusText(request.RequestStatus)</td>
+
+                <td>
+                    <form method="post">
+                        <a asp-page="/Delete/ConfirmDelete" asp-route-type="Request" asp-route-id="@request.RequestId" class="btn btn-danger">Delete</a>
+
+                    </form>
+
+                </td>
+                
+            </tr>
+        }
+
+    </tbody>
+</table>
