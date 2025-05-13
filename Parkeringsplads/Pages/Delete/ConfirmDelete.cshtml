@@ -1,0 +1,24 @@
+﻿@page
+@model Parkeringsplads.Pages.Delete.ConfirmDeleteModel
+
+@{
+    ViewData["Title"] = "Confirm Deletion";
+}
+
+<h2>Confirm Deletion</h2>
+
+@if (!string.IsNullOrEmpty(Model.DisplayName))
+{
+    <p>Er du sikker på du vil slette <strong>@Model.Type</strong>: <strong>@Model.DisplayName</strong>?</p>
+}
+else
+{
+    <p>Er du sikker på du vil slette <strong>@Model.Type</strong> med ID <strong>@Model.Id</strong>?</p>
+}
+
+<form method="post">
+    <input type="hidden" name="Type" value="@Model.Type" />
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Slet</button>
+    <a asp-page="/UserPages/AllUsers" class="btn btn-secondary">Afbryd</a>
+</form>

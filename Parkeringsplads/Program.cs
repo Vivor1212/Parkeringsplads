@@ -12,7 +12,7 @@ builder.Services.AddScoped<ICityService, EFCityService>();
 builder.Services.AddScoped<IUser, EFUserService>();
 builder.Services.AddScoped<ITripService, EFTripService>();
 builder.Services.AddScoped<IDriverService, EFDriverService>();
-builder.Services.AddScoped<ISchoolService, EFSchoolService>();
+builder.Services.AddScoped<ISchoolService , EFSchoolService>();
 builder.Services.AddScoped<IRequestService, EFRequestService>();
 
 // Add logging services (this is where you add logging)
