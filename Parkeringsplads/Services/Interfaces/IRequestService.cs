@@ -6,7 +6,11 @@ namespace Parkeringsplads.Services.Interfaces
     {
 
         Task<List<Request>> GetAllRequestsForUser(User user);
+        Task<Request> GetRequestByIdAsync(int requestId);
 
-       
+
+        Task DeleteRequestAsync(int requestId);
+
+
     }
 }

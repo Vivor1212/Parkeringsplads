@@ -28,6 +28,26 @@ namespace Parkeringsplads.Services.EFServices
 
         }
 
-     
+        public async Task DeleteRequestAsync(int requestId)
+        {
+            var request = await _context.Request.FindAsync(requestId);
+            if (request != null)
+            {
+                _context.Request.Remove(request);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Request> GetRequestByIdAsync(int requestId)
+        {
+            return await _context.Request
+                .Include(r => r.Trip)
+                    .ThenInclude(t => t.Driver)
+                        .ThenInclude(d => d.User)
+                .FirstOrDefaultAsync(r => r.RequestId == requestId);
+        }
+
+
+
     }
 }

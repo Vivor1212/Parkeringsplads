@@ -14,6 +14,7 @@
             <th>Dato</th>
             <th>Tid</th>
             <th>Status</th>
+            
 
             
         </tr>
@@ -30,19 +31,14 @@
                
                 <td>@Model.GetRequestStatusText(request.RequestStatus)</td>
 
-                
-
-
-
-
-
-
-
                 <td>
-                 
+                    <form method="post">
+                        <a asp-page="/Delete/ConfirmDelete" asp-route-type="Request" asp-route-id="@request.RequestId" class="btn btn-danger">Delete</a>
 
-                 
+                    </form>
+
                 </td>
+                
             </tr>
         }
 
