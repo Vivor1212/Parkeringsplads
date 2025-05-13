@@ -5,16 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Pages\ISchool.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Pages\Shared\RequestPages\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="efpt.config.json.user" />
   </ItemGroup>
 
