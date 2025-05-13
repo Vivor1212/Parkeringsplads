@@ -86,7 +86,9 @@ namespace Parkeringsplads.Pages.TripPages
                 {
                     TripId = tripId,
                     UserId = user.UserId,
-                    RequestStatus = null
+                    RequestStatus = null,
+                    RequestTime = TimeOnly.FromDateTime(DateTime.Now)
+
                 });
                 await _context.SaveChangesAsync();
             }

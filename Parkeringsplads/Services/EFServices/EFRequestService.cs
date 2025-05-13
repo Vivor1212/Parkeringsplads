@@ -13,6 +13,18 @@ namespace Parkeringsplads.Services.EFServices
             _context = service;
         }
 
+
+        public async Task<Request> CreateRequestAsync(Request request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Request cannot be null");
+            }
+            await _context.Request.AddAsync(request);
+            return request;
+        }
+
+
         public async Task<Request> AcceptRequestAsync(int requestId)
         {
             if (requestId <= 0)
