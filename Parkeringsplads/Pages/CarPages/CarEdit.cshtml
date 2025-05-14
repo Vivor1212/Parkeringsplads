@@ -1,0 +1,43 @@
+﻿@page
+@model Parkeringsplads.Pages.CarPages.CarEditModel
+@{
+}
+
+<h2>Edit Car</h2>
+
+@if (Model.CarToEdit != null)
+{
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Edit Car Details</h5>
+            </div>
+            <div class="card-body">
+                
+                <form method="post" asp-page-handler="Update">
+                    <input type="hidden" asp-for="CarToEdit.CarId" />
+
+                    <div class="form-group">
+                        <label asp-for="CarToEdit.CarModel" class="form-label"></label>
+                        <input asp-for="CarToEdit.CarModel" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CarToEdit.CarPlate" class="form-label"></label>
+                        <input asp-for="CarToEdit.CarPlate" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CarToEdit.CarCapacity" class="form-label"></label>
+                        <input asp-for="CarToEdit.CarCapacity" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Car</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+}
+else
+{
+    <p>Car not found.</p>
+}
