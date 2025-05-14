@@ -4,65 +4,83 @@
     ViewData["Title"] = "Create User";
 }
 
-<h2>Add New User</h2>
+<h2>Opret din profil</h2>
 
 <form method="post" class="form-group">
-    <div class="form-group">
+    <div class="row">
+        <div class="mb-3 col-sm-6">
         <label asp-for="User.FirstName"></label>
         <input asp-for="User.FirstName" class="form-control" />
         <span asp-validation-for="User.FirstName"></span>
     </div>
-    <div class="form-group">
+        <div class="mb-3 col-sm-6">
         <label asp-for="User.LastName"></label>
         <input asp-for="User.LastName" class="form-control" />
         <span asp-validation-for="User.LastName"></span>
     </div>
-    <div>
+    </div>
+    <div class="row">
+        <div class="mb-3 col-sm-6">
+        <label asp-for="User.Phone"></label>
+            <input asp-for="User.Phone" class="form-control" pattern="\d{8,}" title="Telefonnummeret skal være mindst 8 cifre." />
+
+        <span asp-validation-for="User.Phone" class="text-danger"></span>
+    </div>
+
+        <div class="mb-3 col-sm-6">
+        <label asp-for="User.Title" class="control-label">Rolle</label>
+        <select asp-for="User.Title" class="form-control">
+            <option value="">-- Vælg rolle --</option>
+            <option value="S">Studerende</option>
+            <option value="P">Personale</option>
+        </select>
+        <span asp-validation-for="User.Title" class="text-danger"></span>
+    </div>
+
+    </div>
+    <div class="mb-3">
         <label asp-for="User.Email"></label>
         <input asp-for="User.Email" class="form-control" />
         <span asp-validation-for="User.Email"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="User.Phone"></label>
-        <input asp-for="User.Phone" class="form-control" />
-        <span asp-validation-for="User.Phone"></span>
-    </div>
-    <div class="form-group">
+    <div class="mb-3">
         <label asp-for="User.Password"></label>
         <input asp-for="User.Password" type="password" class="form-control" />
         <span asp-validation-for="User.Password"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="User.Title"></label>
-        <input asp-for="User.Title" class="form-control" />
-        <span asp-validation-for="User.Title"></span>
-    </div>
-    <div class="form-group">
+    <div class="mb-3">
         <label asp-for="User.SchoolId">Skole:</label>
-        <select asp-for="User.SchoolId" asp-items="Model.Schools" class="form-control"></select>
+        <select asp-for="User.SchoolId" asp-items="Model.Schools" class="form-control" placeholder="Vælg din skole">   <option value="">Vælg den skole du går på</option></select>
 
-            <option value="">Vælg den skole du går på</option>
+         
         
         <span asp-validation-for="User.SchoolId"></span>
     </div>
 
-    <h3 class="pt-3">Address Information</h3>
-    <div class="form-group">
-        <label>City</label>
-        <select asp-for="CityId" asp-items="Model.City" class="form-control"></select>
+    <h3 class="pt-3">Addresse informationer</h3>
+    <p>Nedenfor bedes du indtaste dine adresse oplysninger, denne adresse kan hjælpe os med at finde ud af hvor du rejser fra og til.</p>
+    <div class="mb-3">
+        <label>Postnummer og by</label>
+        <select asp-for="CityId" asp-items="Model.City" class="form-control" placeholder="Vælg din by">
+
+            <option value=""></option>
+
+        </select>
+
     </div>
 
-    <div class="form-group">
-        <label>Address Road</label>
+  
+    <div class="mb-3">
+        <label>Vejnavn</label>
         <input asp-for="AddressRoad" class="form-control" pattern="[A-Za-zæøåÆØÅ\s]+" />
 
     </div>
-    <div class="form-group">
-        <label>Address Number</label>
+    <div class="mb-3">
+        <label>Nummer</label>
         <input asp-for="AddressNumber" class="form-control" />
     </div>
 
-    <button type="submit">Add User</button>
+    <button type="submit" class="btn btn-primary w-100"> Add User</button>
 </form>
 
 @section Scripts {

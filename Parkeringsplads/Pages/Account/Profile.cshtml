@@ -1,7 +1,10 @@
 ﻿@page
 @model Parkeringsplads.Pages.Account.ProfileModel
 
-<h1>My Profile</h1>
+@{
+    ViewData["Title"] = "Min Profil";
+}
+
 
 @if (TempData["ErrorMessage"] != null)
 {
@@ -12,42 +15,131 @@
     <div class="alert alert-success">@TempData["SuccessMessage"]</div>
 }
 
-@if (!string.IsNullOrEmpty(Model.UserEmail))
-{
-    <div>
-        <p>User <strong>@Model.UserEmail</strong> is logged in.</p>
-        <p><strong>First Name:</strong> @Model.FirstName</p>
-        <p><strong>Last Name:</strong> @Model.LastName</p>
-        <p><strong>Phone:</strong> @Model.Phone</p>
-        <p><strong>Title:</strong> @Model.Title</p>
-        <p><strong>Skole:</strong> @Model.SchoolName</p>
-    </div>
-
-    @if (!Model.IsDriver)
-    {
-        <a asp-page="/Account/BecomeDriver" class="btn btn-primary">Become a Driver</a>
-    }
-    else
-    {
-        @if (Model.Driver != null)
-        {
-            <p class="text-success">You are registered as a driver.</p>
+<div class="row">
+    <div class="col-md-3 bg-light shadow-sm mb-5 rounded p-0 min-vh-100">
+        <div class="nav flex-column nav-pills" id="v-tabs" role="tablist" aria-orientation="vertical">
             <div>
-                <p><strong>Driver License:</strong> @Model.Driver.DriverLicense</p>
-                <p><strong>CPR Number:</strong> @Model.Driver.DriverCpr</p>
-            </div>
-        }
-    }
+                <h3 class="text-center p-3 ">Hej @Model.FirstName!</h3>
 
-    <!-- Link to Change Password page -->
-    <div>
-        <a href="./Login/ChangePassword">Change Password</a>
+            </div>
+            <button class="nav-link active border-0" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
+                Dashboard
+            </button>
+            <button class="nav-link" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                Profil
+            </button>
+            <button class="nav-link" id="requests-tab" data-bs-toggle="pill" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
+                Requests
+            </button>
+            <button class="nav-link" id="trips-tab" data-bs-toggle="pill" data-bs-target="#trips" type="button" role="tab" aria-controls="trips" aria-selected="false">
+                Rejser
+            </button>
+        </div>
     </div>
-    <div>
-        <a href="/UserPages/UpdateUser">Opdater din profil</a>
+
+    <div class="col-md-9 p-5">
+        <div class="tab-content" id="v-tabsContent">
+            <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                <div class="container  px-4">
+                    <div class="row gx-5">
+                        <div class="col">
+                            <div class="shadow p-5 mb-5  rounded"><h3 class="text-center">Du har sparet 32 busture!</h3> <p class="text-center">Det fed</p></div>
+                        </div>
+                        <div class="col ">
+                            <div class="shadow p-3 mb-5 rounded"><h3 class="text-center">Du har 1 rejse i dag:
+
+                                   
+                            </h3></div>
+                        </div>
+                       
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+
+                <h2 class="mb-4">Velkommen til din profil</h2>
+                <p>Her kan du se og opdatere dine oplysninger.</p>
+                @if (!string.IsNullOrEmpty(Model.UserEmail))
+                {
+
+                    <p><strong>Fornavn:</strong> @Model.FirstName</p>
+                    <p><strong>Efternavn:</strong> @Model.LastName</p>
+                    <p><strong>Email:</strong> @Model.UserEmail</p>
+                    <p><strong>Telefonnummer:</strong> @Model.Phone</p>
+                    <p><strong>Brugertype:</strong> @Model.TitleText</p>
+                    <p><strong>Skole:</strong> @Model.SchoolName</p>
+
+                    @if (!Model.IsDriver)
+                    {
+                        <a asp-page="/Account/BecomeDriver" class="btn btn-primary mt-2">Bliv chauffør</a>
+                    }
+                    else if (Model.Driver != null)
+                    {
+                        <p class="text-success">Du er registreret som chauffør.</p>
+                        <p><strong>Kørekortnummer:</strong> @Model.Driver.DriverLicense</p>
+                        <p><strong>CPR Nummer:</strong> @Model.Driver.DriverCpr</p>
+                    }
+
+                    <div class="mt-3">
+                        <a class="btn btn-outline-secondary me-2" href="./Login/ChangePassword">Skift adgangskode</a>
+                        <a class="btn btn-outline-primary" asp-page="/UserPages/UpdateUser" asp-route-userId="@Model.User.UserId">Opdater din profil</a>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-danger">Du er ikke logget ind.</p>
+                }
+               
+
+            </div>
+
+            <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Chauffør</th>
+                            <th>Fra</th>
+                            <th>Til</th>
+                            <th>Dato</th>
+                            <th>Tid</th>
+                            <th>Status</th>
+
+
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model.Requests)
+                        {
+                            <tr>
+                                <td>@request.Trip.Driver.User.FirstName @request.Trip.Driver.User.LastName</td>
+                                <td>@request.Trip.FromDestination</td>
+                                <td>@request.Trip.ToDestination</td>
+                                <td>@request.Trip.TripDate</td>
+                                <td>@request.Trip.TripTime</td>
+
+                                <td>@Model.GetRequestStatusText(request.RequestStatus)</td>
+
+                                <td>
+                                    <form method="post">
+                                        <a asp-page="/Delete/ConfirmDelete" asp-route-type="Request" asp-route-id="@request.RequestId" class="btn btn-danger">Delete</a>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tab-pane fade" id="trips" role="tabpanel" aria-labelledby="trips-tab">
+                <p>Rejser indhold her...</p>
+            </div>
+        </div>
     </div>
-}
-else
-{
-    <p>You are not logged in.</p>
-}
+</div>

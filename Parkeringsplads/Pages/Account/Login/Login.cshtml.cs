@@ -44,6 +44,8 @@ namespace Parkeringsplads.Pages.Account
                     // User is a driver, store the DriverId in the session
                     HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
                 }
+
+                
                 // If user is not a driver, do not set the session for IsDriver
 
                 // Store the user's email in the session

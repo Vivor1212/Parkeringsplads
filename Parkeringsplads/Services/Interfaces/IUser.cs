@@ -11,7 +11,7 @@ namespace Parkeringsplads.Services.Interfaces
 
         Task<bool> DeleteUserAsync(int userId);
 
-        Task<bool> GetUserAsync(string email);
+        Task<User> GetUserAsync(int userId);
 
         Task<List<User>> GetAllUsersAsync();
 
