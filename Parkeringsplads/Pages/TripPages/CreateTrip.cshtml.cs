@@ -137,7 +137,8 @@ namespace Parkeringsplads.Pages.TripPages
                 Trip.ToDestination = SchoolAddress;
             }
 
-            Trip.DriverId = driver.DriverId;
+            Trip.Car.DriverId = driver.DriverId;
+            Trip.CarId = SelectedCarId;
             await _tripService.CreateTripAsync(Trip);
 
             return RedirectToPage("/Account/Profile");

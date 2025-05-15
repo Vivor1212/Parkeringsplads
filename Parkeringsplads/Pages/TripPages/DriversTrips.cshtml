@@ -45,9 +45,9 @@
                             <td>@trip.TripDate</td>
                             <td>@trip.TripTime.ToString("HH:mm")</td>
                             <td>
-                                @if (trip.Driver?.Cars?.Any() == true)
+                                @if (trip.Car != null)
                                 {
-                                    @($"{trip.TripSeats} / {trip.Driver.Cars.First().CarCapacity}")
+                                    @($"{trip.TripSeats} / {trip.Car.CarCapacity}")
                                 }
                                 else
                                 {
