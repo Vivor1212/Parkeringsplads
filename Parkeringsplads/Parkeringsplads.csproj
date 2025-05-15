@@ -5,8 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-    <None Include="efpt.config.json.user" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="efpt.config.json.user" />
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />

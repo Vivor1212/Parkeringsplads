@@ -72,7 +72,5 @@ namespace Parkeringsplads.Services.EFServices
                     .ThenInclude(r => r.Users)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
         }
-
-
     }
 }

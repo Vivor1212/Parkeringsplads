@@ -17,15 +17,12 @@ namespace Parkeringsplads.Services.EFServices
         public async Task<List<Request>> GetAllRequestsForUser(User user)
 
         {
-
             return await _context.Request
            .Where(r => r.UserId == user.UserId)
         .Include(r => r.Trip)
             .ThenInclude(t => t.Driver)
                 .ThenInclude(d => d.User)
         .ToListAsync();
-        
-
         }
 
         public async Task DeleteRequestAsync(int requestId)

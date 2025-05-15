@@ -4,6 +4,7 @@
     var acceptedRequests = Model.Trip.Requests.Where(r => r.RequestStatus == true).ToList();
     var pendingRequests = Model.Trip.Requests.Where(r => r.RequestStatus == null).ToList();
     var rejectedRequests = Model.Trip.Requests.Where(r => r.RequestStatus == false).ToList();
+    var hasAvailableSeats = acceptedRequests.Count < Model.Trip.TripSeats;
 }
 
 <div class="container py-4">
@@ -29,18 +30,27 @@
     {
         <div class="card shadow-sm mb-5">
             <div class="card-body">
-                <h5 class="card-title fw-semibold">Trip: @Model.Trip.FromDestination to @Model.Trip.ToDestination</h5>
+                <h5 class="card-title fw-semibold">Trip: @Model.Trip.FromDestination til @Model.Trip.ToDestination</h5>
                 <div class="row">
                     <div class="col-md-6">
                         <p class="card-text">
+                            <strong>Departure Date:</strong> @Model.Trip.TripDate.ToString("d MMM yyyy")<br />
                             <strong>Departure Time:</strong> @Model.Trip.TripTime.ToString("HH:mm")<br />
-                            <strong>Departure Date:</strong> @Model.Trip.TripDate.ToString("d MMM yyyy")
+                            <strong>Trip ID:</strong> @Model.Trip.TripId
                         </p>
                     </div>
                     <div class="col-md-6">
                         <p class="card-text">
-                            <strong>Available Seats:</strong> @Model.Trip.TripSeats<br />
-                            <strong>Trip ID:</strong> @Model.Trip.TripId
+                            <strong>Car:</strong>
+                            @if (Model.DriverCars != null && Model.DriverCars.Any())
+                            {
+                                @Model.DriverCars.First().CarModel<br />
+                            }
+                            else
+                            {
+                                @: No car assigned<br>
+                            }
+                            <strong>Available Seats:</strong> @Model.Trip.TripSeats
                         </p>
                     </div>
                 </div>
@@ -73,14 +83,8 @@
                                         @request.Users?.FirstName @request.Users?.LastName
                                         <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
                                     </td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "I will show up at start address")</td>
-                                    <td>
-                                        @{
-                                            var message = !string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided";
-                                            var truncatedMessage = message.Length > 50 ? message.Substring(0, 50) + "..." : message;
-                                        }
-                                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="@message">@truncatedMessage</span>
-                                    </td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
                                     <td><span class="badge bg-success">Accepted</span></td>
                                 </tr>
                             }
@@ -95,7 +99,7 @@
 
             <!-- Pending Requests -->
             <h3 class="fw-semibold mb-3">Pending Requests</h3>
-            @if (pendingRequests.Any())
+            @if (hasAvailableSeats && pendingRequests.Any())
             {
                 <div class="table-responsive">
                     <table class="table table-hover table-sm">
@@ -116,14 +120,8 @@
                                         @request.Users?.FirstName @request.Users?.LastName
                                         <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
                                     </td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "I will show up at start address")</td>
-                                    <td>
-                                        @{
-                                            var message = !string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided";
-                                            var truncatedMessage = message.Length > 50 ? message.Substring(0, 50) + "..." : message;
-                                        }
-                                        <span data-bs-toggle="tooltip" data-bs-placement="top" title="@message">@truncatedMessage</span>
-                                    </td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
                                     <td><span class="badge bg-warning text-dark">Pending</span></td>
                                     <td>
                                         <form method="post" asp-page-handler="AcceptRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
@@ -142,6 +140,10 @@
                         </tbody>
                     </table>
                 </div>
+            }
+            else if (!hasAvailableSeats)
+            {
+                <p class="text-muted">Alle mullige sæder er fuldt. Hvis nogen hopper fra vil andre requests blive vist, hvis der er nogle.</p>
             }
             else
             {

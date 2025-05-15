@@ -29,7 +29,8 @@
                     <tr>
                         <th>From Destination</th>
                         <th>To Destination</th>
-                        <th>Departure Time</th>
+                        <th>Date</th>
+                        <th>Time</th>
                         <th>Available Seats</th>
                         <th>Requests</th>
                     </tr>
@@ -37,9 +38,11 @@
                 <tbody>
                     @foreach (var trip in Model.Trips)
                     {
+                        var pendingRequests = trip.Requests.Where(r => r.RequestStatus == null).ToList();
                         <tr>
                             <td class="destination-column">@trip.FromDestination</td>
                             <td class="destination-column">@trip.ToDestination</td>
+                            <td>@trip.TripDate</td>
                             <td>@trip.TripTime.ToString("HH:mm")</td>
                             <td>
                                 @if (trip.Driver?.Cars?.Any() == true)
@@ -56,12 +59,14 @@
                                 @if (trip.Requests.Any() == true)
                                 {
                                     <a asp-page="/TripPages/TripDetails" asp-route-tripId="@trip.TripId" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-eye"></i> View Requests <span class="badge bg-primary">@trip.Requests.Count()</span>
+                                        <i class="bi bi-eye"></i> View Requests <span class="badge bg-primary">@pendingRequests.Count</span>
                                     </a>
                                 }
                                 else
                                 {
-                                    <span class="text-muted">No requests</span>
+                                    <a asp-page="/TripPages/TripDetails" asp-route-tripId="@trip.TripId" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye"></i> View Requests <span class="badge bg-primary">0</span>
+                                    </a>
                                 }
                             </td>
                         </tr>
