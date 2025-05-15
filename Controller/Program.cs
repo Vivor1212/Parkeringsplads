@@ -13,7 +13,7 @@ class Program
         using var context = new ParkeringspladsContext(optionsBuilder.Options);
 
         // Replace this with the email of the user you want to hash
-        string targetEmail = "Emil@mail.dk";
+        string targetEmail = "adminjensen@admin.com";
 
         var user = context.User.FirstOrDefault(u => u.Email == targetEmail);
 

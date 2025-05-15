@@ -28,17 +28,27 @@ namespace Parkeringsplads.Pages.Admin
         [BindProperty]
         public int CarCapacity { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
+
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
+
+            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+            {
+                // User is not an admin, redirect to login
+                return RedirectToPage("/Admin/NotAdmin");
+            }
             Car = await _carService.GetAllCarsAsync();
+
+            return Page();
         }
 
         
-        public async Task<IActionResult> OnPostDeleteAsync(int carId)
+        public async Task<IActionResult> OnPostDeleteAsync(int CarId)
         {
             try
             {
-                await _carService.DeleteCarAsync(carId);
+                await _carService.DeleteCarAsync(CarId);
 
                 return RedirectToPage();
             }

@@ -40,16 +40,18 @@ namespace Parkeringsplads.Pages.CarPages
             {
                 await _carService.UpdateCarAsync(CarToEdit);
 
+                var isAdmin = HttpContext.Session.GetString("IsAdmin");
                 var userEmail = HttpContext.Session.GetString("UserEmail");
 
-                if (!string.IsNullOrEmpty(userEmail))
-                {
-                    return RedirectToPage("/CarPages/Car");
-                }
-                else
+                if (isAdmin == "true")
                 {
                     return RedirectToPage("/Admin/CarAdmin");
                 }
+                else if (!string.IsNullOrEmpty(userEmail))
+                {
+                    return RedirectToPage("/CarPages/Car");
+                }
+                return RedirectToPage("/Account/login/login");
             }
             catch
             {

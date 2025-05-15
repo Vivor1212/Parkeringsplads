@@ -19,15 +19,15 @@
 
                     <div class="form-group">
                         <label asp-for="CarToEdit.CarModel" class="form-label"></label>
-                        <input asp-for="CarToEdit.CarModel" class="form-control" />
+                        <input asp-for="CarToEdit.CarModel" class="form-control" required />
                     </div>
                     <div class="form-group">
                         <label asp-for="CarToEdit.CarPlate" class="form-label"></label>
-                        <input asp-for="CarToEdit.CarPlate" class="form-control" />
+                        <input asp-for="CarToEdit.CarPlate" class="form-control" required />
                     </div>
                     <div class="form-group">
                         <label asp-for="CarToEdit.CarCapacity" class="form-label"></label>
-                        <input asp-for="CarToEdit.CarCapacity" class="form-control" />
+                        <input asp-for="CarToEdit.CarCapacity" class="form-control " type="number" required min="1" max="10" />
                     </div>
                     <button type="submit" class="btn btn-primary">Update Car</button>
                 </form>
