@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Parkeringsplads.Pages.Account
+namespace Parkeringsplads.Pages.Admin
 {
-    public class LogoutModel : PageModel
+    public class NotAdminModel : PageModel
     {
         public IActionResult OnGet()
         {
@@ -11,5 +11,4 @@ namespace Parkeringsplads.Pages.Account
             return Page();
         }
     }
-
 }

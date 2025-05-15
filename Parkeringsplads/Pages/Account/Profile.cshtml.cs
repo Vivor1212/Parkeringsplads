@@ -29,6 +29,14 @@ namespace Parkeringsplads.Pages.Account
 
         public IActionResult OnGet()
         {
+
+            // Check if the user is an admin
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
+            if (!string.IsNullOrEmpty(isAdmin) && isAdmin == "true")
+            {
+                return RedirectToPage("/Admin/AdminDashboard"); 
+            }
+
             // Retrieve user email from session
             var userEmail = HttpContext.Session.GetString("UserEmail");
 

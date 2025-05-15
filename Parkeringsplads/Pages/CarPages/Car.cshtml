@@ -19,15 +19,15 @@
                 <form method="post">
                     <div class="form-group">
                         <label asp-for="CarModelName" class="form-label"></label>
-                        <input asp-for="CarModelName" class="form-control" />
+                        <input asp-for="CarModelName" class="form-control" required />
                     </div>
                     <div class="form-group">
                         <label asp-for="CarPlate" class="form-label"></label>
-                        <input asp-for="CarPlate" class="form-control" />
+                        <input asp-for="CarPlate" class="form-control" required />
                     </div>
                     <div class="form-group">
                         <label asp-for="CarCapacity" class="form-label"></label>
-                        <input asp-for="CarCapacity" class="form-control" />
+                        <input asp-for="CarCapacity" class="form-control" type="number" required min="1" max="10" />
                     </div>
                     <button type="submit" class="btn btn-primary">Add Car</button>
                 </form>
@@ -41,10 +41,10 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Car Model</th>
-                        <th>Car Plate</th>
-                        <th>Car Capacity</th>
-                        <th>Driver ID</th>
+                        <th>Bilnavn</th>
+                        <th>Nummerplade</th>
+                        <th>Antal Passagersæder</th>
+                        <th>Rediger/Slet bil</th>
                     </tr>
                 </thead>
                 <tbody>
