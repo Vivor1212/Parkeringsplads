@@ -70,7 +70,6 @@ namespace Parkeringsplads.Pages.Account
                     // If user is not a driver, do not set the session for IsDriver
                 }
 
-
                 // Store the user's email in the session
                 HttpContext.Session.SetString("UserEmail", user.Email);
 

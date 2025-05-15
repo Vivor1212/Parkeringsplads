@@ -29,7 +29,7 @@ public partial class User
     public string Email { get; set; }
 
     [Required]
-    [StringLength(15)]
+    [StringLength(15, MinimumLength = 8, ErrorMessage = "Telefonnummer skal være 8 tal.")]
     [Unicode(false)]
     public string Phone { get; set; }
 
@@ -38,11 +38,13 @@ public partial class User
     [Unicode(false)]
     public string Password { get; set; }
 
+
+
     [Required]
     [StringLength(1)]
     [Unicode(false)]
     public string Title { get; set; }
-
+ 
     [Column("School_Id")]
     public int? SchoolId { get; set; }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 public class CreateUserModel : PageModel
 {
@@ -22,6 +23,7 @@ public class CreateUserModel : PageModel
     [BindProperty]
     public User User { get; set; }
 
+
     [BindProperty]
     public string AddressRoad { get; set; }
 
@@ -30,6 +32,15 @@ public class CreateUserModel : PageModel
 
     [BindProperty]
     public int CityId { get; set; }
+
+
+    public Dictionary<string, string> TitleOptions = new()
+    {
+        {"A", "Administrator" },
+        {"P", "Personale" },
+        {"S", "Studerende" }
+    };
+
 
     public List<SelectListItem> Schools { get; set; }
     public List<SelectListItem> City { get; set; }
@@ -66,6 +77,8 @@ public class CreateUserModel : PageModel
 
             ModelState.AddModelError("User.Email", "Email is already in use.");
         }
+
+
 
         // Repopulate dropdowns if something fails
         await LoadDropdownDataAsync();

@@ -1,20 +1,21 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Parkeringsplads.Models;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Identity.Client;
 
 namespace Parkeringsplads.Pages.UserPages
 {
     public class UpdateUserModel : PageModel
     {
         private readonly ParkeringspladsContext _context;
-        private readonly IUser _userService;
+        private readonly Services.Interfaces.IUser _userService;
         private readonly ISchoolService _schoolService;
 
-        public UpdateUserModel(IUser userService, ParkeringspladsContext context, ISchoolService schoolService)
+        public UpdateUserModel(Services.Interfaces.IUser userService, ParkeringspladsContext context, ISchoolService schoolService)
         {
             _context = context;
             _userService = userService;
@@ -34,6 +35,11 @@ namespace Parkeringsplads.Pages.UserPages
         public string Title { get; set; }
         public School School { get; set; }
 
+        public Address Address { get; set; }
+
+        public UserAddress UserAddress { get; set; }
+
+
         public string SchoolName { get; set; }
         public List<SelectListItem> Schools { get; set; }
 
@@ -45,26 +51,37 @@ namespace Parkeringsplads.Pages.UserPages
             // You can similarly fetch City dropdown here if required (using _schoolService or another service).
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int userId)
         {
 
             await LoadDropdownDataAsync();
 
-            // Retrieve user email from session
+            // Try to get user email from session
             var userEmail = HttpContext.Session.GetString("UserEmail");
+
+            User user;
 
             if (string.IsNullOrEmpty(userEmail))
             {
-                // If no user is logged in, redirect to login page
-                return RedirectToPage("/Account/Login/Login");
+                // Admin flow: get user by passed-in userId
+                user = await _userService.GetUserAsync(userId);
             }
+
+            else
+            {
+                // Regular user flow: get user by their session email
+                user = await _context.User
+                    .Include(u => u.School)
+               
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+            }
+
+            
+
             var userSchool = _context.User
                 .Include(u => u.School) // Include the School navigation property
                 .FirstOrDefault(u => u.Email == userEmail);
-            // Query the database to retrieve user information based on the email
-            var user = _context.User
-                               .Where(u => u.Email == userEmail)
-                               .FirstOrDefault();
+           
 
             if (user == null)
             {
@@ -72,51 +89,70 @@ namespace Parkeringsplads.Pages.UserPages
                 return RedirectToPage("/Account/Login/Login");
             }
 
-           
-            // Assign the retrieved user data to the properties
+            // Set properties
+            User = user;
             UserEmail = user.Email;
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
             Title = user.Title;
-            School = user.School; // Assign the School entity
-
-            SchoolName = user.School?.SchoolName; // Use the null conditional operator to avoid null reference errors
-
-
+            School = user.School;
+            SchoolName = user.School?.SchoolName;
 
             return Page(); // Return the Profile page with the user's information
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int userId)
         {
-            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var sessionEmail = HttpContext.Session.GetString("UserEmail");
 
-            if (string.IsNullOrEmpty(userEmail))
+            User userBeingUpdated;
+
+            if (string.IsNullOrEmpty(sessionEmail))
             {
-                return RedirectToPage("/Account/Login/Login");
+                // Admin flow: use the userId passed from route/form
+                userBeingUpdated = await _userService.GetUserAsync(userId);
+            }
+            else
+            {
+                // Regular user flow: fetch user using session email
+                userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
             }
 
-            var userInDb = _context.User.FirstOrDefault(u => u.Email == userEmail);
-
-          
-            if (userInDb == null)
+            if (userBeingUpdated == null)
             {
-                return RedirectToPage("/Account/Login/Login");
+                // Redirect admins to user list, regular users to login
+                return string.IsNullOrEmpty(sessionEmail)
+                    ? RedirectToPage("/UserPages/AllUsers")
+                    : RedirectToPage("/Account/Login/Login");
             }
 
-            User.UserId = userInDb.UserId;
+            // Assign the correct UserId to the form-bound User
+            User.UserId = userBeingUpdated.UserId;
 
-            // Attempt to update via the service
+            // Try to update using service
             bool updateSuccessful = await _userService.UpdateUserAsync(User);
 
             if (!updateSuccessful)
             {
                 ModelState.AddModelError(string.Empty, "The email is already in use by another user.");
-                return Page(); // Return the page with error message
+                await LoadDropdownDataAsync(); // ensure dropdowns are repopulated
+                return Page();
             }
 
-            return RedirectToPage("/Account/Profile");
+            // ✅ Only update session if user updated their own info
+            if (!string.IsNullOrEmpty(sessionEmail) && sessionEmail == userBeingUpdated.Email)
+            {
+                HttpContext.Session.SetString("UserEmail", User.Email);
+
+                bool isDriver = _context.Driver.Any(d => d.UserId == User.UserId);
+                HttpContext.Session.SetString("IsDriver", isDriver ? "true" : "false");
+            }
+
+            // Redirect based on who did the update
+            return string.IsNullOrEmpty(sessionEmail)
+                ? RedirectToPage("/UserPages/AllUsers") // Admins go back to user list
+                : RedirectToPage("/Account/Profile");   // Regular users go to profile
         }
 
     }

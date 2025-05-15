@@ -1,7 +1,5 @@
 ﻿@page
 @model Parkeringsplads.Pages.UserPages.AllUsersModel
-@{
-}
 
 <h2>Alle profiler</h2>
 
@@ -12,9 +10,8 @@
             <th>Efternavn</th>
             <th>Telefonnummer</th>
             <th>Email</th>
-            <th>Addresse</th>
-          
-            <th></th>
+            <th>Adresse</th>
+            <th>Handlinger</th>
         </tr>
     </thead>
     <tbody>
@@ -26,28 +23,21 @@
                 <td>@user.Phone</td>
                 <td>@user.Email</td>
                 <td>
-                    @foreach (var ua in user.UserAddresses)
+                    @if (user.UserAddresses != null)
                     {
-                        <div>
-                            @ua.Address.AddressRoad @ua.Address.AddressNumber, @ua.Address.City.CityName
-                        </div>
+                        foreach (var ua in user.UserAddresses)
+                        {
+                            <div>
+                                @ua.Address.AddressRoad @ua.Address.AddressNumber, @ua.Address.City.CityName
+                            </div>
+                        }
                     }
                 </td>
-
-
                 <td>
-                    <form method="post">
-                        <a asp-page="/Delete/ConfirmDelete" asp-route-type="User" asp-route-id="@user.UserId" class="btn btn-danger">Delete</a>
-
-                    </form>
-
-                    <form method="post">
-                        <a asp-page="/UserPages/UpdateUser" asp-route-type="User" asp-route-id="@user.UserId" class="btn btn-primary">Update</a>
-
-                    </form>
+                    <a asp-page="/Delete/ConfirmDelete" asp-route-id="@user.UserId" class="btn btn-danger">Slet</a>
+                    <a asp-page="/UserPages/UpdateUser" asp-route-userId="@user.UserId" class="btn btn-primary">Opdater</a>
                 </td>
             </tr>
         }
-
     </tbody>
 </table>

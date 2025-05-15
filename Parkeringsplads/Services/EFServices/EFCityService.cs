@@ -23,10 +23,10 @@ namespace Parkeringsplads.Services.EFServices
                 .Select(s => new SelectListItem
                 {
                     Value = s.CityId.ToString(),
-                    Text = s.CityName
+                    Text = s.PostalCode + " " + s.CityName
                 }).ToListAsync();
 
-
+          
         }
 
         // Get all cities

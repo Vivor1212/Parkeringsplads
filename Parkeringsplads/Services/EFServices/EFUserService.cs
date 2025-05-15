@@ -131,10 +131,12 @@ public class EFUserService : IUser
         return true;
     }
 
-    public async Task<bool> GetUserAsync(string email)
+    public async Task<User> GetUserAsync(int userId)
     {
-        var user = await _context.User.FirstOrDefaultAsync(u => u.Email == email);
-        return user != null;
+        return await _context.User
+        
+          .FirstOrDefaultAsync(u => u.UserId == userId);
+
     }
 
     public async Task<List<User>> GetAllUsersAsync()
