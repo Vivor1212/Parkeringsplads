@@ -19,6 +19,7 @@ namespace Parkeringsplads.Pages.TripPages
         }
 
         public Trip Trip { get; set; }
+        public IEnumerable<Car> DriverCars { get; set; }
 
         public IActionResult OnGet(int tripId)
         {
@@ -48,6 +49,8 @@ namespace Parkeringsplads.Pages.TripPages
                 TempData["ErrorMessage"] = "Trip not found or you do not have access it it.";
                 return RedirectToPage("./DriversTrips");
             }
+
+            DriverCars = _context.Car.Where(c => c.DriverId == Trip.DriverId).ToList();
 
             return Page();
         }
