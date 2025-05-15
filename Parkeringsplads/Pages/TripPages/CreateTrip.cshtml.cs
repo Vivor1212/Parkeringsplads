@@ -78,7 +78,6 @@ namespace Parkeringsplads.Pages.TripPages
 
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
 
-            // Sæt første adresse som default hvis ikke valgt endnu
             if (string.IsNullOrWhiteSpace(SelectedAddress) && !UseCustomAddress)
             {
                 SelectedAddress = UserAddresses.FirstOrDefault();
