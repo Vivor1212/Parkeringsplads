@@ -14,13 +14,14 @@ namespace Parkeringsplads.Pages.UserPages
         private readonly ParkeringspladsContext _context;
         private readonly Services.Interfaces.IUser _userService;
         private readonly ISchoolService _schoolService;
+        private readonly ICityService _cityService;
 
-        public UpdateUserModel(Services.Interfaces.IUser userService, ParkeringspladsContext context, ISchoolService schoolService)
+        public UpdateUserModel(Services.Interfaces.IUser userService, ParkeringspladsContext context, ISchoolService schoolService, ICityService cityService)
         {
             _context = context;
             _userService = userService;
             _schoolService = schoolService;
-
+            _cityService = cityService;
 
         }
 
@@ -33,21 +34,31 @@ namespace Parkeringsplads.Pages.UserPages
         public string LastName { get; set; }
         public string Phone { get; set; }
         public string Title { get; set; }
+        [BindProperty]
         public School School { get; set; }
 
+
+        [BindProperty]
+        public int CityId { get; set; }
+        [BindProperty]
         public Address Address { get; set; }
-
+        [BindProperty]
         public UserAddress UserAddress { get; set; }
-
+        [BindProperty]
 
         public string SchoolName { get; set; }
+        [BindProperty]
         public List<SelectListItem> Schools { get; set; }
+
+       
+        public List<SelectListItem> City { get; set; }
 
 
         private async Task LoadDropdownDataAsync()
         {
             // Fetch the dropdown data
             Schools = await _schoolService.SchoolDropDownAsync();
+            City = await _cityService.CityDropDownAsync();
             // You can similarly fetch City dropdown here if required (using _schoolService or another service).
         }
 
