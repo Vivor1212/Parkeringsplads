@@ -66,7 +66,7 @@ namespace Parkeringsplads.Pages.Account
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
-            TitleText = user.TitleText;
+            TitleText = user.Title;
             School = user.School;
             SchoolName = user.School?.SchoolName;
 

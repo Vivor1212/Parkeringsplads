@@ -38,13 +38,13 @@ public partial class User
     [Unicode(false)]
     public string Password { get; set; }
 
+
+
     [Required]
-    [StringLength(1)] 
+    [StringLength(1)]
     [Unicode(false)]
     public string Title { get; set; }
-
-    public string TitleText => Title == "S" ? "Studerende" : "Personale";
-
+ 
     [Column("School_Id")]
     public int? SchoolId { get; set; }
 

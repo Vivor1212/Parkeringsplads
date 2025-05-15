@@ -9,30 +9,32 @@
 <form method="post" class="form-group">
     <div class="row">
         <div class="mb-3 col-sm-6">
-        <label asp-for="User.FirstName"></label>
-        <input asp-for="User.FirstName" class="form-control" />
-        <span asp-validation-for="User.FirstName"></span>
-    </div>
+            <label asp-for="User.FirstName"></label>
+            <input asp-for="User.FirstName" class="form-control" />
+            <span asp-validation-for="User.FirstName"></span>
+        </div>
         <div class="mb-3 col-sm-6">
-        <label asp-for="User.LastName"></label>
-        <input asp-for="User.LastName" class="form-control" />
-        <span asp-validation-for="User.LastName"></span>
-    </div>
+            <label asp-for="User.LastName"></label>
+            <input asp-for="User.LastName" class="form-control" />
+            <span asp-validation-for="User.LastName"></span>
+        </div>
     </div>
     <div class="row">
         <div class="mb-3 col-sm-6">
-        <label asp-for="User.Phone"></label>
+            <label asp-for="User.Phone"></label>
             <input asp-for="User.Phone" class="form-control" pattern="\d{8,}" title="Telefonnummeret skal være mindst 8 cifre." />
 
-        <span asp-validation-for="User.Phone" class="text-danger"></span>
-    </div>
+            <span asp-validation-for="User.Phone" class="text-danger"></span>
+        </div>
 
         <div class="mb-3 col-sm-6">
-        <label asp-for="User.Title" class="control-label">Rolle</label>
-        <select asp-for="User.Title" class="form-control">
-            <option value="">-- Vælg rolle --</option>
-            <option value="S">Studerende</option>
-            <option value="P">Personale</option>
+            <label asp-for="User.Title" class="control-label">Rolle</label>
+            <select asp-for="User.Title" class="form-control">
+                @foreach (var option in Model.TitleOptions)
+                {
+                    <option value="@option.Key">@option.Value</option>
+                }
+                
         </select>
         <span asp-validation-for="User.Title" class="text-danger"></span>
     </div>

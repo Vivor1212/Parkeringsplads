@@ -38,6 +38,15 @@ public class CreateUserModel : PageModel
     [BindProperty]
     public int CityId { get; set; }
 
+
+    public Dictionary<string, string> TitleOptions = new()
+    {
+        {"A", "Administrator" },
+        {"P", "Personale" },
+        {"S", "Studerende" }
+    };
+
+
     public List<SelectListItem> Schools { get; set; }
     public List<SelectListItem> City { get; set; }
 
