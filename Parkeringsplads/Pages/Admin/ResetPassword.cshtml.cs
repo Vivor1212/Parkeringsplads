@@ -23,9 +23,16 @@ namespace Parkeringsplads.Pages.Admin
         public string ErrorMessage { get; set; }
         public string SuccessMessage { get; set; }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
-            // If needed, you can put additional logic here
+
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
+
+            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+            {
+                // User is not an admin, redirect to login
+                return RedirectToPage("/Admin/NotAdmin");
+            }
             return Page();
         }
 

@@ -4,6 +4,19 @@
     ViewData["Title"] = "Opret tur";
 }
 
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success" role="alert">
+        @Model.SuccessMessage
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model.ErrorMessage
+    </div>
+}
+
 <h2>Opret tur</h2>
 
 <!-- Retning -->
@@ -32,7 +45,7 @@
         @foreach (var car in Model.Cars)
         {
             <option value="@car.CarId" selected="@(car.CarId == Model.SelectedCarId)">
-                @car.CarModel (Bilsæder: @car.CarCapacity)
+                @car.CarModel (Passager sæder: @car.CarCapacity)
             </option>
         }
     </select>
@@ -42,29 +55,37 @@
 <form method="get" class="mb-4">
     <input type="hidden" name="Direction" value="@Model.Direction" />
     <input type="hidden" name="SelectedCarId" value="@Model.SelectedCarId" />
+
     <label>Vælg en af dine adresser</label>
-    <select name="SelectedAddress" class="form-control" onchange="this.form.submit()" @(Model.UseCustomAddress ? "disabled" : "")>
-        @foreach (var addr in Model.UserAddresses)
-        {
-            <option value="@addr" selected="@(addr == Model.SelectedAddress)">
-                @addr
-            </option>
-        }
-    </select>
+
+    @if (!Model.UseCustomAddress)
+    {
+        <select name="SelectedAddress" class="form-control" onchange="this.form.submit()">
+            @foreach (var addr in Model.UserAddresses)
+            {
+                <option value="@addr" selected="@(addr == Model.SelectedAddress)">
+                    @addr
+                </option>
+            }
+        </select>
+    }
 
     <div class="form-check mt-2">
         <input type="checkbox" class="form-check-input" name="UseCustomAddress" value="true" id="useCustom" onchange="this.form.submit()" @(Model.UseCustomAddress ? "checked" : "") />
         <label class="form-check-label" for="useCustom">Indtast selv adresse</label>
     </div>
 
-    <div class="mt-2">
-        <input name="CustomAddress" value="@Model.CustomAddress" class="form-control" placeholder="Egen adresse" @(Model.UseCustomAddress ? "" : "disabled") />
-    </div>
-    <div class="mt-2">
-        <button type="submit" class="btn btn-outline-secondary btn-sm">
-            Brug denne adresse som start/slutpunkt
-        </button>
-    </div>
+    @if (Model.UseCustomAddress)
+    {
+        <div class="mt-2">
+            <input name="CustomAddress" value="@Model.CustomAddress" class="form-control" placeholder="Egen adresse" />
+        </div>
+        <div class="mt-2">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                Brug denne adresse som start/slutpunkt
+            </button>
+        </div>
+    }
 </form>
 
 <!-- Turformular -->
@@ -75,15 +96,24 @@
     <input type="hidden" asp-for="CustomAddress" />
     <input type="hidden" asp-for="UseCustomAddress" />
 
-    <div class="mb-3">
-        <label>Fra</label>
-        <input type="text" class="form-control" value="@Model.Trip.FromDestination" readonly />
-    </div>
+    @if (Model.Direction == "ToSchool")
+    {
+        <div class="mb-3">
+            <label>Fra</label>
+            <input type="text" class="form-control" value="@Model.Trip.FromDestination" readonly />
+        </div>
+    }
 
-    <div class="mb-3">
-        <label>Til</label>
-        <input type="text" class="form-control" value="@Model.Trip.ToDestination" readonly />
-    </div>
+    @if (Model.Direction == "FromSchool")
+    {
+        <div class="mb-3">
+            <label>Til</label>
+            <input type="text" class="form-control" value="@Model.Trip.ToDestination" readonly />
+        </div>
+    }
+
+
+
 
     <div class="mb-3">
         <label>Dato</label>

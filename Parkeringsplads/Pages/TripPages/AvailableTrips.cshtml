@@ -24,17 +24,12 @@
     .bg-primary {
         background-color: dodgerblue;
     }
-
-    .bg-dark {
-        background-color: dimgray;
-    }
 </style>
 
 <h2>Ledige Ture</h2>
 
 <div class="mb-3">
-    <span class="dot bg-dark"></span> Chauffør
-    <span class="dot bg-warning ms-3"></span> Studerende
+    <span class="dot bg-warning"></span> Studerende
     <span class="dot bg-primary ms-3"></span> Personale
     <span class="dot bg-success ms-3"></span> Ledig plads
 </div>
@@ -47,21 +42,32 @@
         <div class="col-auto">
             <select asp-for="DirectionFilter" asp-items="Model.DirectionOptions" class="form-select w-auto d-inline-block"></select>
         </div>
+
         <div class="col-auto">
             <label for="dateFilter" class="form-label">Filtrer dato:</label>
         </div>
         <div class="col-auto">
             <input asp-for="DateFilter" type="date" class="form-control w-auto d-inline-block" />
         </div>
+
         <div class="col-auto">
-            <label for="timeFilter" class="form-label">Filtrer tidspunkt (timer):</label>
+            <label for="hourFilter" class="form-label">Filtrer tidspunkt (timer):</label>
         </div>
         <div class="col-auto">
             <select asp-for="HourFilter" asp-items="Model.HourOptions" class="form-select w-auto d-inline-block">
                 <option value="">Alle tidspunkter</option>
             </select>
-
         </div>
+
+        <div class="col-auto">
+            <label for="cityFilter" class="form-label">Filtrer by:</label>
+        </div>
+        <div class="col-auto">
+            <select asp-for="CityFilter" asp-items="Model.CityOptions" class="form-select w-auto d-inline-block">
+                <option value="">Alle byer</option>
+            </select>
+        </div>
+
         <div class="col-auto">
             <button type="submit" class="btn btn-primary">Filtrer</button>
         </div>
@@ -88,8 +94,8 @@
                 <tr>
                     <td>@trip.TripDate.ToShortDateString()</td>
                     <td>@trip.TripTime.ToString(@"hh\:mm")</td>
-                    <td>@trip.FromDestination</td>
-                    <td>@trip.ToDestination</td>
+                    <td>@Model.DisplayDestination(trip.FromDestination)</td>
+                    <td>@Model.DisplayDestination(trip.ToDestination)</td>
                     <td>@trip.Driver.User.FirstName @trip.Driver.User.LastName</td>
                     <td>
                         @{
@@ -97,13 +103,11 @@
                             var acceptedRequests = trip.Requests.ToList();
                             var seatsTaken = acceptedRequests.Count;
 
-                            <span class="dot bg-dark" title="Chauffør: @trip.Driver.User.FirstName @trip.Driver.User.LastName"></span>
-
-                            for (int i = 1; i < totalSeats; i++)
+                            for (int i = 0; i < totalSeats - 1; i++)
                             {
-                                if (i <= seatsTaken)
+                                if (i < seatsTaken)
                                 {
-                                    var user = acceptedRequests[i - 1].Users; // du sagde vi skulle lade det være
+                                    var user = acceptedRequests[i].Users;
                                     var color = user?.Title?.ToLower() == "s" ? "bg-warning" : "bg-primary";
                                     <span class="dot @color" title="@user?.FirstName @user?.LastName"></span>
                                 }

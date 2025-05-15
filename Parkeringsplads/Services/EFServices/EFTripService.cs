@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,6 +27,7 @@ namespace Parkeringsplads.Services.EFServices
             string? directionFilter,
             DateTime? dateFilter,
             int? hourFilter,
+            string? cityFilter,
             string schoolAddress)
         {
             var query = _context.Trip
@@ -38,16 +39,12 @@ namespace Parkeringsplads.Services.EFServices
                 .ThenBy(t => t.TripTime)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(directionFilter) && !string.IsNullOrEmpty(schoolAddress))
+            if (!string.IsNullOrEmpty(directionFilter))
             {
                 if (directionFilter == "ToSchool")
-                {
-                    query = query.Where(t => t.ToDestination == schoolAddress);
-                }
+                    query = query.Where(t => t.ToDestination != null && t.ToDestination.ToLower().Contains(schoolAddress.ToLower()));
                 else if (directionFilter == "FromSchool")
-                {
-                    query = query.Where(t => t.FromDestination == schoolAddress);
-                }
+                    query = query.Where(t => t.FromDestination != null && t.FromDestination.ToLower().Contains(schoolAddress.ToLower()));
             }
 
             if (dateFilter.HasValue)
@@ -58,6 +55,30 @@ namespace Parkeringsplads.Services.EFServices
             if (hourFilter.HasValue)
             {
                 query = query.Where(t => t.TripTime.Hour == hourFilter.Value);
+            }
+
+            if (!string.IsNullOrEmpty(cityFilter))
+            {
+                string cityLower = cityFilter.ToLower();
+
+                if (directionFilter == "ToSchool")
+                {
+                    query = query.Where(t =>
+                        !string.IsNullOrEmpty(t.FromDestination) &&
+                        t.FromDestination.ToLower().Contains(cityLower));
+                }
+                else if (directionFilter == "FromSchool")
+                {
+                    query = query.Where(t =>
+                        !string.IsNullOrEmpty(t.ToDestination) &&
+                        t.ToDestination.ToLower().Contains(cityLower));
+                }
+                else
+                {
+                    query = query.Where(t =>
+                        (!string.IsNullOrEmpty(t.FromDestination) && t.FromDestination.ToLower().Contains(cityLower)) ||
+                        (!string.IsNullOrEmpty(t.ToDestination) && t.ToDestination.ToLower().Contains(cityLower)));
+                }
             }
 
             return await query.ToListAsync();

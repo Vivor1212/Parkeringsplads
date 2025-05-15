@@ -1,4 +1,6 @@
 ﻿@{
+    var isAdmin = Context?.Session.GetString("IsAdmin") == "true";
+
     var isUserLoggedIn = Context?.Session?.GetString("UserEmail") != null;
     var userEmail = isUserLoggedIn ? Context.Session.GetString("UserEmail") : string.Empty;
 
@@ -22,7 +24,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Parkeringsplads</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Account/Profile">Parkeringsplads</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -34,25 +36,73 @@
                         <!-- Login Button, shown only if the user is NOT logged in -->
                         @if (!isUserLoggedIn)
                         {
-                            @* <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/Login">Login</a>
-                            </li> *@
+                            
+                        }
+
+                        <!-- Navbar for admin -->
+                        @if (isUserLoggedIn && isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Admin/AdminDashboard">Admin Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Admin/CarAdmin">Car Admin</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Admin/CityAdmin">City Admin</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-page="/Admin/ResetPassword">Reset Password</a>
+                            </li>
                         }
 
                         <!-- Nav bar for brugere som er logget ind og er passager -->
-                        @if (isUserLoggedIn)
+                        @if (isUserLoggedIn && !isDriver && !isAdmin)
                         {
                             
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/TripPages/AvailableTrips">Ture</a>
                             </li>
-                        }
-                        <!-- Nav bar for brugere som er logget ind og er driver -->
-                        @if (isUserLoggedIn)
-                        {
                             <li class="nav-item">
-                                <a class="nav-link" asp-page="/TripPages/AvailableTrips">Rejser</a>
+                                <a class="nav-link" asp-page="/UserPages/MyRequests">Mine requests</a>
                             </li>
+                        }
+
+                      <!-- Nav bar for brugere som er logget ind og er driver -->
+                        @if (isUserLoggedIn && isDriver && !isAdmin)
+                        {
+
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Rejser
+                                </button>
+                                <ul class="dropdown-menu">
+                                   
+                                    <li><a class="dropdown-item" asp-page="/TripPages/AvailableTrips">Alle rejser</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Requests
+                                </button>
+                                <ul class="dropdown-menu">
+
+                                    <li><a class="dropdown-item" asp-page="">Accepterede</a></li>
+                                    <li><a class="dropdown-item" asp-page="">Pending</a></li>
+                                    <li><a class="dropdown-item" asp-page="">Declined</a></li>
+
+                                </ul>
+                            </div>
+
+                            /*<li class="nav-item">
+                            <a class="nav-link" asp-page="/TripPages/AvailableTrips">Rejser</a>
+                            <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                            <a class="nav-link">test</a>
+                            </li>
+                            </ul>
+                            </li>*/
 
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/UserPages/MyRequests">Mine requests</a>
@@ -66,12 +116,16 @@
                                 <li class="nav-item">
                                     <a class="nav-link" asp-page="/TripPages/DriversTrips">Mine rejser</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-page="/CarPages/Car">My Cars</a>
+                                </li>
                             }
                             else
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-page="/Account/BecomeDriver">Become a Driver</a>
                                 </li>
+
                             }
                         }
                     </ul>   
