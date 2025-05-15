@@ -13,6 +13,7 @@ namespace Parkeringsplads.Services.Interfaces
             string? directionFilter,
             DateTime? dateFilter,
             int? hourFilter,
+            string? cityFilter,
             string schoolAddress);
 
         Task<Trip?> GetTripByIdAsync(int tripId);
