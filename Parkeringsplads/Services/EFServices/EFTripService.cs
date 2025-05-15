@@ -10,6 +10,7 @@ namespace Parkeringsplads.Services.EFServices
 {
     public class EFTripService : ITripService
     {
+        // Hej
         private readonly ParkeringspladsContext _context;
 
         public EFTripService(ParkeringspladsContext context)
