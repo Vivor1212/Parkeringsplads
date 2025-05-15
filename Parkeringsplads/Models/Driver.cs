@@ -33,6 +33,5 @@ public partial class Driver
     [InverseProperty("Driver")]
     public virtual ICollection<Car> Cars { get; set; } = new List<Car>();
 
-    [InverseProperty("Driver")]
-    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
+    
 }

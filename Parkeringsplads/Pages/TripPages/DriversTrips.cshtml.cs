@@ -39,7 +39,7 @@ namespace Parkeringsplads.Pages.TripPages
             }
 
             // Load trips for the driver including related requests
-            Trips = _context.Trip.Include(t => t.Requests).Where(t => t.Driver.UserId == user.UserId).ToList();
+            Trips = _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).Where(t => t.Car.Driver.UserId == user.UserId).ToList();
 
             return Page();
         }
@@ -69,7 +69,7 @@ namespace Parkeringsplads.Pages.TripPages
             if (!ModelState.IsValid)
             {
                 // Reload existing trips if validation fails
-                Trips = _context.Trip.Include(t => t.Requests).Where(t => t.Driver.UserId == user.UserId).ToList();
+                Trips = _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).Where(t => t.Car.Driver.UserId == user.UserId).ToList();
 
                 return Page();
             }

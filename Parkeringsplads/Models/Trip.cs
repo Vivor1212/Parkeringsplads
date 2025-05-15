@@ -33,12 +33,12 @@ public partial class Trip
     [Precision(2)]
     public TimeOnly TripTime { get; set; }
 
-    [Column("Driver_Id")]
-    public int DriverId { get; set; }
+    [Column("Car_Id")]
+    public int CarId { get; set; }
 
-    [ForeignKey("DriverId")]
+    [ForeignKey("CarId")]
     [InverseProperty("Trips")]
-    public virtual Driver Driver { get; set; }
+    public virtual Car Car { get; set; }
 
     [InverseProperty("Trip")]
     public virtual ICollection<Request> Requests { get; set; } = new List<Request>();

@@ -177,7 +177,7 @@ namespace Parkeringsplads.Pages.Admin
 
             //Tripsøgning
             var tripQuery = _context.Trip
-                .Include(t => t.Driver)
+                .Include(t => t.Car.Driver)
                 .ThenInclude(d => d.User)
                 .AsQueryable();
 
@@ -190,9 +190,9 @@ namespace Parkeringsplads.Pages.Admin
                     t.TripDate.ToString().Contains(lowerTripSearchTerm) ||
                     t.TripTime.ToString().Contains(lowerTripSearchTerm) ||
                     t.TripSeats.ToString().Contains(lowerTripSearchTerm) ||
-                    t.Driver.DriverLicense.ToLower().Contains(lowerTripSearchTerm) ||
-                    t.Driver.User.FirstName.ToLower().Contains(lowerTripSearchTerm) ||
-                    t.Driver.User.LastName.ToLower().Contains(lowerTripSearchTerm)
+                    t.Car.Driver.DriverLicense.ToLower().Contains(lowerTripSearchTerm) ||
+                    t.Car.Driver.User.FirstName.ToLower().Contains(lowerTripSearchTerm) ||
+                    t.Car.Driver.User.LastName.ToLower().Contains(lowerTripSearchTerm)
                 );
             }
 
