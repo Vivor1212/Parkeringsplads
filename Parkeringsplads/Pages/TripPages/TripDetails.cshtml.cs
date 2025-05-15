@@ -42,7 +42,7 @@ namespace Parkeringsplads.Pages.TripPages
                 return RedirectToPage("./Account/Profile");
             }
 
-            Trip = _context.Trip.Include(t => t.Requests).ThenInclude(r => r.Users).FirstOrDefault(t => t.TripId == tripId && t.Driver.UserId == user.UserId);
+            Trip = _context.Trip.Include(t => t.Requests).ThenInclude(r => r.Users).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefault(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == user.UserId);
 
             if (Trip == null)
             {
@@ -50,7 +50,7 @@ namespace Parkeringsplads.Pages.TripPages
                 return RedirectToPage("./DriversTrips");
             }
 
-            DriverCars = _context.Car.Where(c => c.DriverId == Trip.DriverId).ToList();
+            DriverCars = Trip.Car != null ? _context.Car.Where(c => c.DriverId == Trip.Car.DriverId).ToList() : new List<Car>();
 
             return Page();
         }

@@ -6,23 +6,23 @@
 
 <style>
     .dot {
-        height: 12px;
-        width: 12px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 3px;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 3px;
     }
 
     .bg-success {
-        background-color: green;
+    background-color: green;
     }
 
     .bg-warning {
-        background-color: gold;
+    background-color: gold;
     }
 
     .bg-primary {
-        background-color: dodgerblue;
+    background-color: dodgerblue;
     }
 </style>
 
@@ -96,10 +96,10 @@
                     <td>@trip.TripTime.ToString(@"hh\:mm")</td>
                     <td>@Model.DisplayDestination(trip.FromDestination)</td>
                     <td>@Model.DisplayDestination(trip.ToDestination)</td>
-                    <td>@trip.Driver.User.FirstName @trip.Driver.User.LastName</td>
+                    <td>@trip.Car.Driver.User.FirstName @trip.Car.Driver.User.LastName</td>
                     <td>
                         @{
-                            var totalSeats = trip.TripSeats;
+                            var totalSeats = trip.Car.CarCapacity;
                             var acceptedRequests = trip.Requests.ToList();
                             var seatsTaken = acceptedRequests.Count;
 

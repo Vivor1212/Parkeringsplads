@@ -31,7 +31,7 @@ namespace Parkeringsplads.Services.EFServices
             string schoolAddress)
         {
             var query = _context.Trip
-                .Include(t => t.Driver)
+                .Include(t => t.Car.Driver)
                     .ThenInclude(d => d.User)
                 .Include(t => t.Requests.Where(r => r.RequestStatus == true))
                     .ThenInclude(r => r.Users)
@@ -87,7 +87,7 @@ namespace Parkeringsplads.Services.EFServices
         public async Task<Trip?> GetTripByIdAsync(int tripId)
         {
             return await _context.Trip
-                .Include(t => t.Driver)
+                .Include(t => t.Car.Driver)
                     .ThenInclude(d => d.User)
                 .Include(t => t.Requests.Where(r => r.RequestStatus == true))
                     .ThenInclude(r => r.Users)

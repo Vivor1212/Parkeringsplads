@@ -36,7 +36,7 @@ public partial class Trip
     [Column("Car_Id")]
     public int CarId { get; set; }
 
-    [ForeignKey("DriverId")]
+    [ForeignKey("CarId")]
     [InverseProperty("Trips")]
     public virtual Car Car { get; set; }
 

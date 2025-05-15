@@ -20,7 +20,7 @@ namespace Parkeringsplads.Services.EFServices
             return await _context.Request
            .Where(r => r.UserId == user.UserId)
         .Include(r => r.Trip)
-            .ThenInclude(t => t.Driver)
+            .ThenInclude(t => t.Car.Driver)
                 .ThenInclude(d => d.User)
         .ToListAsync();
         }
@@ -39,7 +39,7 @@ namespace Parkeringsplads.Services.EFServices
         {
             return await _context.Request
                 .Include(r => r.Trip)
-                    .ThenInclude(t => t.Driver)
+                    .ThenInclude(t => t.Car.Driver)
                         .ThenInclude(d => d.User)
                 .FirstOrDefaultAsync(r => r.RequestId == requestId);
         }
