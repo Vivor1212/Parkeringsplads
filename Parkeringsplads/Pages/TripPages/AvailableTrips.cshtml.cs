@@ -33,7 +33,13 @@ namespace Parkeringsplads.Pages.TripPages
         [BindProperty(SupportsGet = true)]
         public int? HourFilter { get; set; }
 
-        public string SchoolAddress { get; set; } = string.Empty;
+        [BindProperty(SupportsGet = true)]
+        public string? CityFilter { get; set; }
+
+        public List<SelectListItem> CityOptions { get; set; } = new();
+
+        public string SchoolAddress { get; set; } = "";
+        public string SchoolName { get; set; } = "";
 
         public List<SelectListItem> DirectionOptions { get; set; } = new()
         {
@@ -57,17 +63,34 @@ namespace Parkeringsplads.Pages.TripPages
             var user = await _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
-                        .ThenInclude(a => a.City)
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
 
-            SchoolAddress = user?.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
+            SchoolAddress = user?.School?.Address?.FullAddress?.Trim() ?? "";
+            SchoolName = user?.School?.SchoolName ?? "";
 
             Trips = await _tripService.GetAllAvailableTripsAsync(
                 DirectionFilter,
                 DateFilter,
                 HourFilter,
+                CityFilter,
                 SchoolAddress
             );
+
+            var destinations = DirectionFilter switch
+            {
+                "ToSchool" => Trips.Select(t => t.FromDestination),
+                "FromSchool" => Trips.Select(t => t.ToDestination),
+                _ => Trips.SelectMany(t => new[] { t.FromDestination, t.ToDestination })
+            };
+
+            CityOptions = destinations
+                .Where(d => !string.IsNullOrWhiteSpace(d))
+                .Select(ExtractCity)
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct()
+                .OrderBy(c => c)
+                .Select(c => new SelectListItem { Value = c, Text = c })
+                .ToList();
 
             return Page();
         }
@@ -88,12 +111,29 @@ namespace Parkeringsplads.Pages.TripPages
                     UserId = user.UserId,
                     RequestStatus = null,
                     RequestTime = TimeOnly.FromDateTime(DateTime.Now)
-
                 });
+
                 await _context.SaveChangesAsync();
             }
 
             return RedirectToPage();
+        }
+
+        public string DisplayDestination(string? destination)
+        {
+            if (string.IsNullOrWhiteSpace(destination)) return "";
+
+            var normalizedDest = destination.Trim().ToLower();
+            var normalizedSchool = SchoolAddress.Trim().ToLower();
+
+            return normalizedDest.Contains(normalizedSchool) ? SchoolName : destination;
+        }
+
+        private string ExtractCity(string? address)
+        {
+            if (string.IsNullOrWhiteSpace(address)) return "";
+            var parts = address.Split(',');
+            return parts.Length > 1 ? parts[^1].Trim() : "";
         }
     }
 }

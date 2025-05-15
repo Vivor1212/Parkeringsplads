@@ -34,7 +34,7 @@ public partial class User
     public string Phone { get; set; }
 
     [Required]
-    [StringLength(30)]
+    [StringLength(255)]
     [Unicode(false)]
     public string Password { get; set; }
 
