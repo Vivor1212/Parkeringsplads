@@ -23,11 +23,6 @@ public class CreateUserModel : PageModel
     [BindProperty]
     public User User { get; set; }
 
-    [BindProperty]
-    [Required]
-    [StringLength(20, MinimumLength = 8, ErrorMessage = "Telefonnummeret skal være mindst 8 cifre.")]
-    [RegularExpression(@"^\d{8,}$", ErrorMessage = "Telefonnummeret skal være mindst 8 cifre og kun indeholde tal.")]
-    public string Phone { get; set; }
 
     [BindProperty]
     public string AddressRoad { get; set; }
