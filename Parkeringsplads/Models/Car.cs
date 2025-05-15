@@ -32,4 +32,7 @@ public partial class Car
     [ForeignKey("DriverId")]
     [InverseProperty("Cars")]
     public virtual Driver Driver { get; set; }
+
+    [InverseProperty("Car")]
+    public virtual ICollection<Trip> Trips { get; set; } = new List<Trip>();
 }

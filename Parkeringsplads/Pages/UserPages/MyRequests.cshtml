@@ -23,7 +23,7 @@
         @foreach (var request in Model.Requests)
         {
             <tr>
-                <td>@request.Trip.Driver.User.FirstName @request.Trip.Driver.User.LastName</td>
+                <td>@request.Trip.Car.Driver.User.FirstName @request.Trip.Car.Driver.User.LastName</td>
                 <td>@request.Trip.FromDestination</td>
                 <td>@request.Trip.ToDestination</td>
                 <td>@request.Trip.TripDate</td>

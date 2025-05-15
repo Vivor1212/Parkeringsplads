@@ -19,83 +19,54 @@
 
 <h2>Opret tur</h2>
 
-<!-- Retning -->
-<form method="get" class="mb-4">
-    <input type="hidden" name="SelectedCarId" value="@Model.SelectedCarId" />
-    <input type="hidden" name="SelectedAddress" value="@Model.SelectedAddress" />
-    <input type="hidden" name="CustomAddress" value="@Model.CustomAddress" />
-    <input type="hidden" name="UseCustomAddress" value="@Model.UseCustomAddress" />
-
-    <label class="form-label">Retning</label><br />
-    <input type="radio" name="Direction" value="ToSchool" onchange="this.form.submit()" @(Model.Direction == "ToSchool" ? "checked" : "") />
-    <label>Til skole</label><br />
-    <input type="radio" name="Direction" value="FromSchool" onchange="this.form.submit()" @(Model.Direction == "FromSchool" ? "checked" : "") />
-    <label>Fra skole</label>
-</form>
-
-<!-- Bilvalg -->
-<form method="get" class="mb-4">
-    <input type="hidden" name="Direction" value="@Model.Direction" />
-    <input type="hidden" name="SelectedAddress" value="@Model.SelectedAddress" />
-    <input type="hidden" name="CustomAddress" value="@Model.CustomAddress" />
-    <input type="hidden" name="UseCustomAddress" value="@Model.UseCustomAddress" />
-
-    <label class="form-label">Vælg bil</label>
-    <select name="SelectedCarId" class="form-control" onchange="this.form.submit()">
-        @foreach (var car in Model.Cars)
-        {
-            <option value="@car.CarId" selected="@(car.CarId == Model.SelectedCarId)">
-                @car.CarModel (Passager sæder: @car.CarCapacity)
-            </option>
-        }
-    </select>
-</form>
-
-<!-- Adressevalg -->
-<form method="get" class="mb-4">
-    <input type="hidden" name="Direction" value="@Model.Direction" />
-    <input type="hidden" name="SelectedCarId" value="@Model.SelectedCarId" />
-
-    <label>Vælg en af dine adresser</label>
-
-    @if (!Model.UseCustomAddress)
-    {
-        <select name="SelectedAddress" class="form-control" onchange="this.form.submit()">
-            @foreach (var addr in Model.UserAddresses)
-            {
-                <option value="@addr" selected="@(addr == Model.SelectedAddress)">
-                    @addr
-                </option>
-            }
-        </select>
-    }
-
-    <div class="form-check mt-2">
-        <input type="checkbox" class="form-check-input" name="UseCustomAddress" value="true" id="useCustom" onchange="this.form.submit()" @(Model.UseCustomAddress ? "checked" : "") />
-        <label class="form-check-label" for="useCustom">Indtast selv adresse</label>
-    </div>
-
-    @if (Model.UseCustomAddress)
-    {
-        <div class="mt-2">
-            <input name="CustomAddress" value="@Model.CustomAddress" class="form-control" placeholder="Egen adresse" />
-        </div>
-        <div class="mt-2">
-            <button type="submit" class="btn btn-outline-secondary btn-sm">
-                Brug denne adresse som start/slutpunkt
-            </button>
-        </div>
-    }
-</form>
-
-<!-- Turformular -->
 <form method="post">
     <input type="hidden" asp-for="Direction" />
-    <input type="hidden" asp-for="SelectedCarId" />
     <input type="hidden" asp-for="SelectedAddress" />
     <input type="hidden" asp-for="CustomAddress" />
     <input type="hidden" asp-for="UseCustomAddress" />
 
+    <!-- Retning -->
+    <div class="mb-4">
+        <label class="form-label">Retning</label><br />
+        <input type="radio" asp-for="Direction" value="ToSchool" onchange="this.form.submit()" />
+        <label>Til skole</label><br />
+        <input type="radio" asp-for="Direction" value="FromSchool" onchange="this.form.submit()" />
+        <label>Fra skole</label>
+    </div>
+
+    <!-- Bilvalg -->
+    <div class="mb-4">
+        <label asp-for="SelectedCarId" class="form-label">Vælg bil</label>
+        <select asp-for="SelectedCarId" class="form-control" asp-items="@(new SelectList(Model.Cars, nameof(Parkeringsplads.Models.Car.CarId), nameof(Parkeringsplads.Models.Car.CarModel)))" required>
+            <option value="">Vælg en bil</option>
+        </select>
+        <span asp-validation-for="SelectedCarId" class="text-danger"></span>
+    </div>
+
+    <!-- Adressevalg -->
+    <div class="mb-4">
+        <label class="form-label">Vælg en af dine adresser</label>
+        @if (!Model.UseCustomAddress)
+        {
+            <select asp-for="SelectedAddress" class="form-control" asp-items="@(new SelectList(Model.UserAddresses))">
+                <option value="">Vælg en adresse</option>
+            </select>
+        }
+
+        <div class="form-check mt-2">
+            <input asp-for="UseCustomAddress" class="form-check-input" id="useCustom" onchange="this.form.submit()" />
+            <label class="form-check-label" for="useCustom">Indtast selv adresse</label>
+        </div>
+
+        @if (Model.UseCustomAddress)
+        {
+            <div class="mt-2">
+                <input asp-for="CustomAddress" class="form-control" placeholder="Egen adresse" />
+            </div>
+        }
+    </div>
+
+    <!-- Turformular -->
     @if (Model.Direction == "ToSchool")
     {
         <div class="mb-3">
@@ -112,28 +83,27 @@
         </div>
     }
 
-
-
-
     <div class="mb-3">
-        <label>Dato</label>
+        <label asp-for="Trip.TripDate">Dato</label>
         <input asp-for="Trip.TripDate" type="date" class="form-control" />
+        <span asp-validation-for="Trip.TripDate" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label>Tidspunkt</label>
+        <label asp-for="Trip.TripTime">Tidspunkt</label>
         <input asp-for="Trip.TripTime" type="time" class="form-control" />
+        <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label>Antal passagersæder</label>
-        <select asp-for="Trip.TripSeats" class="form-control">
-            @foreach (var seat in Model.SeatOptions)
-            {
-                <option value="@seat">@seat</option>
-            }
-        </select>
+        <label asp-for="Trip.TripSeats">Antal passagersæder</label>
+        <select asp-for="Trip.TripSeats" class="form-control" asp-items="@(new SelectList(Model.SeatOptions))"></select>
+        <span asp-validation-for="Trip.TripSeats" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Opret tur</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
