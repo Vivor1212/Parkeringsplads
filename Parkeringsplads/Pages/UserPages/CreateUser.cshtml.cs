@@ -36,7 +36,7 @@ public class CreateUserModel : PageModel
 
     public Dictionary<string, string> TitleOptions = new()
     {
-        {"A", "Administrator" },
+       
         {"P", "Personale" },
         {"S", "Studerende" }
     };
