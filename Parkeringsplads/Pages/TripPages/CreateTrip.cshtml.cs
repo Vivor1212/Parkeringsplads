@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Parkeringsplads.Pages.TripPages
 {
@@ -18,9 +21,8 @@ namespace Parkeringsplads.Pages.TripPages
             _context = context;
         }
 
-        #region BindProperty
         [BindProperty]
-        public Parkeringsplads.Models.Trip Trip { get; set; }
+        public Trip Trip { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
         public string Direction { get; set; } = "ToSchool";
@@ -29,19 +31,25 @@ namespace Parkeringsplads.Pages.TripPages
         public int SelectedCarId { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public string SelectedAddress { get; set; }
+        public string SelectedAddress { get; set; } = "";
 
         [BindProperty(SupportsGet = true)]
-        public string CustomAddress { get; set; }
+        public string CustomAddress { get; set; } = "";
 
         [BindProperty(SupportsGet = true)]
         public bool UseCustomAddress { get; set; }
-        #endregion
+
+        [TempData]
+        public string? SuccessMessage { get; set; }
+
+        [TempData]
+        public string? ErrorMessage { get; set; }
 
         public List<Car> Cars { get; set; } = new();
         public List<string> UserAddresses { get; set; } = new();
         public List<int> SeatOptions { get; set; } = new();
-        public string SchoolAddress { get; set; }
+        public string SchoolAddress { get; set; } = "";
+
         public async Task<IActionResult> OnGetAsync()
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
@@ -70,21 +78,23 @@ namespace Parkeringsplads.Pages.TripPages
 
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
 
+            // Sæt første adresse som default hvis ikke valgt endnu
+            if (string.IsNullOrWhiteSpace(SelectedAddress) && !UseCustomAddress)
+            {
+                SelectedAddress = UserAddresses.FirstOrDefault();
+            }
+
             var selectedCar = Cars.FirstOrDefault(c => c.CarId == SelectedCarId) ?? Cars.FirstOrDefault();
             int carCapacity = selectedCar?.CarCapacity ?? 4;
-
             SeatOptions = Enumerable.Range(1, carCapacity).ToList();
 
-            Trip = new Parkeringsplads.Models.Trip
+            Trip = new Trip
             {
                 TripDate = DateOnly.FromDateTime(DateTime.Today),
-                TripTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(1)),
                 TripSeats = carCapacity
             };
 
-            string finalAddress = UseCustomAddress
-                ? CustomAddress?.Trim()
-                : SelectedAddress ?? UserAddresses.FirstOrDefault();
+            string finalAddress = UseCustomAddress ? CustomAddress?.Trim() : SelectedAddress;
 
             if (Direction == "FromSchool")
             {
@@ -104,7 +114,7 @@ namespace Parkeringsplads.Pages.TripPages
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
-                return RedirectToPage("/Account/Login/Login");
+                return RedirectToPage("/Account/Login");
 
             var driver = await _context.Driver
                 .Include(d => d.User)
@@ -119,12 +129,25 @@ namespace Parkeringsplads.Pages.TripPages
                         .ThenInclude(a => a.City)
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
 
-
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
 
             string chosenAddress = UseCustomAddress
                 ? CustomAddress?.Trim()
                 : SelectedAddress ?? user.UserAddresses.FirstOrDefault()?.Address.FullAddress;
+
+            if (string.IsNullOrWhiteSpace(chosenAddress))
+            {
+                ErrorMessage = "Adresse mangler. Vælg eller indtast en adresse.";
+                return RedirectToPage(new
+                {
+                    Direction,
+                    SelectedCarId,
+                    SelectedAddress,
+                    CustomAddress,
+                    UseCustomAddress
+                });
+            }
+
 
             if (Direction == "FromSchool")
             {
@@ -141,7 +164,16 @@ namespace Parkeringsplads.Pages.TripPages
             Trip.CarId = SelectedCarId;
             await _tripService.CreateTripAsync(Trip);
 
-            return RedirectToPage("/Account/Profile");
+            SuccessMessage = "Turen blev oprettet!";
+
+            return RedirectToPage(new
+            {
+                Direction,
+                SelectedCarId,
+                SelectedAddress,
+                CustomAddress,
+                UseCustomAddress
+            });
         }
     }
 }

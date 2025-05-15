@@ -30,8 +30,17 @@ namespace Parkeringsplads.Pages.Admin
 
         public List<City> MatchingCities { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
+
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
+
+            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+            {
+                // User is not an admin, redirect to login
+                return RedirectToPage("/Admin/NotAdmin");
+            }
+
             if (!string.IsNullOrEmpty(CitySearch))
             {
                 MatchingCities = (await _cityService.GetAllCitiesAsync())
@@ -43,6 +52,7 @@ namespace Parkeringsplads.Pages.Admin
             {
                 MatchingCities = new List<City>();
             }
+            return Page();
         }
 
         public async Task<JsonResult> OnGetSearchCitiesAsync(string term)
@@ -82,6 +92,7 @@ namespace Parkeringsplads.Pages.Admin
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return Page();
             }
+            
         }
 
         // Request model for deletion

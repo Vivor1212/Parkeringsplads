@@ -25,8 +25,17 @@ namespace Parkeringsplads.Pages.Account
 
         public string ErrorMessage { get; set; }
 
-        // Handle GET requests (Display the login form)
-        public void OnGet() { }
+        public IActionResult OnGet() 
+        {
+            var UserEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (!string.IsNullOrEmpty(UserEmail))
+            {
+                return RedirectToPage("/Account/Profile");
+            }
+
+            return Page();
+        }
 
 
        public async Task<IActionResult> OnPostAsync()
@@ -36,15 +45,31 @@ namespace Parkeringsplads.Pages.Account
 
             if (user != null && VerifyPassword(Password, user.Password))
             {
-                // Check if the user exists in the Driver table by referencing UserId
-                var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId);
 
-                if (driver != null)
+                //Check for admin
+                if (user.Title == "A" || user.Title == "a")
                 {
-                    // User is a driver, store the DriverId in the session
-                    HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
+                    // Create a session for admin
+                    HttpContext.Session.SetString("IsAdmin", "true");
+
+                    HttpContext.Session.SetString("IsDriver", "true");
                 }
-                // If user is not a driver, do not set the session for IsDriver
+
+
+                else
+                {
+                    // Check if the user exists in the Driver table by referencing UserId
+                    var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId);
+
+                    if (driver != null)
+                    {
+                        // User is a driver, store the DriverId in the session
+                        HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
+                    }
+
+                    // If user is not a driver, do not set the session for IsDriver
+                }
+
 
                 // Store the user's email in the session
                 HttpContext.Session.SetString("UserEmail", user.Email);

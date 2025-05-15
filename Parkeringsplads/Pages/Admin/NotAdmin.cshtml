@@ -1,0 +1,11 @@
+﻿@page
+@model Parkeringsplads.Pages.Admin.NotAdminModel
+@{
+}
+<H3>Adgang nægtet, du bliver returneret til login.</H3>
+
+<script>
+    setTimeout(function () {
+        window.location.href = '/';
+    }, 3000); // 3 seconds
+</script>
