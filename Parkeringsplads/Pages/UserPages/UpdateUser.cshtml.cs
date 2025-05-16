@@ -102,6 +102,7 @@ namespace Parkeringsplads.Pages.UserPages
 
             // Set properties
             User = user;
+
             UserEmail = user.Email;
             FirstName = user.FirstName;
             LastName = user.LastName;

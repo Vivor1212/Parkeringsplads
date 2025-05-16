@@ -24,7 +24,18 @@ namespace Parkeringsplads.Pages.Account
         public string Phone { get; set; }
         public string Title { get; set; }
 
-        public string TitleText { get; set; }
+        public string TitleText
+        {
+            get
+            {
+                return Title switch
+                {
+                    "P" => "Personale",
+                    "S" => "Studerende",
+                    _ => "Ukendt"
+                };
+            }
+        }
         public bool IsDriver { get; set; }
 
         public School School { get; set; }
@@ -32,6 +43,11 @@ namespace Parkeringsplads.Pages.Account
         public User User { get; set; }
 
         public List<Request> Requests { get; set; }
+
+        public List<Address> AddressList { get; set; }
+
+
+        public UserAddress UserAddress { get; set; }
 
         public string SchoolName { get; set; }
 
@@ -67,6 +83,13 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
+            AddressList = await _context.UserAddress
+           .Where(ua => ua.User_Id == user.UserId)
+            .Include(ua => ua.Address)
+            .ThenInclude(ua => ua.City)
+             .Select(ua => ua.Address)
+             .ToListAsync();
+
             Requests = await _requestService.GetAllRequestsForUser(user); // ? Await the async method
 
             User = user;
@@ -74,7 +97,7 @@ namespace Parkeringsplads.Pages.Account
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
-            TitleText = user.Title;
+            Title= user.Title;
             School = user.School;
             SchoolName = user.School?.SchoolName;
 
