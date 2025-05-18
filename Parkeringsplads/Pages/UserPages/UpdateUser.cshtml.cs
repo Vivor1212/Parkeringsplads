@@ -29,11 +29,7 @@ namespace Parkeringsplads.Pages.UserPages
 
         [BindProperty]
         public User User { get; set; }
-        public string UserEmail { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Phone { get; set; }
-        public string Title { get; set; }
+        
         [BindProperty]
         public School School { get; set; }
 
@@ -59,112 +55,109 @@ namespace Parkeringsplads.Pages.UserPages
             // Fetch the dropdown data
             Schools = await _schoolService.SchoolDropDownAsync();
             City = await _cityService.CityDropDownAsync();
-            // You can similarly fetch City dropdown here if required (using _schoolService or another service).
         }
 
         public async Task<IActionResult> OnGetAsync(int userId)
         {
-
             await LoadDropdownDataAsync();
 
-            // Try to get user email from session
-            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
+            var sessionEmail = HttpContext.Session.GetString("UserEmail");
+            User user = null;
 
-            User user;
-
-            if (string.IsNullOrEmpty(userEmail))
+            if (isAdmin == "true")
             {
-                // Admin flow: get user by passed-in userId
-                user = await _userService.GetUserAsync(userId);
+                // Admin: Allow selecting from the list of all users
+                if (userId > 0)
+                {
+                    user = await _userService.GetUserAsync(userId);  // Admin can edit any user
+                }
             }
-
-            else
+            else if (!string.IsNullOrEmpty(sessionEmail))
             {
-                // Regular user flow: get user by their session email
+                // Regular user: Only allow them to update their own profile
                 user = await _context.User
                     .Include(u => u.School)
-               
-                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+                    .FirstOrDefaultAsync(u => u.Email == sessionEmail);
             }
-
-            
-
-            var userSchool = _context.User
-                .Include(u => u.School) // Include the School navigation property
-                .FirstOrDefault(u => u.Email == userEmail);
-           
-
-            if (user == null)
+            else
             {
-                // If no user found in the database, redirect to login page
                 return RedirectToPage("/Account/Login/Login");
             }
 
-            // Set properties
-            User = user;
-            UserEmail = user.Email;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Phone = user.Phone;
-            Title = user.Title;
-            School = user.School;
-            SchoolName = user.School?.SchoolName;
+            // If no user is found, handle the error (admin can go to the user list, regular users should be logged out)
+            if (user == null)
+            {
+                // Handle user not found. For regular users, maybe redirect to their profile page, for admins show a message.
+                return string.IsNullOrEmpty(sessionEmail)
+                    ? RedirectToPage("/Account/Login/Login")  // Admins go back to user list
+                    : RedirectToPage("/Account/Profile");     // Regular users go to their profile
+            }
 
-            return Page(); // Return the Profile page with the user's information
+
+            // If user is found, safely assign the properties
+            User = user;  // Only assign the user object if it's not null
+            User.Email = user?.Email ?? string.Empty;
+            User.FirstName = user?.FirstName ?? string.Empty;
+            User.LastName = user?.LastName ?? string.Empty;
+            User.Phone = user?.Phone ?? string.Empty;
+            User.Title = user?.Title ?? string.Empty;
+
+            // Handle School object if it's null
+            School = user?.School;
+            SchoolName = user?.School?.SchoolName ?? string.Empty;
+
+            return Page();
         }
+
 
         public async Task<IActionResult> OnPostAsync(int userId)
         {
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
             var sessionEmail = HttpContext.Session.GetString("UserEmail");
 
             User userBeingUpdated;
 
-            if (string.IsNullOrEmpty(sessionEmail))
+            if (isAdmin == "true" && userId > 0)
             {
-                // Admin flow: use the userId passed from route/form
+                // Admin can update any user
                 userBeingUpdated = await _userService.GetUserAsync(userId);
+            }
+            else if (!string.IsNullOrEmpty(sessionEmail))
+            {
+                // Regular user can only update their own profile
+                userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
             }
             else
             {
-                // Regular user flow: fetch user using session email
-                userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
+                return RedirectToPage("/Account/Login/Login");
             }
 
             if (userBeingUpdated == null)
             {
-                // Redirect admins to user list, regular users to login
                 return string.IsNullOrEmpty(sessionEmail)
-                    ? RedirectToPage("/UserPages/AllUsers")
-                    : RedirectToPage("/Account/Login/Login");
+                    ? RedirectToPage("/UserPages/AllUsers")  // Admins go back to user list
+                    : RedirectToPage("/Account/Login/Login"); // Regular users go to login
             }
 
             // Assign the correct UserId to the form-bound User
             User.UserId = userBeingUpdated.UserId;
 
-            // Try to update using service
             bool updateSuccessful = await _userService.UpdateUserAsync(User);
 
             if (!updateSuccessful)
             {
                 ModelState.AddModelError(string.Empty, "The email is already in use by another user.");
-                await LoadDropdownDataAsync(); // ensure dropdowns are repopulated
+                await LoadDropdownDataAsync(); // Re-populate dropdowns
                 return Page();
             }
 
-            // ✅ Only update session if user updated their own info
-            if (!string.IsNullOrEmpty(sessionEmail) && sessionEmail == userBeingUpdated.Email)
-            {
-                HttpContext.Session.SetString("UserEmail", User.Email);
-
-                bool isDriver = _context.Driver.Any(d => d.UserId == User.UserId);
-                HttpContext.Session.SetString("IsDriver", isDriver ? "true" : "false");
-            }
-
-            // Redirect based on who did the update
+            // Redirect based on admin or regular user
             return string.IsNullOrEmpty(sessionEmail)
-                ? RedirectToPage("/UserPages/AllUsers") // Admins go back to user list
-                : RedirectToPage("/Account/Profile");   // Regular users go to profile
+                ? RedirectToPage("/UserPages/AllUsers")  // Admins go back to user list
+                : RedirectToPage("/Account/Profile");    // Regular users go to their profile
         }
+
 
     }
 }
