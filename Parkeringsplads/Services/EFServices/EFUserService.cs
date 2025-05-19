@@ -49,8 +49,8 @@ public class EFUserService : IUser
         }
 
         //  ---- Hash the password before saving
-       // var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
-         //user.Password = passwordHasher.HashPassword(user, user.Password); 
+        // var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
+        //user.Password = passwordHasher.HashPassword(user, user.Password); 
 
         // 4. Add the new user
         _context.User.Add(user);
@@ -67,47 +67,79 @@ public class EFUserService : IUser
 
         return true;
     }
-    public async Task<bool> UpdateUserAsync(User updatedUser)
+    public async Task<bool> UpdateUserAsync(User updatedUser, string addressRoad, string addressNumber, int cityId)
     {
-        var existingUser = await _context.User.FindAsync(updatedUser.UserId);
+        var existingUser = await _context.User
+            .Include(u => u.UserAddresses)
+            .ThenInclude(ua => ua.Address)
+            .FirstOrDefaultAsync(u => u.UserId == updatedUser.UserId);
 
         if (existingUser == null)
-        {
-            return false; // User not found
-        }
+            return false;
 
-        // Check if the new email is already in use by another user
+        // Check for duplicate email (exclude current user)
         var existingEmailUser = await _context.User
             .FirstOrDefaultAsync(u => u.Email == updatedUser.Email && u.UserId != updatedUser.UserId);
 
         if (existingEmailUser != null)
+            return false;
+
+        // Update fields
+        existingUser.FirstName = updatedUser.FirstName;
+        existingUser.LastName = updatedUser.LastName;
+        existingUser.Email = updatedUser.Email;
+        existingUser.Phone = updatedUser.Phone;
+        existingUser.Title = updatedUser.Title;
+        existingUser.SchoolId = updatedUser.SchoolId;
+
+        // --- Address handling ---
+
+        // Find or create the address
+        var existingAddress = await _context.Address
+            .FirstOrDefaultAsync(a => a.AddressRoad == addressRoad && a.AddressNumber == addressNumber && a.CityId == cityId);
+
+        int newAddressId;
+
+        if (existingAddress == null)
         {
-            return false;  // Email is already in use by someone else
+            var newAddress = new Address
+            {
+                AddressRoad = addressRoad,
+                AddressNumber = addressNumber,
+                CityId = cityId
+            };
+            _context.Address.Add(newAddress);
+            await _context.SaveChangesAsync();
+            newAddressId = newAddress.AddressId;
+        }
+        else
+        {
+            newAddressId = existingAddress.AddressId;
         }
 
-        if (!string.IsNullOrWhiteSpace(updatedUser.FirstName))
-            existingUser.FirstName = updatedUser.FirstName;
+        // Get current UserAddress
+        var userAddress = await _context.UserAddress
+            .FirstOrDefaultAsync(ua => ua.User_Id == existingUser.UserId);
 
-        if (!string.IsNullOrWhiteSpace(updatedUser.LastName))
-            existingUser.LastName = updatedUser.LastName;
+        if (userAddress != null && userAddress.Address_Id != newAddressId)
+        {
+            // Remove old link and create new one
+            _context.UserAddress.Remove(userAddress);
+            await _context.SaveChangesAsync();
 
-        if (!string.IsNullOrWhiteSpace(updatedUser.Email))
-            existingUser.Email = updatedUser.Email;
+            var newUserAddress = new UserAddress
+            {
+                User_Id = existingUser.UserId,
+                Address_Id = newAddressId
+            };
+            _context.UserAddress.Add(newUserAddress);
+        }
 
-        if (!string.IsNullOrWhiteSpace(updatedUser.Phone))
-            existingUser.Phone = updatedUser.Phone;
-
-        if (!string.IsNullOrWhiteSpace(updatedUser.Title))
-            existingUser.Title = updatedUser.Title;
-
-
-        if (updatedUser.SchoolId.HasValue)
-            existingUser.SchoolId = updatedUser.SchoolId.Value;
-        // Save changes to the database
         await _context.SaveChangesAsync();
 
         return true;
     }
+
 
     public async Task<bool> DeleteUserAsync(int userId)
     {
@@ -134,7 +166,7 @@ public class EFUserService : IUser
     public async Task<User> GetUserAsync(int userId)
     {
         return await _context.User
-        
+
           .FirstOrDefaultAsync(u => u.UserId == userId);
 
     }
@@ -145,7 +177,7 @@ public class EFUserService : IUser
                .Include(u => u.School)
         .Include(u => u.UserAddresses)
             .ThenInclude(ua => ua.Address)
-                .ThenInclude(a => a.City) 
+                .ThenInclude(a => a.City)
                      .ToListAsync();
     }
 

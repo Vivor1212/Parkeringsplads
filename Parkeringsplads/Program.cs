@@ -15,6 +15,7 @@ builder.Services.AddScoped<IDriverService, EFDriverService>();
 builder.Services.AddScoped<ISchoolService , EFSchoolService>();
 builder.Services.AddScoped<ICarService, EFCarService>();
 builder.Services.AddScoped<IRequestService, EFRequestService>();
+builder.Services.AddScoped<IAddressService, EFAddressService>();
 
 
 // Add logging services (this is where you add logging)
