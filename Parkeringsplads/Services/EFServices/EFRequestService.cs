@@ -27,9 +27,14 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task DeleteRequestAsync(int requestId)
         {
-            var request = await _context.Request.FindAsync(requestId);
+            var request = await _context.Request.Include(r => r.Trip).FirstOrDefaultAsync(r => r.RequestId == requestId);
             if (request != null)
             {
+                if (request.RequestStatus == true)
+                {
+                    request.Trip.TripSeats++;
+                }
+
                 _context.Request.Remove(request);
                 await _context.SaveChangesAsync();
             }

@@ -93,5 +93,18 @@ namespace Parkeringsplads.Services.EFServices
                     .ThenInclude(r => r.Users)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
         }
+
+        public async Task<bool> DeleteTripAsync(int tripId, int userId)
+        {
+            var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car.Driver.UserId == userId);
+            if (trip == null)
+            {
+                return false;
+            }
+
+            _context.Trip.Remove(trip);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
