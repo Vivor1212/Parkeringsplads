@@ -35,7 +35,6 @@ namespace Parkeringsplads.Pages.Admin
 
             if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
             {
-                // User is not an admin, redirect to login
                 return RedirectToPage("/Admin/NotAdmin");
             }
             Car = await _carService.GetAllCarsAsync();

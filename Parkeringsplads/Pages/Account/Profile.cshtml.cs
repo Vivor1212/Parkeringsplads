@@ -43,14 +43,12 @@ namespace Parkeringsplads.Pages.Account
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Check if the user is an admin
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
             if (!string.IsNullOrEmpty(isAdmin) && isAdmin == "true")
             {
                 return RedirectToPage("/Admin/AdminDashboard"); 
             }
 
-            // Retrieve user email from session
             var userEmail = HttpContext.Session.GetString("UserEmail");
 
             if (string.IsNullOrEmpty(userEmail))
@@ -67,7 +65,7 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            Requests = await _requestService.GetAllRequestsForUser(user); // ? Await the async method
+            Requests = await _requestService.GetAllRequestsForUser(user); 
 
             User = user;
             UserEmail = user.Email;
@@ -78,12 +76,45 @@ namespace Parkeringsplads.Pages.Account
             School = user.School;
             SchoolName = user.School?.SchoolName;
 
-            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId); // Async version
+            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId); 
             IsDriver = driver != null;
             Driver = driver;
 
             return Page();
         }
+
+        public async Task<IActionResult> OnPostStopBeingDriverAsync()
+        {
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return RedirectToPage("./Login/Login");
+            }
+
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+            if (user == null)
+            {
+                return RedirectToPage("./Login/Login");
+            }
+
+            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId);
+            if (driver != null)
+            {
+                _context.Driver.Remove(driver);
+                await _context.SaveChangesAsync();
+
+                HttpContext.Session.Remove("IsDriver");
+
+                TempData["SuccessMessage"] = "You are no longer a driver.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "You are not currently registered as a driver.";
+            }
+
+            return RedirectToPage("/Account/Profile");
+        }
+
 
     }
 }

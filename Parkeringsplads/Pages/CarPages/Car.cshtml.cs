@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
+using System.Linq;
 
 namespace Parkeringsplads.Pages.CarPages
 {
@@ -31,7 +32,7 @@ namespace Parkeringsplads.Pages.CarPages
         public int CarCapacity { get; set; }
 
         [BindProperty]
-        public int? SelectedDriverId { get; set; }  // New field for selecting a driver
+        public int? SelectedDriverId { get; set; }  
 
         public List<SelectListItem> Drivers { get; set; }
 
@@ -41,12 +42,10 @@ namespace Parkeringsplads.Pages.CarPages
 
             if (isAdminString == "true")
             {
-                // If user is admin, load all drivers (users) to assign a car
-                Drivers = await _driverService.GetAllDriversAsync();  // Assuming you have a method for getting all users
+                Drivers = await _driverService.GetAllDriversAsync();  
             }
             else
             {
-                // If not admin, check if the user is a driver and load their cars
                 string driverIdString = HttpContext.Session.GetString("IsDriver");
 
                 if (string.IsNullOrEmpty(driverIdString))

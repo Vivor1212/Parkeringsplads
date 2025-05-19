@@ -4,11 +4,11 @@ namespace Parkeringsplads.Services.Interfaces
 {
     public interface ICityService
     {
-        Task<List<City>> GetAllCitiesAsync();         // Get all cities
-        Task<City> GetCityByIdAsync(int cityId);      // Get a specific city by ID
-        Task AddCityAsync(City city);                  // Add a new city
-        Task UpdateCityAsync(City city);               // Update an existing city
-        Task DeleteCityAsync(int cityId);              // Delete a city by ID
-        Task<List<SelectListItem>> CityDropDownAsync(); // Get a list of cities for dropdown
+        Task<List<City>> GetAllCitiesAsync();
+        Task<City> GetCityByIdAsync(int cityId);
+        Task AddCityAsync(City city);
+        Task UpdateCityAsync(City city); 
+        Task DeleteCityAsync(int cityId);
+        Task<List<SelectListItem>> CityDropDownAsync(); 
     }
 }

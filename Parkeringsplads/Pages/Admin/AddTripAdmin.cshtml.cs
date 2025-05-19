@@ -22,124 +22,133 @@ namespace Parkeringsplads.Pages.Admin
             _context = context;
         }
 
-        [BindProperty]
-        public Trip Trip { get; set; } = new();
-
-        [BindProperty]
-        public string Direction { get; set; } = "ToSchool";
-
-        [BindProperty]
-        public int SelectedDriverId { get; set; }
-
-        [BindProperty]
-        public int SelectedCarId { get; set; }
-
-        [BindProperty]
-        public string SelectedAddress { get; set; } = "";
-
-        [BindProperty]
-        public string CustomAddress { get; set; } = "";
-
-        [BindProperty]
-        public bool UseCustomAddress { get; set; }
-
-        [BindProperty]
-        public int TripSeats { get; set; } = 1;
+        [BindProperty] public Trip Trip { get; set; } = new();
+        [BindProperty] public string Direction { get; set; } = "ToSchool";
+        [BindProperty] public int SelectedDriverId { get; set; }
+        [BindProperty] public int SelectedCarId { get; set; }
+        [BindProperty] public string SelectedAddress { get; set; } = "";
+        [BindProperty] public string CustomAddress { get; set; } = "";
+        [BindProperty] public bool UseCustomAddress { get; set; }
+        [BindProperty] public int TripSeats { get; set; } = 1;
 
         public List<SelectListItem> Drivers { get; set; } = new();
         public List<SelectListItem> Cars { get; set; } = new();
         public List<string> UserAddresses { get; set; } = new();
 
         public string? DriverAddress { get; set; }
+        public string? SchoolAddress { get; set; }
 
-        [TempData]
-        public string? SuccessMessage { get; set; }
+        [TempData] public string? SuccessMessage { get; set; }
+        [TempData] public string? ErrorMessage { get; set; }
 
-        [TempData]
-        public string? ErrorMessage { get; set; }
+        public Dictionary<int, int> CarCapacities { get; set; } = new();
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int? selectedDriverId)
         {
-            // Set default date to today on GET
-            if (Trip.TripDate == default)
-            {
-                Trip.TripDate = DateOnly.FromDateTime(DateTime.Today);
-            }
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
+            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+                return RedirectToPage("/Admin/NotAdmin");
 
-            await LoadDriversAndCarsAsync();
+            if (Trip.TripDate == default)
+                Trip.TripDate = DateOnly.FromDateTime(DateTime.Today);
+
+            if (Trip.TripTime == default)
+                Trip.TripTime = new TimeOnly(7, 0);
+
+            // Pass selectedDriverId to LoadDriversAndCarsAsync
+            await LoadDriversAndCarsAsync(selectedDriverId);
+
             return Page();
         }
 
+
         public async Task<IActionResult> OnPostAsync()
         {
-            await LoadDriversAndCarsAsync();
+            // Ensure the selected driver is available
+            await LoadDriversAndCarsAsync(SelectedDriverId);
 
-            // Validate the selected driver and car
             if (SelectedDriverId <= 0 || SelectedCarId <= 0)
             {
                 ErrorMessage = "Vælg venligst både chauffør og bil.";
-                return Page();
+                return Page();  // Return to the same page in case of error
             }
 
-            // Validate that the number of passengers is within the car's capacity
             var selectedCar = await _context.Car.FirstOrDefaultAsync(c => c.CarId == SelectedCarId);
             if (selectedCar != null && (TripSeats < 1 || TripSeats > selectedCar.CarCapacity))
             {
                 ErrorMessage = $"Antal passagerer skal være mellem 1 og {selectedCar.CarCapacity}.";
-                return Page();
+                return Page();  // Return to the same page in case of error
             }
 
-            // Validate the trip date
             if (Trip.TripDate < DateOnly.FromDateTime(DateTime.Today))
             {
                 ErrorMessage = "Datoen for turen kan ikke være i fortiden.";
-                return Page();
+                return Page();  // Return to the same page in case of error
             }
 
-            // Validate the address
+            if (Trip.TripTime == default)
+            {
+                ErrorMessage = "Tidspunkt for turen skal angives.";
+                return Page();  // Return to the same page in case of error
+            }
+
             if (UseCustomAddress && string.IsNullOrWhiteSpace(CustomAddress))
             {
                 ErrorMessage = "Du valgte en anden adresse, men udfyldte den ikke.";
-                return Page();
+                return Page();  // Return to the same page in case of error
             }
 
-            var otherAddress = UseCustomAddress ? CustomAddress : SelectedAddress;
+            string otherAddress = UseCustomAddress ? CustomAddress : SelectedAddress;
+
             if (string.IsNullOrWhiteSpace(otherAddress))
             {
                 ErrorMessage = "Vælg eller angiv en adresse.";
-                return Page();
+                return Page();  // Return to the same page in case of error
             }
 
-            if (string.IsNullOrWhiteSpace(DriverAddress))
+            if (string.IsNullOrWhiteSpace(DriverAddress) || string.IsNullOrWhiteSpace(SchoolAddress))
             {
-                ErrorMessage = "Kunne ikke hente chaufførens adresse.";
-                return Page();
+                ErrorMessage = "Kunne ikke hente nødvendige adresser.";
+                return Page();  // Return to the same page in case of error
             }
 
-            // Set trip directions based on the chosen direction
+            Trip.CarId = SelectedCarId;
+            Trip.TripSeats = TripSeats;
+
+            // Ensure correct address assignments based on the direction
             if (Direction == "ToSchool")
             {
-                Trip.FromDestination = DriverAddress;
-                Trip.ToDestination = otherAddress;
+                Trip.FromDestination = UseCustomAddress ? CustomAddress : DriverAddress; // Use driver address as the "from" address
+                Trip.ToDestination = SchoolAddress; // To the school address
             }
             else
             {
-                Trip.FromDestination = otherAddress;
-                Trip.ToDestination = DriverAddress;
+                Trip.FromDestination = SchoolAddress; // Start from the school address
+                Trip.ToDestination = UseCustomAddress ? CustomAddress : DriverAddress; // Use driver address as the "to" address
             }
 
-            // Set car ID and passengers count
-            Trip.CarId = SelectedCarId;
-            Trip.TripSeats = TripSeats;  // Store the number of seats for the trip
-
-            // Create the trip
             await _tripService.CreateTripAsync(Trip);
             SuccessMessage = "Turen er oprettet!";
-            return RedirectToPage();
+            return RedirectToPage("/Admin/AdminDashboard");  // Redirect to the dashboard after success
         }
 
-        private async Task LoadDriversAndCarsAsync()
+
+
+
+        private async Task LoadDriversAndCarsAsync(int? selectedDriverId)
         {
+            // Load School Address
+            var school = await _context.School
+                .Include(s => s.Address)
+                    .ThenInclude(a => a.City)
+                .FirstOrDefaultAsync();
+
+            if (school?.Address != null)
+            {
+                SchoolAddress = $"{school.Address.AddressRoad} {school.Address.AddressNumber}, {school.Address.City?.PostalCode} {school.Address.City?.CityName}";
+            }
+
+            // Load all Drivers
             Drivers = await _context.Driver
                 .Include(d => d.User)
                 .Select(d => new SelectListItem
@@ -148,21 +157,32 @@ namespace Parkeringsplads.Pages.Admin
                     Text = $"{d.User.FirstName} {d.User.LastName} ({d.DriverLicense})"
                 }).ToListAsync();
 
-            if (SelectedDriverId > 0)
-            {
-                Cars = await _context.Car
-                    .Where(c => c.DriverId == SelectedDriverId)
-                    .Select(c => new SelectListItem
-                    {
-                        Value = c.CarId.ToString(),
-                        Text = $"{c.CarModel} ({c.CarPlate})"
-                    }).ToListAsync();
+            // Clear previous car-related data
+            CarCapacities.Clear();
+            Cars.Clear();
+            UserAddresses.Clear();
 
+            if (selectedDriverId.HasValue && selectedDriverId > 0)
+            {
+                // Load Cars for the selected driver only
+                var cars = await _context.Car
+                    .Where(c => c.DriverId == selectedDriverId)
+                    .ToListAsync();
+
+                CarCapacities = cars.ToDictionary(c => c.CarId, c => c.CarCapacity);
+                Cars = cars.Select(c => new SelectListItem
+                {
+                    Value = c.CarId.ToString(),
+                    Text = $"{c.CarModel} ({c.CarPlate})"
+                }).ToList();
+
+                // Load driver addresses
                 var driver = await _context.Driver
                     .Include(d => d.User)
                         .ThenInclude(u => u.UserAddresses)
                             .ThenInclude(ua => ua.Address)
-                    .FirstOrDefaultAsync(d => d.DriverId == SelectedDriverId);
+                                .ThenInclude(a => a.City)
+                    .FirstOrDefaultAsync(d => d.DriverId == selectedDriverId);
 
                 if (driver?.User?.UserAddresses != null)
                 {
@@ -178,7 +198,10 @@ namespace Parkeringsplads.Pages.Admin
                 }
             }
 
+            // Use custom address if selected
             UseCustomAddress = SelectedAddress == "__custom__";
         }
+
+
     }
 }

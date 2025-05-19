@@ -86,6 +86,10 @@ namespace Parkeringsplads.Pages.TripPages
             if (string.IsNullOrEmpty(userEmail))
                 return RedirectToPage("/Account/Login");
 
+            // Fallback: Make sure Direction gets set even if not bound correctly
+            if (string.IsNullOrWhiteSpace(Direction))
+                Direction = Request.Form["Direction"];
+
             var driver = await _context.Driver
                 .Include(d => d.Cars)
                 .FirstOrDefaultAsync(d => d.User.Email == userEmail);
@@ -136,14 +140,13 @@ namespace Parkeringsplads.Pages.TripPages
                 Trip.FromDestination = address;
                 Trip.ToDestination = SchoolAddress;
             }
+
             if (Trip.TripDate < DateOnly.FromDateTime(DateTime.Today))
             {
                 ErrorMessage = "Datoen må ikke være i fortiden.";
                 await LoadDataAndReturnPageAsync();
                 return Page();
             }
-
-
 
             await _tripService.CreateTripAsync(Trip);
             SuccessMessage = "Turen blev oprettet!";

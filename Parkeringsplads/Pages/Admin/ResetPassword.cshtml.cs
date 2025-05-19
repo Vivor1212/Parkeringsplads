@@ -30,7 +30,6 @@ namespace Parkeringsplads.Pages.Admin
 
             if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
             {
-                // User is not an admin, redirect to login
                 return RedirectToPage("/Admin/NotAdmin");
             }
             return Page();
@@ -38,14 +37,12 @@ namespace Parkeringsplads.Pages.Admin
 
         public IActionResult OnPost()
         {
-            // Check if both fields are filled out
             if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(NewPassword))
             {
                 ErrorMessage = "Both email and new password are required.";
                 return Page();
             }
 
-            // Retrieve the user from the database using the email
             var user = _context.User.FirstOrDefault(u => u.Email == Email);
 
             if (user == null)
@@ -54,13 +51,10 @@ namespace Parkeringsplads.Pages.Admin
                 return Page();
             }
 
-            // Hash the new password
             user.Password = BCrypt.Net.BCrypt.HashPassword(NewPassword);
 
-            // Save the changes to the database
             _context.SaveChanges();
 
-            // Success message
             SuccessMessage = "Password updated successfully.";
 
             return Page();
