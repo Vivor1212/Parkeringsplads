@@ -57,25 +57,9 @@
     <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
         <h3>Search Users</h3>
 
-        @if (HttpContext.Session.GetString("IsAdmin") == "true")
-        {
-            <!-- Admin can select a user from the list -->
-            <div class="form-group">
-                <label for="UserSelect">Select User to Edit</label>
-                <select id="UserSelect" class="form-control" asp-for="User.UserId" asp-items="Model.Users">
-                    <option value="">Select a user</option>
-                    @foreach (var user in Model.Users)
-                    {
-                        <option value="@user.UserId">@user.FirstName @user.LastName</option>
-                    }
-                </select>
-            </div>
-        }
-        else
-        {
-            <!-- Regular user will see only their own profile information -->
-            <h3>Edit Your Profile</h3>
-        }
+        <a asp-page="/UserPages/CreateUser" class="btn btn-success mb-3">
+            Create New User
+        </a>
 
 
         <form method="get" class="mb-3">
@@ -143,6 +127,10 @@
     <div class="tab-pane fade" id="cars" role="tabpanel" aria-labelledby="cars-tab">
         <h3>Search Cars</h3>
 
+        <a asp-page="/CarPages/Car" class="btn btn-success mb-3">
+            Create New Car
+        </a>
+
         <form method="get" class="mb-3">
             <div class="input-group">
                 <input type="text" class="form-control" name="CarSearchTerm" placeholder="Search cars..." value="@Model.CarSearchTerm" />
@@ -201,6 +189,10 @@
     <div class="tab-pane fade" id="cities" role="tabpanel" aria-labelledby="cities-tab">
         <h3>Search Cities</h3>
 
+        <a asp-page="/Admin/cityadmin" class="btn btn-success mb-3">
+            Create New City
+        </a>
+
         <form method="get" class="mb-3">
             <div class="input-group">
                 <input type="text" class="form-control" name="CitySearchTerm" placeholder="Search cities..." value="@Model.CitySearchTerm" />
@@ -228,7 +220,7 @@
                             <td>@city.CityName</td>
                             <td>@city.PostalCode</td>
                             <td>
-                                <a asp-page="/CityPages/CityEdit" asp-route-cityId="@city.CityId" class="text-warning me-2"
+                                <a asp-page="/Admin/CityAdmin" asp-route-cityId="@city.CityId" class="text-warning me-2"
                                    onclick="return confirm('Are you sure you want to edit this city?');" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -379,6 +371,10 @@
     <div class="tab-pane fade" id="drivers" role="tabpanel" aria-labelledby="drivers-tab">
         <h3>Search Drivers</h3>
 
+        <a asp-page="/Admin/AddDriverAdmin" class="btn btn-success mb-3">
+            Create New Driver
+        </a>
+
         <form method="get" class="mb-3">
             <div class="input-group">
                 <input type="text" class="form-control" name="DriverSearchTerm" placeholder="Search drivers..." value="@Model.DriverSearchTerm" />
@@ -410,7 +406,7 @@
                             <td>@driver.User.FirstName @driver.User.LastName</td>
                             <td>@driver.User.Email</td>
                             <td>
-                                <a asp-page="/DriverPages/DriverEdit" asp-route-driverId="@driver.DriverId" class="text-warning me-2"
+                                <a asp-page="/Admin/DriverEditAdmin" asp-route-driverId="@driver.DriverId" class="text-warning me-2"
                                    onclick="return confirm('Are you sure you want to edit this driver?');" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -438,6 +434,10 @@
     <!-- Trips Tab -->
     <div class="tab-pane fade" id="trips" role="tabpanel" aria-labelledby="trips-tab">
         <h3>Search Trips</h3>
+
+        <a asp-page="/Admin/AddTripAdmin" class="btn btn-success mb-3">
+            Create New Trip
+        </a>
 
         <form method="get" class="mb-3">
             <div class="input-group">
@@ -471,7 +471,19 @@
                             <td>@trip.TripDate.ToShortDateString()</td>
                             <td>@trip.TripTime</td>
                             <td>@trip.TripSeats</td>
-                            <td>@trip.Car.Driver.User.FirstName @trip.Car.Driver.User.LastName</td>
+
+                            <!-- Driver Info -->
+                            <td>
+                                @if (trip.Car?.Driver?.User != null)
+                                {
+                                    @trip.Car.Driver.User.FirstName @trip.Car.Driver.User.LastName
+                                }
+                                else
+                                {
+                                    <span>No Driver Assigned</span>
+                                }
+                            </td>
+
                             <td>
                                 <form method="post" asp-page-handler="DeleteTrip" asp-route-tripId="@trip.TripId"
                                       onsubmit="return confirm('Are you sure you want to delete this trip?');">
@@ -492,9 +504,14 @@
         }
     </div>
 
+
     <!-- Requests Tab -->
     <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
         <h3>Search Requests</h3>
+
+        <a asp-page="/Admin/AddRequestAdmin" class="btn btn-success mb-3">
+            Create New Request
+        </a>
 
         <form method="get" class="mb-3">
             <div class="input-group">

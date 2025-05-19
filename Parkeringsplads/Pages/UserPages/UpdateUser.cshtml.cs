@@ -49,6 +49,8 @@ namespace Parkeringsplads.Pages.UserPages
        
         public List<SelectListItem> City { get; set; }
 
+        public int SelectedUserId { get; set; }
+
 
         private async Task LoadDropdownDataAsync()
         {
@@ -67,17 +69,24 @@ namespace Parkeringsplads.Pages.UserPages
 
             if (isAdmin == "true")
             {
-                // Admin: Allow selecting from the list of all users
+                var users = await _userService.GetAllUsersAsync();
+                ViewData["Users"] = users;
+
                 if (userId > 0)
                 {
-                    user = await _userService.GetUserAsync(userId);  // Admin can edit any user
+                    user = await _context.User
+                        .Include(u => u.School)
+                        .Include(u => u.UserAddresses)
+                            .ThenInclude(ua => ua.Address)
+                        .FirstOrDefaultAsync(u => u.UserId == userId);
                 }
             }
             else if (!string.IsNullOrEmpty(sessionEmail))
             {
-                // Regular user: Only allow them to update their own profile
                 user = await _context.User
                     .Include(u => u.School)
+                    .Include(u => u.UserAddresses)
+                        .ThenInclude(ua => ua.Address)
                     .FirstOrDefaultAsync(u => u.Email == sessionEmail);
             }
             else
@@ -85,30 +94,30 @@ namespace Parkeringsplads.Pages.UserPages
                 return RedirectToPage("/Account/Login/Login");
             }
 
-            // If no user is found, handle the error (admin can go to the user list, regular users should be logged out)
             if (user == null)
             {
-                // Handle user not found. For regular users, maybe redirect to their profile page, for admins show a message.
                 return string.IsNullOrEmpty(sessionEmail)
-                    ? RedirectToPage("/Account/Login/Login")  // Admins go back to user list
-                    : RedirectToPage("/Account/Profile");     // Regular users go to their profile
+                    ? RedirectToPage("/Account/Login/Login")
+                    : RedirectToPage("/Account/Profile");
             }
 
+            User = user;
+            School = user.School;
+            SchoolName = user.School?.SchoolName ?? string.Empty;
 
-            // If user is found, safely assign the properties
-            User = user;  // Only assign the user object if it's not null
-            User.Email = user?.Email ?? string.Empty;
-            User.FirstName = user?.FirstName ?? string.Empty;
-            User.LastName = user?.LastName ?? string.Empty;
-            User.Phone = user?.Phone ?? string.Empty;
-            User.Title = user?.Title ?? string.Empty;
+            var userAddress = user.UserAddresses?.FirstOrDefault();
 
-            // Handle School object if it's null
-            School = user?.School;
-            SchoolName = user?.School?.SchoolName ?? string.Empty;
+            if (userAddress?.Address != null)
+            {
+                Address = userAddress.Address;
+                CityId = userAddress.Address.CityId;
+            }
 
             return Page();
         }
+
+
+
 
 
         public async Task<IActionResult> OnPostAsync(int userId)
@@ -120,12 +129,10 @@ namespace Parkeringsplads.Pages.UserPages
 
             if (isAdmin == "true" && userId > 0)
             {
-                // Admin can update any user
                 userBeingUpdated = await _userService.GetUserAsync(userId);
             }
             else if (!string.IsNullOrEmpty(sessionEmail))
             {
-                // Regular user can only update their own profile
                 userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
             }
             else
@@ -136,11 +143,10 @@ namespace Parkeringsplads.Pages.UserPages
             if (userBeingUpdated == null)
             {
                 return string.IsNullOrEmpty(sessionEmail)
-                    ? RedirectToPage("/UserPages/AllUsers")  // Admins go back to user list
-                    : RedirectToPage("/Account/Login/Login"); // Regular users go to login
+                    ? RedirectToPage("/UserPages/AllUsers")
+                    : RedirectToPage("/Account/Login/Login");
             }
 
-            // Assign the correct UserId to the form-bound User
             User.UserId = userBeingUpdated.UserId;
 
             bool updateSuccessful = await _userService.UpdateUserAsync(User);
@@ -148,16 +154,16 @@ namespace Parkeringsplads.Pages.UserPages
             if (!updateSuccessful)
             {
                 ModelState.AddModelError(string.Empty, "The email is already in use by another user.");
-                await LoadDropdownDataAsync(); // Re-populate dropdowns
+                await LoadDropdownDataAsync();
                 return Page();
             }
 
-            // Redirect based on admin or regular user
             return string.IsNullOrEmpty(sessionEmail)
-                ? RedirectToPage("/UserPages/AllUsers")  // Admins go back to user list
-                : RedirectToPage("/Account/Profile");    // Regular users go to their profile
+                ? RedirectToPage("/UserPages/AllUsers")
+                : RedirectToPage("/Account/Profile");
         }
-
-
     }
+
+
+
 }

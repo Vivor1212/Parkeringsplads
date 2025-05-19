@@ -1,10 +1,22 @@
 ﻿@page
 @model Parkeringsplads.Pages.UserPages.UpdateUserModel
 
-<h1>Opdater dine oplysninger</h1>
+<h1>
+    Opdater oplysninger
+    @if (Model.User != null)
+    {
+        <small class="text-muted">[@Model.User.UserId] @Model.User.FirstName @Model.User.LastName</small>
+    }
+</h1>
 
-@if (!string.IsNullOrEmpty(Model.User.Email))
+@if (!string.IsNullOrEmpty(Model.User?.Email))
 {
+    @if (HttpContext.Session.GetString("IsAdmin") == "true")
+    {
+        <!-- Optional admin notice -->
+        <p class="text-info">Du redigerer som administrator.</p>
+    }
+
     <form method="post">
         <div class="form-group">
             <label asp-for="User.FirstName">Fornavn:</label>
@@ -38,20 +50,15 @@
             <span asp-validation-for="User.SchoolId" class="text-danger"></span>
         </div>
 
+        <h3 class="pt-3">Adresseinformationer</h3>
+        <p>Indtast dine adresseoplysninger for bedre service.</p>
 
-        <h3 class="pt-3">Addresse informationer</h3>
-        <p>Nedenfor bedes du indtaste dine adresse oplysninger, denne adresse kan hjælpe os med at finde ud af hvor du rejser fra og til.</p>
-        <div class="mb-3">
+        <div class="form-group">
             <label>Postnummer og by</label>
-            <select asp-for="CityId" asp-items="Model.City" class="form-control" placeholder="Vælg din by">
-
-                <option value=""></option>
-
+            <select asp-for="CityId" asp-items="Model.City" class="form-control">
+                <option value="">Vælg by</option>
             </select>
-
         </div>
-
-
 
         <div class="form-group">
             <label>Vejnavn:</label>
@@ -59,17 +66,29 @@
             <span asp-validation-for="Address.AddressRoad" class="text-danger"></span>
         </div>
 
-        
-        <div class="mb-3">
+        <div class="form-group">
             <label>Nummer</label>
             <input asp-for="Address.AddressNumber" class="form-control" />
         </div>
 
-        <button type="submit" class="btn btn-primary">Opdater</button>
+        <div class="pt-3">
+            <button type="submit" class="btn btn-primary">Opdater</button>
+
+            @if (HttpContext.Session.GetString("IsAdmin") == "true")
+            {
+                <a asp-page="/Admin/admindashboard" class="btn btn-secondary ms-2">Tilbage til brugeroversigt</a>
+            }
+            else
+            {
+                <a asp-page="/Account/Profile" class="btn btn-secondary ms-2">Annuller</a>
+            }
+        </div>
     </form>
 }
 else
 {
-    <p>Denne email er allerede i brug, forsøg venligst igen.</p>
-    <a href="/User/UpdateUser">Opdater din profil</a>
+    <div class="alert alert-danger">
+        Brugeren blev ikke fundet eller emailen er ugyldig. Prøv venligst igen.
+    </div>
+    <a href="/UserPages/AllUsers" class="btn btn-secondary">Tilbage</a>
 }

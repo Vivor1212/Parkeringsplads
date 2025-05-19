@@ -93,5 +93,23 @@ namespace Parkeringsplads.Services.EFServices
                     .ThenInclude(r => r.Users)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
         }
+
+        public async Task DeleteTripAsync(int tripId)
+        {
+            var trip = await _context.Trip
+                .Include(t => t.Requests) 
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+
+            if (trip == null)
+            {
+                throw new ArgumentException($"Trip with ID {tripId} not found");
+            }
+
+            _context.Request.RemoveRange(trip.Requests); 
+
+            _context.Trip.Remove(trip);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

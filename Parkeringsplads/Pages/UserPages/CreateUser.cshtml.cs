@@ -32,13 +32,14 @@ public class CreateUserModel : PageModel
 
     [BindProperty]
     public int CityId { get; set; }
+    public string ErrorMessage { get; set; }
 
 
     public Dictionary<string, string> TitleOptions = new()
     {
        
         {"P", "Personale" },
-        {"S", "Studerende" }
+        {"S", "Studerende" },
     };
 
 
@@ -54,11 +55,33 @@ public class CreateUserModel : PageModel
         City = await _cityService.CityDropDownAsync();
     }
 
-    public async Task OnGetAsync()
+    public async Task<IActionResult> OnGetAsync()
     {
-        // Load dropdown data
+        // Check if the user is an admin
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
+
+        // If user is an admin, add the "Admin" role to the options
+        if (isAdmin == "true")
+        {
+            if (!TitleOptions.ContainsKey("A")) // Ensure we don't add it multiple times
+            {
+                TitleOptions.Add("A", "Admin");
+            }
+        }
+
+        // If the user is not an admin, show an error message and stay on the current page
+        if (isAdmin != "true")
+        {
+            ErrorMessage = "Du har ikke tilladelse til at oprette en bruger. Kun administratorer kan oprette brugere.";
+        }
+
+        // Load dropdown data (schools and cities)
         await LoadDropdownDataAsync();
+
+        // Return the page to render the UI (with or without the error message)
+        return Page();
     }
+
 
     public async Task<IActionResult> OnPostAsync()
     {
@@ -72,16 +95,28 @@ public class CreateUserModel : PageModel
 
             if (createUser)
             {
-                return RedirectToPage("/Account/Login/Login");
+                // Check if the current user is an admin
+                var isAdmin = HttpContext.Session.GetString("IsAdmin");
+
+                if (isAdmin == "true")
+                {
+                    // Redirect to the Admin Dashboard if the user is an admin
+                    return RedirectToPage("/Admin/AdminDashboard");
+                }
+                else
+                {
+                    // Redirect to the login page if the user is not an admin
+                    return RedirectToPage("/Account/Login/Login");
+                }
             }
 
+            // If creating the user fails, add an error message
             ModelState.AddModelError("User.Email", "Email is already in use.");
         }
-
-
 
         // Repopulate dropdowns if something fails
         await LoadDropdownDataAsync();
         return Page();
     }
+
 }
