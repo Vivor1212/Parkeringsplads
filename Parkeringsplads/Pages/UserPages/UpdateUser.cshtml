@@ -29,6 +29,17 @@
             <input asp-for="User.Email" class="form-control" />
             <span asp-validation-for="User.Email" class="text-danger"></span>
         </div>
+        <div class="mb-3 col-sm-6">
+            <label asp-for="User.Title" class="control-label">Rolle</label>
+            <select asp-for="User.Title" class="form-control">
+                @foreach (var option in Model.TitleOptions)
+                {
+                    <option value="@option.Key">@option.Value</option>
+                }
+
+            </select>
+            <span asp-validation-for="User.Title" class="text-danger"></span>
+        </div>
 
         <div class="form-group">
             <label asp-for="User.SchoolId">Vælg skole:</label>

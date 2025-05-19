@@ -50,7 +50,12 @@ namespace Parkeringsplads.Pages.UserPages
         [BindProperty]
         public List<SelectListItem> Schools { get; set; }
 
-       
+        public Dictionary<string, string> TitleOptions = new()
+    {
+
+        {"P", "Personale" },
+        {"S", "Studerende" }
+    };
         public List<SelectListItem> City { get; set; }
 
 
@@ -142,7 +147,14 @@ namespace Parkeringsplads.Pages.UserPages
             User.UserId = userBeingUpdated.UserId;
 
             // Try to update using service
-            bool updateSuccessful = await _userService.UpdateUserAsync(User);
+
+            bool updateSuccessful = await _userService.UpdateUserAsync(
+    User,
+    Address.AddressRoad,
+    Address.AddressNumber,
+    CityId
+);
+
 
             if (!updateSuccessful)
             {
@@ -151,14 +163,7 @@ namespace Parkeringsplads.Pages.UserPages
                 return Page();
             }
 
-            // ✅ Only update session if user updated their own info
-            if (!string.IsNullOrEmpty(sessionEmail) && sessionEmail == userBeingUpdated.Email)
-            {
-                HttpContext.Session.SetString("UserEmail", User.Email);
-
-                bool isDriver = _context.Driver.Any(d => d.UserId == User.UserId);
-                HttpContext.Session.SetString("IsDriver", isDriver ? "true" : "false");
-            }
+        
 
             // Redirect based on who did the update
             return string.IsNullOrEmpty(sessionEmail)

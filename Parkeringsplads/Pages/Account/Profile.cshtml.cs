@@ -24,7 +24,18 @@ namespace Parkeringsplads.Pages.Account
         public string Phone { get; set; }
         public string Title { get; set; }
 
-        public string TitleText { get; set; }
+        public string TitleText
+        {
+            get
+            {
+                return Title switch
+                {
+                    "P" => "Personale",
+                    "S" => "Studerende",
+                    _ => "Ukendt"
+                };
+            }
+        }
         public bool IsDriver { get; set; }
 
         public School School { get; set; }
@@ -74,7 +85,7 @@ namespace Parkeringsplads.Pages.Account
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
-            TitleText = user.Title;
+            Title = user.Title;
             School = user.School;
             SchoolName = user.School?.SchoolName;
 

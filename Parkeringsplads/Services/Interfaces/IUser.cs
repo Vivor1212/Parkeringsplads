@@ -7,7 +7,7 @@ namespace Parkeringsplads.Services.Interfaces
     {
         Task<bool> CreateUserAsync(User user, string addressRoad, string addressNumber, int cityId);
 
-        Task<bool> UpdateUserAsync(User updatedUser);
+        Task<bool> UpdateUserAsync(User updatedUser, string addressRoad, string addressNumber, int cityId);
 
         Task<bool> DeleteUserAsync(int userId);
 
