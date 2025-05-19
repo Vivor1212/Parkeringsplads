@@ -50,7 +50,7 @@
                             {
                                 @: No car assigned<br>
                             }
-                            <strong>Available Seats:</strong> @Model.Trip.TripSeats
+                            <strong>Available Seats:</strong> @Model.Trip.TripSeats / @(Model.Trip.Car?.CarCapacity ?? Model.Trip.TripSeats)
                         </p>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
 
             <!-- Pending Requests -->
             <h3 class="fw-semibold mb-3">Pending Requests</h3>
-            @if (hasAvailableSeats && pendingRequests.Any())
+            @if (pendingRequests.Any())
             {
                 <div class="table-responsive">
                     <table class="table table-hover table-sm">
@@ -124,26 +124,29 @@
                                     <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
                                     <td><span class="badge bg-warning text-dark">Pending</span></td>
                                     <td>
-                                        <form method="post" asp-page-handler="AcceptRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
-                                            <button type="submit" class="btn btn-outline-success btn-sm">
-                                                <i class="bi bi-check-circle"></i> Accept
-                                            </button>
-                                        </form>
-                                        <form method="post" asp-page-handler="RejectRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                <i class="bi bi-x-circle"></i> Reject
-                                            </button>
-                                        </form>
+                                        @if (hasAvailableSeats)
+                                        {
+                                            <form method="post" asp-page-handler="AcceptRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                                    <i class="bi bi-check-circle"></i> Accept
+                                                </button>
+                                            </form>
+                                            <form method="post" asp-page-handler="RejectRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                    <i class="bg-info bi-x-circle"></i> Reject
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No actions available (trip full)</span>
+                                        }
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
-            }
-            else if (!hasAvailableSeats)
-            {
-                <p class="text-muted">Alle mullige sæder er fuldt. Hvis nogen hopper fra vil andre requests blive vist, hvis der er nogle.</p>
             }
             else
             {
