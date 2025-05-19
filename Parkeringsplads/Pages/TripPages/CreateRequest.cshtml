@@ -1,4 +1,30 @@
-﻿@page
+﻿@page "{tripId:int}"
 @model Parkeringsplads.Pages.TripPages.CreateRequestModel
 @{
+    ViewData["Title"] = "Send anmodning";
 }
+
+<h2>Anmod om tur</h2>
+
+<p><strong>Tur:</strong> @Model.Trip.FromDestination → @Model.Trip.ToDestination</p>
+<p><strong>Dato:</strong> @Model.Trip.TripDate.ToShortDateString()</p>
+<p><strong>Tidspunkt:</strong> @Model.Trip.TripTime</p>
+<p><strong>Chauffør:</strong> @Model.Trip.Car.Driver.User.FirstName @Model.Trip.Car.Driver.User.LastName</p>
+
+<form method="post">
+<div class="mb-3">
+    <label asp-for="Address" class="form-label">Afhentningsadresse (valgfri)</label>
+    <input asp-for="Address" class="form-control" />
+    <small class="form-text text-muted">
+        Hvis du ikke skriver nogen afhentningsadresse, går chaufføren ud fra, at du møder op på startadressen.
+    </small>
+</div>
+
+
+    <div class="mb-3">
+        <label asp-for="Message" class="form-label">Besked til chaufføren (valgfri)</label>
+        <textarea asp-for="Message" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Send anmodning</button>
+</form>

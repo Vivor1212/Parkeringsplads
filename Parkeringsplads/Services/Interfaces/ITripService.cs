@@ -7,7 +7,7 @@ namespace Parkeringsplads.Services.Interfaces
 {
     public interface ITripService
     {
-        Task CreateTripAsync(Trip trip);
+        Task<Trip> CreateTripAsync(Trip trip);
 
         Task<List<Trip>> GetAllAvailableTripsAsync(
             string? directionFilter,
