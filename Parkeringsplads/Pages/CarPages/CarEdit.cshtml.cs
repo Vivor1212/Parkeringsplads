@@ -45,7 +45,7 @@ namespace Parkeringsplads.Pages.CarPages
 
                 if (isAdmin == "true")
                 {
-                    return RedirectToPage("/Admin/CarAdmin");
+                    return RedirectToPage("/Admin/Admindashboard");
                 }
                 else if (!string.IsNullOrEmpty(userEmail))
                 {

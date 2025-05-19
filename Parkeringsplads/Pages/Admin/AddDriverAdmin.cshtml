@@ -1,0 +1,40 @@
+﻿@page
+@model Parkeringsplads.Pages.Admin.AddDriverAdminModel
+
+<h2>Tilføj en ny chauffør</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<form method="post">
+    <!-- User Selection Dropdown -->
+    <div class="form-group">
+        <label asp-for="NewDriver.UserId" class="form-label">Vælg bruger (tilknyt bruger til chauffør)</label>
+        <select asp-for="NewDriver.UserId" asp-items="Model.Users" class="form-control" required>
+            <option value="">-- Vælg en bruger --</option>
+        </select>
+        <span asp-validation-for="NewDriver.UserId" class="text-danger"></span>
+    </div>
+    <!-- Driver License -->
+    <div class="form-group">
+        <label asp-for="NewDriver.DriverLicense" class="form-label">Chauffør Licens</label>
+        <input asp-for="NewDriver.DriverLicense" class="form-control" required />
+        <span asp-validation-for="NewDriver.DriverLicense" class="text-danger"></span>
+    </div>
+
+    <!-- Driver CPR -->
+    <div class="form-group">
+        <label asp-for="NewDriver.DriverCpr" class="form-label">Chauffør CPR</label>
+        <input asp-for="NewDriver.DriverCpr" class="form-control" required />
+        <span asp-validation-for="NewDriver.DriverCpr" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2 w-100">Tilføj chauffør</button>
+</form>
+
+<a href="/Admin/AdminDashboard" class="btn btn-secondary mt-3">Tilbage til Dashboard</a>

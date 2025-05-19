@@ -1,0 +1,100 @@
+﻿@page
+@model Parkeringsplads.Pages.Admin.AddTripAdminModel
+@{
+    ViewData["Title"] = "Admin - Opret tur";
+}
+
+<h2>Opret tur (Admin)</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<form method="post">
+    <input type="hidden" asp-for="Direction" />
+    <input type="hidden" asp-for="UseCustomAddress" />
+
+    <!-- Retning -->
+    <div class="mb-4">
+        <label class="form-label">Retning</label><br />
+        <input type="radio" asp-for="Direction" value="ToSchool" onchange="this.form.submit()" />
+        <label>Til skole</label><br />
+        <input type="radio" asp-for="Direction" value="FromSchool" onchange="this.form.submit()" />
+        <label>Fra skole</label>
+    </div>
+
+    <!-- Chauffør -->
+    <div class="mb-4">
+        <label asp-for="SelectedDriverId" class="form-label">Vælg chauffør</label>
+        <select asp-for="SelectedDriverId" class="form-control" asp-items="Model.Drivers" onchange="this.form.submit()">
+            <option value="">Vælg en chauffør</option>
+        </select>
+        <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
+    </div>
+
+    <!-- Bil -->
+    <div class="mb-4">
+        <label asp-for="SelectedCarId" class="form-label">Vælg bil</label>
+        <select asp-for="SelectedCarId" class="form-control" asp-items="Model.Cars" onchange="this.form.submit()" required>
+            <option value="">Vælg en bil</option>
+        </select>
+        <span asp-validation-for="SelectedCarId" class="text-danger"></span>
+    </div>
+
+    <!-- Passengers -->
+    @if (Model.SelectedCarId > 0 && Model.Cars.Any(c => c.Value == Model.SelectedCarId.ToString()))
+    {
+        var selectedCar = Model.Cars.FirstOrDefault(c => c.Value == Model.SelectedCarId.ToString());
+        var maxCapacity = int.Parse(selectedCar.Text.Split('(')[1].Split(')')[0]);
+
+        <div class="mb-4">
+            <label class="form-label">Antal passagerer</label>
+            <input asp-for="TripSeats" class="form-control" type="number" min="1" max="@maxCapacity" required />
+            <span asp-validation-for="TripSeats" class="text-danger"></span>
+        </div>
+    }
+
+    <!-- Dato -->
+    <div class="mb-4">
+        <label asp-for="Trip.TripDate" class="form-label">Dato</label>
+        <input asp-for="Trip.TripDate" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+        <span asp-validation-for="Trip.TripDate" class="text-danger"></span>
+    </div>
+
+    <!-- Destination / Start -->
+    @if (Model.UserAddresses?.Count > 0)
+    {
+        <div class="mb-4">
+            @{
+                string label = Model.Direction == "ToSchool" ? "Destination (f.eks. skole)" : "Start (f.eks. skole)";
+            }
+            <label class="form-label">@label</label>
+            <select asp-for="SelectedAddress" class="form-control" onchange="this.form.submit()">
+                <option value="">Vælg en adresse</option>
+                @foreach (var address in Model.UserAddresses)
+                {
+                    <option value="@address" selected="@(Model.SelectedAddress == address)">
+                        @address
+                    </option>
+                }
+                <option value="__custom__" selected="@(Model.UseCustomAddress ? "selected" : null)">Anden adresse...</option>
+            </select>
+        </div>
+    }
+
+    @if (Model.UseCustomAddress)
+    {
+        <div class="mb-4">
+            <label asp-for="CustomAddress" class="form-label">Angiv anden adresse</label>
+            <input asp-for="CustomAddress" class="form-control" />
+            <span asp-validation-for="CustomAddress" class="text-danger"></span>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Opret tur</button>
+</form>

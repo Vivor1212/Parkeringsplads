@@ -17,6 +17,10 @@ namespace Parkeringsplads.Services.Interfaces
             string schoolAddress);
 
         Task<Trip?> GetTripByIdAsync(int tripId);
+
+        Task AdminDeleteTripAsync(int tripId);
+
         Task<bool> DeleteTripAsync(int tripId, int userId);
+
     }
 }

@@ -1,128 +1,79 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Parkeringsplads.Pages.Admin
+namespace Parkeringsplads.Pages.Admin;
+
+public class CityAdmin : PageModel
 {
-    public class CityModel : PageModel
+    private readonly ICityService _cityService;
+
+    [BindProperty(SupportsGet = true)]
+    public int CityId { get; set; }
+
+    [BindProperty]
+    public string CityName { get; set; }
+
+    [BindProperty]
+    public string PostalCode { get; set; }
+
+    public CityAdmin(ICityService cityService)
     {
-        private readonly ICityService _cityService;
-        private readonly ILogger<CityModel> _logger;
+        _cityService = cityService;
+    }
 
-        [BindProperty]
-        public string CityName { get; set; }
+    public async Task<IActionResult> OnGetAsync()
+    {
+        var isAdmin = HttpContext.Session.GetString("IsAdmin");
 
-        [BindProperty]
-        public string PostalCode { get; set; }
-
-        public CityModel(ICityService cityService, ILogger<CityModel> logger)
+        // Check if the user is an admin
+        if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
         {
-            _cityService = cityService;
-            _logger = logger;
+            return RedirectToPage("/Admin/NotAdmin");
         }
 
-        [BindProperty(SupportsGet = true)]
-        public string CitySearch { get; set; }
-
-        public List<City> MatchingCities { get; set; }
-
-        public async Task<IActionResult> OnGetAsync()
+        // If CityId is provided, load the city for editing
+        if (CityId != 0)
         {
-
-            var isAdmin = HttpContext.Session.GetString("IsAdmin");
-
-            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+            var city = await _cityService.GetCityByIdAsync(CityId);
+            if (city != null)
             {
-                // User is not an admin, redirect to login
-                return RedirectToPage("/Admin/NotAdmin");
+                CityName = city.CityName;
+                PostalCode = city.PostalCode;
             }
-
-            if (!string.IsNullOrEmpty(CitySearch))
-            {
-                MatchingCities = (await _cityService.GetAllCitiesAsync())
-                    .Where(city => city.CityName.Contains(CitySearch, StringComparison.OrdinalIgnoreCase) ||
-                                   city.PostalCode.Contains(CitySearch, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
-            else
-            {
-                MatchingCities = new List<City>();
-            }
-            return Page();
         }
 
-        public async Task<JsonResult> OnGetSearchCitiesAsync(string term)
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (CityId == 0) // Add new city
         {
-            var allCities = await _cityService.GetAllCitiesAsync();
-
-            var results = allCities
-                .Where(c => c.CityName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                            c.PostalCode.Contains(term, StringComparison.OrdinalIgnoreCase))
-                .Select(c => new { id = c.CityId, name = c.CityName, postalCode = c.PostalCode })
-                .ToList();
-
-            return new JsonResult(results);
-        }
-
-        public async Task<IActionResult> OnPostAddCityAsync()
-        {
-            if (string.IsNullOrWhiteSpace(CityName) || string.IsNullOrWhiteSpace(PostalCode))
-            {
-                ModelState.AddModelError(string.Empty, "City Name and Postal Code must not be empty.");
-                return Page();
-            }
-
-            var newCity = new City
+            var city = new City
             {
                 CityName = CityName,
                 PostalCode = PostalCode
             };
 
-            try
+            await _cityService.AddCityAsync(city);
+        }
+        else // Edit existing city
+        {
+            var city = await _cityService.GetCityByIdAsync(CityId);
+            if (city == null)
             {
-                await _cityService.AddCityAsync(newCity);
-                return RedirectToPage();
-            }
-            catch (InvalidOperationException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError("", "City not found.");
                 return Page();
             }
-            
+
+            city.CityName = CityName;
+            city.PostalCode = PostalCode;
+
+            await _cityService.UpdateCityAsync(city);
         }
 
-        // Request model for deletion
-        public class DeleteCityRequest
-        {
-            public int CityId { get; set; }
-        }
-
-        // Handles JSON POST body: { "cityId": 123 }
-        public async Task<IActionResult> OnPostDeleteCityAsync(int cityId)
-        {
-            try
-            {
-                var city = await _cityService.GetCityByIdAsync(cityId);
-                if (city == null)
-                {
-                    ModelState.AddModelError("", "City not found.");
-                    return Page();
-                }
-
-                await _cityService.DeleteCityAsync(cityId);
-                return RedirectToPage(); // Refresh after delete
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting city.");
-                ModelState.AddModelError("", "Error deleting city.");
-                return Page();
-            }
-        }
-
+        return RedirectToPage("/Admin/Admindashboard");
     }
 }

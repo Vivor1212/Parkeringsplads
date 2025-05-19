@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using Parkeringsplads.Services.EFServices;
 using Parkeringsplads.Services.Interfaces;
 
 namespace Parkeringsplads.Pages.Admin
@@ -10,11 +11,22 @@ namespace Parkeringsplads.Pages.Admin
     {
         private readonly ParkeringspladsContext _context;
         private readonly ICarService _carService;
+        private readonly IUser _userService;
+        private readonly ICityService _cityService;
+        private readonly IDriverService _driverService;
+        private readonly IRequestService _requestService;
+        private readonly ITripService _tripService;
 
-        public AdminDashboardModel(ParkeringspladsContext context, ICarService carService)
+        public AdminDashboardModel(ParkeringspladsContext context, ICarService carService, IUser userService, ICityService cityService, IDriverService driverService, IRequestService requestService, ITripService tripService)
         {
             _context = context;
             _carService = carService;
+            _userService = userService;
+            _cityService = cityService;
+            _driverService = driverService;
+            _requestService = requestService;
+            _tripService = tripService;
+
         }
 
         //User Search
@@ -56,6 +68,8 @@ namespace Parkeringsplads.Pages.Admin
         [BindProperty(SupportsGet = true)]
         public string RequestSearchTerm { get; set; }
         public List<Request> Requests { get; set; }
+
+
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -175,10 +189,9 @@ namespace Parkeringsplads.Pages.Admin
 
             Drivers = await driverQuery.ToListAsync();
 
-            //Tripsøgning
             var tripQuery = _context.Trip
-                .Include(t => t.Car.Driver)
-                .ThenInclude(d => d.User)
+                .Include(t => t.Car.Driver) 
+                .ThenInclude(d => d.User)   
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(TripSearchTerm))
@@ -209,7 +222,7 @@ namespace Parkeringsplads.Pages.Admin
                 var lowerRequestSearchTerm = RequestSearchTerm.ToLower();
 
                 requestQuery = requestQuery.Where(r =>
-                    
+
                     (r.RequestMessage != null && r.RequestMessage.ToLower().Contains(lowerRequestSearchTerm)) ||
 
                     (r.RequestAddress != null && r.RequestAddress.ToLower().Contains(lowerRequestSearchTerm)) ||
@@ -245,10 +258,99 @@ namespace Parkeringsplads.Pages.Admin
 
         public async Task<IActionResult> OnPostDeleteCarAsync(int carId)
         {
-            await _carService.DeleteCarAsync(carId);
+            try
+            {
+                await _carService.DeleteCarAsync(carId);
 
-            return RedirectToPage();
+                TempData["SuccessMessage"] = "Car successfully deleted.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting car: " + ex.Message;
+                return RedirectToPage();
+            }
         }
+
+        public async Task<IActionResult> OnPostDeleteUserAsync(int userId)
+        {
+            var result = await _userService.DeleteUserAsync(userId);
+
+            if (result)
+            {
+                TempData["SuccessMessage"] = "User successfully deleted.";
+                return RedirectToPage();
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to delete the user.";
+                return RedirectToPage();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteCityAsync(int cityId)
+        {
+            try
+            {
+                await _cityService.DeleteCityAsync(cityId);
+
+                TempData["SuccessMessage"] = "City successfully deleted.";
+                return RedirectToPage("/Admin/admindashboard");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting city: " + ex.Message;
+                return RedirectToPage();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteDriverAsync(int driverId)
+        {
+            try
+            {
+                await _driverService.DeleteDriverAsync(driverId);
+
+                TempData["SuccessMessage"] = "Driver successfully deleted.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting driver: " + ex.Message;
+                return RedirectToPage();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteRequestAsync(int requestId)
+        {
+            try
+            {
+                await _requestService.DeleteRequestAsync(requestId);
+
+                TempData["SuccessMessage"] = "Request successfully deleted.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting request: " + ex.Message;
+                return RedirectToPage();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteTripAsync(int tripId)
+        {
+            try
+            {
+                await _tripService.DeleteTripAsync(tripId);
+                TempData["SuccessMessage"] = "Trip successfully deleted.";
+                return RedirectToPage();
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting trip: " + ex.Message;
+                return NotFound(ex.Message);
+            }
+        }
+
 
     }
 }
