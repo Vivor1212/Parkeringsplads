@@ -1,4 +1,4 @@
-﻿@page
+﻿﻿@page
 @model Parkeringsplads.Pages.UserPages.UpdateUserModel
 
 <h1>Opdater dine oplysninger</h1>
@@ -28,6 +28,17 @@
             <label asp-for="User.Email">Email:</label>
             <input asp-for="User.Email" class="form-control" />
             <span asp-validation-for="User.Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3 col-sm-6">
+            <label asp-for="User.Title" class="control-label">Rolle</label>
+            <select asp-for="User.Title" class="form-control">
+                @foreach (var option in Model.TitleOptions)
+                {
+                    <option value="@option.Key">@option.Value</option>
+                }
+
+            </select>
+            <span asp-validation-for="User.Title" class="text-danger"></span>
         </div>
 
         <div class="form-group">

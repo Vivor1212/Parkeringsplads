@@ -9,18 +9,16 @@ using Microsoft.Identity.Client;
 
 namespace Parkeringsplads.Pages.UserPages
 {
-    public class UpdateUserModel : PageModel
+    public class AddAddressModel : PageModel
     {
         private readonly ParkeringspladsContext _context;
         private readonly Services.Interfaces.IUser _userService;
-        private readonly ISchoolService _schoolService;
         private readonly ICityService _cityService;
 
-        public UpdateUserModel(Services.Interfaces.IUser userService, ParkeringspladsContext context, ISchoolService schoolService, ICityService cityService)
+        public AddAddressModel(Services.Interfaces.IUser userService, ParkeringspladsContext context, ICityService cityService)
         {
             _context = context;
             _userService = userService;
-            _schoolService = schoolService;
             _cityService = cityService;
 
         }
@@ -29,13 +27,6 @@ namespace Parkeringsplads.Pages.UserPages
 
         [BindProperty]
         public User User { get; set; }
-        public string UserEmail { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Phone { get; set; }
-        public string Title { get; set; }
-        [BindProperty]
-        public School School { get; set; }
 
 
         [BindProperty]
@@ -44,25 +35,15 @@ namespace Parkeringsplads.Pages.UserPages
         public Address Address { get; set; }
         [BindProperty]
         public UserAddress UserAddress { get; set; }
-        [BindProperty]
+       
 
-        public string SchoolName { get; set; }
-        [BindProperty]
-        public List<SelectListItem> Schools { get; set; }
-
-        public Dictionary<string, string> TitleOptions = new()
-    {
-
-        {"P", "Personale" },
-        {"S", "Studerende" }
-    };
         public List<SelectListItem> City { get; set; }
 
 
         private async Task LoadDropdownDataAsync()
         {
             // Fetch the dropdown data
-            Schools = await _schoolService.SchoolDropDownAsync();
+       
             City = await _cityService.CityDropDownAsync();
             // You can similarly fetch City dropdown here if required (using _schoolService or another service).
         }
@@ -87,11 +68,12 @@ namespace Parkeringsplads.Pages.UserPages
             {
                 // Regular user flow: get user by their session email
                 user = await _context.User
-                    .Include(u => u.School)
-
+                     .Include(u => u.UserAddresses)
+           .ThenInclude(ua => ua.Address)
+           .ThenInclude(a => a.City)
                     .FirstOrDefaultAsync(u => u.Email == userEmail);
             }
-
+        
 
 
             var userSchool = _context.User
@@ -107,13 +89,7 @@ namespace Parkeringsplads.Pages.UserPages
 
             // Set properties
             User = user;
-            UserEmail = user.Email;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Phone = user.Phone;
-            Title = user.Title;
-            School = user.School;
-            SchoolName = user.School?.SchoolName;
+
 
             return Page(); // Return the Profile page with the user's information
         }
@@ -147,14 +123,7 @@ namespace Parkeringsplads.Pages.UserPages
             User.UserId = userBeingUpdated.UserId;
 
             // Try to update using service
-
-            bool updateSuccessful = await _userService.UpdateUserAsync(
-    User,
-    Address.AddressRoad,
-    Address.AddressNumber,
-    CityId
-);
-
+            bool updateSuccessful = await _userService.UpdateUserAsync(User);
 
             if (!updateSuccessful)
             {
@@ -163,7 +132,14 @@ namespace Parkeringsplads.Pages.UserPages
                 return Page();
             }
 
+            // ✅ Only update session if user updated their own info
+            if (!string.IsNullOrEmpty(sessionEmail) && sessionEmail == userBeingUpdated.Email)
+            {
+                HttpContext.Session.SetString("UserEmail", User.Email);
 
+                bool isDriver = _context.Driver.Any(d => d.UserId == User.UserId);
+                HttpContext.Session.SetString("IsDriver", isDriver ? "true" : "false");
+            }
 
             // Redirect based on who did the update
             return string.IsNullOrEmpty(sessionEmail)
