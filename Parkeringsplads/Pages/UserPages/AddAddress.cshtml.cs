@@ -25,9 +25,7 @@ public class AddAddressModel : PageModel
     [BindProperty]
     public Address Address { get; set; }
 
-    [BindProperty]
-    public UserAddress UserAddress { get; set; }
-
+   
    
     [BindProperty]
     public int CityId { get; set; }

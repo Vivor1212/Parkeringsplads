@@ -65,8 +65,8 @@
 
 
         <div class="form-group">
-            <label>Vejnavn:</label>
-            <input asp-for="Address.AddressRoad" class="form-control" placeholder="Skriv din adresse" />
+            <label asp-for="Address.AddressRoad">Vejnavn:</label>
+            <input asp-for="Address.AddressRoad" class="form-control" />
             <span asp-validation-for="Address.AddressRoad" class="text-danger"></span>
         </div>
 

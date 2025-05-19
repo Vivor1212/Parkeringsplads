@@ -88,11 +88,13 @@ namespace Parkeringsplads.Pages.UserPages
                 // Regular user flow: get user by their session email
                 user = await _context.User
                     .Include(u => u.School)
-
+                   .Include(u => u.UserAddresses)
+            .ThenInclude(ua => ua.Address)
+                .ThenInclude(a => a.City)
                     .FirstOrDefaultAsync(u => u.Email == userEmail);
             }
 
-
+           
 
             var userSchool = _context.User
                 .Include(u => u.School) // Include the School navigation property
@@ -113,7 +115,16 @@ namespace Parkeringsplads.Pages.UserPages
             Phone = user.Phone;
             Title = user.Title;
             School = user.School;
+          
             SchoolName = user.School?.SchoolName;
+
+            // Load address and city info into form fields
+            var userAddress = user.UserAddresses?.FirstOrDefault();
+            if (userAddress != null)
+            {
+                Address = userAddress.Address;
+                CityId = userAddress.Address.CityId;
+            }
 
             return Page(); // Return the Profile page with the user's information
         }
