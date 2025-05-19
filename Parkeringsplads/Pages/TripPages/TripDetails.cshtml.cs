@@ -69,14 +69,35 @@ namespace Parkeringsplads.Pages.TripPages
                 return RedirectToPage("./Login/Login");
             }
 
+            var isDriver = await _context.Driver.AnyAsync(d => d.UserId == user.UserId);
+            if (!isDriver)
+            {
+                TempData["ErrorMessage"] = "You must be a driver to perfom this action.";
+                return RedirectToPage("./Account/Profile");
+            }
+
+            var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == user.UserId);
+            if (trip == null)
+            {
+                TempData["ErrorMessage"] = "Trip not found or you do not have access to it.";
+                return RedirectToPage("./TripPages/DriversTrips");
+            }
+
+            var acceptedRequests = trip.Requests.Count(r => r.RequestStatus == true);
+            if (acceptedRequests >= trip.TripSeats)
+            {
+                TempData["ErrorMessage"] = "Cannot accept request: Trip is full.";
+                return RedirectToPage(new { tripId });
+            }
+
             try
             {
                 await _requestService.AcceptRequestAsync(requestId);
                 TempData["SuccessMessage"] = "Request accepted successfully.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["ErrorMessage"] = ex.Message;
+                TempData["ErrorMessage"] = "An error occurred while accepting the request. Please try again.";
             }
 
             return RedirectToPage(new { tripId });
@@ -96,14 +117,28 @@ namespace Parkeringsplads.Pages.TripPages
                 return RedirectToPage("./Login/Login");
             }
 
+            var isDriver = await _context.Driver.AnyAsync(d => d.UserId == user.UserId);
+            if (!isDriver)
+            {
+                TempData["ErrorMessage"] = "You must be a driver to perfom this action.";
+                return RedirectToPage("./Account/Profile");
+            }
+
+            var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == user.UserId);
+            if (trip == null)
+            {
+                TempData["ErrorMessage"] = "Trip not found or you do not have access to it.";
+                return RedirectToPage("./TripPages/DriversTrips");
+            }
+
             try
             {
                 await _requestService.RejectRequestAsync(requestId);
                 TempData["SuccessMessage"] = "Request rejected successfully.";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["ErrorMessage"] = ex.Message;
+                TempData["ErrorMessage"] = "An error occurred while rejecting the request. Please try again.";
             }
 
             return RedirectToPage(new { tripId });

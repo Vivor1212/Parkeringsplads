@@ -7,7 +7,7 @@ namespace Parkeringsplads.Services.Interfaces
 {
     public interface ITripService
     {
-        Task CreateTripAsync(Trip trip);
+        Task<Trip> CreateTripAsync(Trip trip);
 
         Task<List<Trip>> GetAllAvailableTripsAsync(
             string? directionFilter,
@@ -17,6 +17,10 @@ namespace Parkeringsplads.Services.Interfaces
             string schoolAddress);
 
         Task<Trip?> GetTripByIdAsync(int tripId);
-        Task DeleteTripAsync(int tripId);
+
+        Task AdminDeleteTripAsync(int tripId);
+
+        Task<bool> DeleteTripAsync(int tripId, int userId);
+
     }
 }

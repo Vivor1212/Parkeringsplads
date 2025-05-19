@@ -4,6 +4,8 @@
     ViewData["Title"] = "Ledige Ture";
 }
 
+
+
 <style>
     .dot {
     height: 12px;
@@ -103,7 +105,7 @@
                             var acceptedRequests = trip.Requests.ToList();
                             var seatsTaken = acceptedRequests.Count;
 
-                            for (int i = 0; i < totalSeats - 1; i++)
+                            for (int i = 0; i < totalSeats; i++)
                             {
                                 if (i < seatsTaken)
                                 {
@@ -119,10 +121,11 @@
                         }
                     </td>
                     <td>
-                        <form method="post" asp-page-handler="Request" asp-route-tripId="@trip.TripId">
-                            <button class="btn btn-sm btn-outline-primary">Anmod</button>
-                        </form>
+                        <a asp-page="/TripPages/CreateRequest" asp-route-tripId="@trip.TripId" class="btn btn-sm btn-outline-primary">
+                            Anmod
+                        </a>
                     </td>
+
                 </tr>
             }
         </tbody>
