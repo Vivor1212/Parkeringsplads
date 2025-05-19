@@ -14,7 +14,6 @@ namespace Parkeringsplads.Pages.CarPages
             _carService = carService;
         }
 
-        //public IList<Car> Cars { get; set; }
 
         public string ErrorMessage { get; set; }
 
@@ -45,7 +44,7 @@ namespace Parkeringsplads.Pages.CarPages
 
                 if (isAdmin == "true")
                 {
-                    return RedirectToPage("/Admin/CarAdmin");
+                    return RedirectToPage("/Admin/Admindashboard");
                 }
                 else if (!string.IsNullOrEmpty(userEmail))
                 {

@@ -10,8 +10,9 @@ namespace Parkeringsplads.Services.Interfaces
 
         Task<List<SelectListItem>> SchoolDropDownAsync();
 
+        public Task CreateSchoolAsync(string schoolName, string addressRoad, string addressNumber, int cityId);
 
-
+        public Task DeleteSchoolAsync(int schoolId);
 
     }
 }

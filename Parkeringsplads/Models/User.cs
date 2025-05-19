@@ -60,4 +60,5 @@ public partial class User
 
     [InverseProperty("Users")]
     public virtual ICollection<Request> Requests { get; set; } = new List<Request>();
+    //public object Addresses { get; internal set; } Nok unødvendigt
 }

@@ -42,5 +42,4 @@ public partial class Trip
 
     [InverseProperty("Trip")]
     public virtual ICollection<Request> Requests { get; set; } = new List<Request>();
-
 }

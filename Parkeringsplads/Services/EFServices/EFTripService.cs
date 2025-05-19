@@ -17,10 +17,15 @@ namespace Parkeringsplads.Services.EFServices
             _context = context;
         }
 
-        public async Task CreateTripAsync(Trip trip)
+        public async Task<Trip> CreateTripAsync(Trip trip)
         {
+            if(trip == null)
+            {
+                throw new ArgumentNullException(nameof(trip), "Trip cannot be null");
+            }
             _context.Trip.Add(trip);
             await _context.SaveChangesAsync();
+            return trip;
         }
 
         public async Task<List<Trip>> GetAllAvailableTripsAsync(
@@ -92,6 +97,38 @@ namespace Parkeringsplads.Services.EFServices
                 .Include(t => t.Requests.Where(r => r.RequestStatus == true))
                     .ThenInclude(r => r.Users)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
+        }
+
+
+        public async Task AdminDeleteTripAsync(int tripId)
+        {
+            var trip = await _context.Trip
+                .Include(t => t.Requests)
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+
+            if (trip == null)
+            {
+                throw new ArgumentException($"Trip with ID {tripId} not found");
+            }
+
+            _context.Request.RemoveRange(trip.Requests);
+
+            _context.Trip.Remove(trip);
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task<bool> DeleteTripAsync(int tripId, int userId)
+        {
+            var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car.Driver.UserId == userId);
+            if (trip == null)
+            {
+                return false;
+            }
+
+            _context.Trip.Remove(trip);
+            await _context.SaveChangesAsync();
+            return true;
+
         }
     }
 }

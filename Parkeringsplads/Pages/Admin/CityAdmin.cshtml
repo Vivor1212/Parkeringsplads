@@ -1,125 +1,29 @@
 ﻿@page
-@model Parkeringsplads.Pages.Admin.CityModel
+@model Parkeringsplads.Pages.Admin.CityAdmin
 
-<h2>Search for a City</h2>
-
-<input type="text" id="citySearch" placeholder="Start typing city name..." autocomplete="off" />
-<div id="results" style="border: 1px solid #ccc; display: none; max-height: 200px; overflow-y: auto; width: 300px; background: white;"></div>
-
-<h3>Add a New City</h3>
-<form method="post" asp-page-handler="AddCity">
-    <div class="mb-3">
-        <label for="CityName" class="form-label">City Name</label>
-        <input type="text" class="form-control" id="CityName" name="CityName" required />
-    </div>
-    <div class="mb-3">
-        <label for="PostalCode" class="form-label">Postal Code</label>
-        <input type="text" class="form-control" id="PostalCode" name="PostalCode" required />
-    </div>
-    <button type="submit" class="btn btn-primary">Add City</button>
-</form>
-
-<h3>Remove a City</h3>
-<div>
-    <input type="text" id="removeCitySearch" placeholder="Search to remove a city" autocomplete="off" class="form-control mb-2" />
-    <div id="removeResults" style="border: 1px solid #ccc; display: none; max-height: 200px; overflow-y: auto; width: 300px; background: white;"></div>
-</div>
-
-<!-- Delete city button is hidden initially and will be shown once a city is selected -->
-<div id="deleteCityContainer" style="display: none;">
-    <form method="post" asp-page-handler="DeleteCity">
-        <input type="hidden" id="deleteCityId" name="cityId" />
-        <button type="submit" class="btn btn-danger btn-sm">Delete Selected City</button>
-    </form>
-</div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        const searchInput = document.getElementById('citySearch');
-        const resultsBox = document.getElementById('results');
-        const removeSearchInput = document.getElementById('removeCitySearch');
-        const removeResultsBox = document.getElementById('removeResults');
-        const deleteCityContainer = document.getElementById('deleteCityContainer');
-        const deleteCityIdInput = document.getElementById('deleteCityId');
-
-        // Handle search for cities (first search box)
-        searchInput.addEventListener('input', async function () {
-            const searchTerm = this.value.trim();
-
-            if (searchTerm.length < 2) {
-                resultsBox.style.display = 'none';
-                resultsBox.innerHTML = '';
-                return;
-            }
-
-            const response = await fetch(`/Test?handler=SearchCities&term=${encodeURIComponent(searchTerm)}`);
-            const cities = await response.json();
-
-            if (cities.length === 0) {
-                resultsBox.innerHTML = '<div style="padding: 5px;">No matches</div>';
-            } else {
-                resultsBox.innerHTML = cities.map(c =>
-                    `<div style="padding: 5px; cursor: pointer; display: flex; justify-content: space-between;" onclick="selectCity('${c.name}', '${c.postalCode}')">
-                        <span>${c.name}</span>
-                        <span style="color: #888;">(${c.postalCode})</span>
-                    </div>`
-                ).join('');
-            }
-
-            resultsBox.style.display = 'block';
-        });
-
-        // Update the input field with city name and postal code on selection
-        function selectCity(cityName, postalCode) {
-            searchInput.value = `${cityName} (${postalCode})`;
-            resultsBox.style.display = 'none'; // Hide the search results
-
-            // Optionally, reset the delete selection (if you are updating)
-            deleteCityContainer.style.display = 'none';
-        }
-
-        // ---------------------- Remove City Section ----------------------
-
-        // Handle search for cities to remove (second search box)
-        removeSearchInput.addEventListener('input', async function () {
-            const searchTerm = this.value.trim();
-
-            if (searchTerm.length < 2) {
-                removeResultsBox.style.display = 'none';
-                removeResultsBox.innerHTML = '';
-                return;
-            }
-
-            const response = await fetch(`/Test?handler=SearchCities&term=${encodeURIComponent(searchTerm)}`);
-            const cities = await response.json();
-
-            if (cities.length === 0) {
-                removeResultsBox.innerHTML = '<div style="padding: 5px;">No matches</div>';
-            } else {
-                removeResultsBox.innerHTML = cities.map(c =>
-                    `<div style="padding: 5px; cursor: pointer; display: flex; justify-content: space-between;" onclick="selectCityToDelete(${c.id}, '${c.name}', '${c.postalCode}')">
-                        <span>${c.name}</span>
-                        <span style="color: #888;">(${c.postalCode})</span>
-                    </div>`
-                ).join('');
-            }
-
-            removeResultsBox.style.display = 'block';
-        });
-
-        // Function to show delete button and populate search input field with selected city's name and postal code
-        function selectCityToDelete(cityId, cityName, postalCode) {
-            // Populate the search input with city name and postal code
-            removeSearchInput.value = `${cityName} (${postalCode})`;
-
-            // Update the delete form with selected cityId
-            deleteCityIdInput.value = cityId;
-
-            // Show the delete button
-            deleteCityContainer.style.display = 'block';
-            removeResultsBox.style.display = 'none'; // Hide the search results
-        }
-    </script>
+@{
+    ViewData["Title"] = Model.CityId == 0 ? "Add New City" : "Edit City";
 }
+
+<h3>@(Model.CityId == 0 ? "Add New City" : "Edit City")</h3>
+
+<form method="post">
+    @if (Model.CityId != 0)
+    {
+        <input type="hidden" asp-for="CityId" />
+    }
+
+    <div class="form-group">
+        <label asp-for="CityName"></label>
+        <input asp-for="CityName" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PostalCode"></label>
+        <input asp-for="PostalCode" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        @(Model.CityId == 0 ? "Add City" : "Update City")
+    </button>
+</form>

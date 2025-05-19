@@ -21,9 +21,12 @@
             Cities
         </button>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#addresses">Addresses</a>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="addresses-tab" data-bs-toggle="tab" data-bs-target="#addresses" type="button" role="tab" aria-controls="addresses" aria-selected="false">
+            Addresses
+        </button>
     </li>
+
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="schools-tab" data-bs-toggle="tab" data-bs-target="#schools" type="button" role="tab" aria-controls="schools" aria-selected="false">
             Schools
@@ -54,6 +57,11 @@
     <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
         <h3>Search Users</h3>
 
+        <a asp-page="/UserPages/CreateUser" class="btn btn-success mb-3">
+            Create New User
+        </a>
+
+
         <form method="get" class="mb-3">
             <div class="input-group">
                 <input type="text" class="form-control" name="SearchTerm" placeholder="Search users..." value="@Model.SearchTerm" />
@@ -73,6 +81,9 @@
                         <th>Phone</th>
                         <th>Title</th>
                         <th>School</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -86,6 +97,24 @@
                             <td>@user.Phone</td>
                             <td>@user.Title</td>
                             <td>@user.School?.SchoolName</td>
+                            <td>
+                                <a asp-page="/UserPages/UpdateUser" asp-route-userId="@user.UserId" class="text-warning me-2"
+                                   onclick="return confirm('Are you sure you want to edit this user?');" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="post"
+                                      asp-page-handler="DeleteUser"
+                                      asp-route-userId="@user.UserId"
+                                      onsubmit="return confirm('Are you sure you want to delete this user?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete User" aria-label="Delete User">
+                                        <i class="fas fa-trash-alt text-danger"></i>
+                                    </button>
+                                </form>
+                            </td>
+
                         </tr>
                     }
                 </tbody>
@@ -100,6 +129,10 @@
     <!-- Cars Tab -->
     <div class="tab-pane fade" id="cars" role="tabpanel" aria-labelledby="cars-tab">
         <h3>Search Cars</h3>
+
+        <a asp-page="/CarPages/Car" class="btn btn-success mb-3">
+            Create New Car
+        </a>
 
         <form method="get" class="mb-3">
             <div class="input-group">
@@ -138,9 +171,13 @@
                                 </a>
                             </td>
                             <td>
-                                <form method="post" asp-page-handler="DeleteCar" asp-route-carId="@car.CarId" onsubmit="return confirm('Are you sure you want to delete this car?');">
-                                    <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                <form method="post"
+                                      asp-page-handler="DeleteCar"
+                                      asp-route-carId="@car.CarId"
+                                      onsubmit="return confirm('Are you sure you want to delete this car?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Car" aria-label="Delete Car">
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
                             </td>
@@ -159,6 +196,10 @@
     <div class="tab-pane fade" id="cities" role="tabpanel" aria-labelledby="cities-tab">
         <h3>Search Cities</h3>
 
+        <a asp-page="/Admin/cityadmin" class="btn btn-success mb-3">
+            Create New City
+        </a>
+
         <form method="get" class="mb-3">
             <div class="input-group">
                 <input type="text" class="form-control" name="CitySearchTerm" placeholder="Search cities..." value="@Model.CitySearchTerm" />
@@ -174,6 +215,8 @@
                         <th>City Id</th>
                         <th>City Name</th>
                         <th>Postal Code</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -183,6 +226,25 @@
                             <td>@city.CityId</td>
                             <td>@city.CityName</td>
                             <td>@city.PostalCode</td>
+                            <td>
+                                <a asp-page="/Admin/CityAdmin" asp-route-cityId="@city.CityId" class="text-warning me-2"
+                                   onclick="return confirm('Are you sure you want to edit this city?');" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="post"
+                                      asp-page-handler="DeleteCity"
+                                      asp-route-cityId="@city.CityId"
+                                      onsubmit="return confirm('Are you sure you want to delete this city?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete City" aria-label="Delete City">
+                                        <i class="fas fa-trash-alt text-danger"></i>
+                                    </button>
+                                </form>
+
+                            </td>
+
                         </tr>
                     }
                 </tbody>
@@ -215,6 +277,8 @@
                         <th>Number</th>
                         <th>City</th>
                         <th>Postal Code</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -226,6 +290,21 @@
                             <td>@address.AddressNumber</td>
                             <td>@address.City.CityName</td>
                             <td>@address.City.PostalCode</td>
+                            <td>
+                                <a asp-page="/AddressPages/AddressEdit" asp-route-addressId="@address.AddressId" class="text-warning me-2"
+                                   onclick="return confirm('Are you sure you want to edit this address?');" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="post" asp-page-handler="DeleteAddress" asp-route-addressId="@address.AddressId"
+                                      onsubmit="return confirm('Are you sure you want to delete this address?');">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </button>
+                                </form>
+                            </td>
+
                         </tr>
                     }
                 </tbody>
@@ -240,6 +319,10 @@
     <!-- Schools Tab -->
     <div class="tab-pane fade" id="schools" role="tabpanel" aria-labelledby="schools-tab">
         <h3>Search Schools</h3>
+
+        <a asp-page="/Admin/AddSchoolAdmin" class="btn btn-success mb-3">
+            Create New School
+        </a>
 
         <form method="get" class="mb-3">
             <div class="input-group">
@@ -259,6 +342,8 @@
                         <th>Number</th>
                         <th>City</th>
                         <th>Postal Code</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -271,6 +356,22 @@
                             <td>@school.Address.AddressNumber</td>
                             <td>@school.Address.City.CityName</td>
                             <td>@school.Address.City.PostalCode</td>
+                            <td>
+                                <a asp-page="/Admin/EditSchoolAdmin" asp-route-schoolId="@school.SchoolId" class="text-warning me-2"
+                                   onclick="return confirm('Are you sure you want to edit this school?');" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="post" asp-page-handler="DeleteSchool" asp-route-schoolId="@school.SchoolId"
+                                      onsubmit="return confirm('Are you sure you want to delete this school?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete">
+                                        <i class="fas fa-trash-alt text-danger"></i>
+                                    </button>
+                                </form>
+                            </td>
+
                         </tr>
                     }
                 </tbody>
@@ -285,6 +386,10 @@
     <!-- Drivers Tab -->
     <div class="tab-pane fade" id="drivers" role="tabpanel" aria-labelledby="drivers-tab">
         <h3>Search Drivers</h3>
+
+        <a asp-page="/Admin/AddDriverAdmin" class="btn btn-success mb-3">
+            Create New Driver
+        </a>
 
         <form method="get" class="mb-3">
             <div class="input-group">
@@ -303,6 +408,8 @@
                         <th>CPR</th>
                         <th>User Name</th>
                         <th>Email</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -314,6 +421,24 @@
                             <td>@driver.DriverCpr</td>
                             <td>@driver.User.FirstName @driver.User.LastName</td>
                             <td>@driver.User.Email</td>
+                            <td>
+                                <a asp-page="/Admin/EditDriverAdmin" asp-route-driverId="@driver.DriverId" class="text-warning me-2"
+                                   onclick="return confirm('Are you sure you want to edit this driver?');" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <form method="post"
+                                      asp-page-handler="DeleteDriver"
+                                      asp-route-driverId="@driver.DriverId"
+                                      onsubmit="return confirm('Are you sure you want to delete this driver?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Driver" aria-label="Delete Driver">
+                                        <i class="fas fa-trash-alt text-danger"></i>
+                                    </button>
+                                </form>
+                            </td>
+
                         </tr>
                     }
                 </tbody>
@@ -328,6 +453,10 @@
     <!-- Trips Tab -->
     <div class="tab-pane fade" id="trips" role="tabpanel" aria-labelledby="trips-tab">
         <h3>Search Trips</h3>
+
+        <a asp-page="/Admin/AddTripAdmin" class="btn btn-success mb-3">
+            Create New Trip
+        </a>
 
         <form method="get" class="mb-3">
             <div class="input-group">
@@ -348,6 +477,7 @@
                         <th>Time</th>
                         <th>Seats</th>
                         <th>Driver</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -360,7 +490,31 @@
                             <td>@trip.TripDate.ToShortDateString()</td>
                             <td>@trip.TripTime</td>
                             <td>@trip.TripSeats</td>
-                            <td>@trip.Car.Driver.User.FirstName @trip.Car.Driver.User.LastName</td>
+
+                            <!-- Driver Info -->
+                            <td>
+                                @if (trip.Car?.Driver?.User != null)
+                                {
+                                    @trip.Car.Driver.User.FirstName @trip.Car.Driver.User.LastName
+                                }
+                                else
+                                {
+                                    <span>No Driver Assigned</span>
+                                }
+                            </td>
+
+                            <td>
+                                <form method="post"
+                                      asp-page-handler="DeleteTrip"
+                                      asp-route-tripId="@trip.TripId"
+                                      onsubmit="return confirm('Are you sure you want to delete this trip?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Trip" aria-label="Delete Trip">
+                                        <i class="fas fa-trash-alt text-danger"></i>
+                                    </button>
+                                </form>
+                            </td>
+
                         </tr>
                     }
                 </tbody>
@@ -372,9 +526,14 @@
         }
     </div>
 
+
     <!-- Requests Tab -->
     <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
         <h3>Search Requests</h3>
+
+        <a asp-page="/Admin/AddRequestAdmin" class="btn btn-success mb-3">
+            Create New Request
+        </a>
 
         <form method="get" class="mb-3">
             <div class="input-group">
@@ -395,6 +554,7 @@
                         <th>Message</th>
                         <th>User</th>
                         <th>Trip (From → To)</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -408,6 +568,18 @@
                             <td>@request.RequestMessage</td>
                             <td>@(request.Users != null ? request.Users.FirstName + " " + request.Users.LastName : "N/A")</td>
                             <td>@request.Trip.FromDestination → @request.Trip.ToDestination</td>
+                            <td>
+                                <form method="post"
+                                      asp-page-handler="DeleteRequest"
+                                      asp-route-requestId="@request.RequestId"
+                                      onsubmit="return confirm('Are you sure you want to delete this request?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Request" aria-label="Delete Request">
+                                        <i class="fas fa-trash-alt text-danger"></i>
+                                    </button>
+                                </form>
+                            </td>
+
                         </tr>
                     }
                 </tbody>

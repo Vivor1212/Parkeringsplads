@@ -29,11 +29,7 @@ namespace Parkeringsplads.Pages.UserPages
 
         [BindProperty]
         public User User { get; set; }
-        public string UserEmail { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Phone { get; set; }
-        public string Title { get; set; }
+        
         [BindProperty]
         public School School { get; set; }
 
@@ -58,34 +54,40 @@ namespace Parkeringsplads.Pages.UserPages
     };
         public List<SelectListItem> City { get; set; }
 
+        public int SelectedUserId { get; set; }
+
 
         private async Task LoadDropdownDataAsync()
         {
             // Fetch the dropdown data
             Schools = await _schoolService.SchoolDropDownAsync();
             City = await _cityService.CityDropDownAsync();
-            // You can similarly fetch City dropdown here if required (using _schoolService or another service).
         }
 
         public async Task<IActionResult> OnGetAsync(int userId)
         {
-
             await LoadDropdownDataAsync();
 
-            // Try to get user email from session
-            var userEmail = HttpContext.Session.GetString("UserEmail");
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
+            var sessionEmail = HttpContext.Session.GetString("UserEmail");
+            User user = null;
 
-            User user;
-
-            if (string.IsNullOrEmpty(userEmail))
+            if (isAdmin == "true")
             {
-                // Admin flow: get user by passed-in userId
-                user = await _userService.GetUserAsync(userId);
+                var users = await _userService.GetAllUsersAsync();
+                ViewData["Users"] = users;
+
+                if (userId > 0)
+                {
+                    user = await _context.User
+                        .Include(u => u.School)
+                        .Include(u => u.UserAddresses)
+                            .ThenInclude(ua => ua.Address)
+                        .FirstOrDefaultAsync(u => u.UserId == userId);
+                }
             }
-
-            else
+            else if (!string.IsNullOrEmpty(sessionEmail))
             {
-                // Regular user flow: get user by their session email
                 user = await _context.User
                     .Include(u => u.School)
                    .Include(u => u.UserAddresses)
@@ -99,23 +101,15 @@ namespace Parkeringsplads.Pages.UserPages
             var userSchool = _context.User
                 .Include(u => u.School) // Include the School navigation property
                 .FirstOrDefault(u => u.Email == userEmail);
-
-
             if (user == null)
             {
-                // If no user found in the database, redirect to login page
-                return RedirectToPage("/Account/Login/Login");
+                return string.IsNullOrEmpty(sessionEmail)
+                    ? RedirectToPage("/Account/Login/Login")
+                    : RedirectToPage("/Account/Profile");
             }
 
-            // Set properties
             User = user;
-            UserEmail = user.Email;
-            FirstName = user.FirstName;
-            LastName = user.LastName;
-            Phone = user.Phone;
-            Title = user.Title;
             School = user.School;
-          
             SchoolName = user.School?.SchoolName;
 
             // Load address and city info into form fields
@@ -129,35 +123,38 @@ namespace Parkeringsplads.Pages.UserPages
             return Page(); // Return the Profile page with the user's information
         }
 
+
+
+
+
         public async Task<IActionResult> OnPostAsync(int userId)
         {
+            var isAdmin = HttpContext.Session.GetString("IsAdmin");
             var sessionEmail = HttpContext.Session.GetString("UserEmail");
 
             User userBeingUpdated;
 
-            if (string.IsNullOrEmpty(sessionEmail))
+            if (isAdmin == "true" && userId > 0)
             {
-                // Admin flow: use the userId passed from route/form
                 userBeingUpdated = await _userService.GetUserAsync(userId);
+            }
+            else if (!string.IsNullOrEmpty(sessionEmail))
+            {
+                userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
             }
             else
             {
-                // Regular user flow: fetch user using session email
-                userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
+                return RedirectToPage("/Account/Login/Login");
             }
 
             if (userBeingUpdated == null)
             {
-                // Redirect admins to user list, regular users to login
                 return string.IsNullOrEmpty(sessionEmail)
                     ? RedirectToPage("/UserPages/AllUsers")
                     : RedirectToPage("/Account/Login/Login");
             }
 
-            // Assign the correct UserId to the form-bound User
             User.UserId = userBeingUpdated.UserId;
-
-            // Try to update using service
 
             bool updateSuccessful = await _userService.UpdateUserAsync(
     User,
@@ -170,17 +167,15 @@ namespace Parkeringsplads.Pages.UserPages
             if (!updateSuccessful)
             {
                 ModelState.AddModelError(string.Empty, "The email is already in use by another user.");
-                await LoadDropdownDataAsync(); // ensure dropdowns are repopulated
+                await LoadDropdownDataAsync();
                 return Page();
             }
-
-
-
-            // Redirect based on who did the update
             return string.IsNullOrEmpty(sessionEmail)
-                ? RedirectToPage("/UserPages/AllUsers") // Admins go back to user list
-                : RedirectToPage("/Account/Profile");   // Regular users go to profile
+                ? RedirectToPage("/UserPages/AllUsers")
+                : RedirectToPage("/Account/Profile");
         }
-
     }
+
+
+
 }

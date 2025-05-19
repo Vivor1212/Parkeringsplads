@@ -5,7 +5,6 @@
     ViewData["Title"] = "Min Profil";
 }
 
-
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
@@ -20,7 +19,6 @@
         <div class="nav flex-column nav-pills" id="v-tabs" role="tablist" aria-orientation="vertical">
             <div>
                 <h3 class="text-center p-3 ">Hej @Model.FirstName!</h3>
-
             </div>
             <button class="nav-link active border-0" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
                 Dashboard
@@ -46,19 +44,14 @@
                             <div class="shadow  p-3 pt-5 pb-5  rounded"><h3 class="text-center">Du har sparet 32 busture!</h3> <p class="text-center">Det fed</p></div>
                         </div>
                         <div class="col ">
-                            <div class="shadow  p-3 pb-5 pt-5  rounded"><h3 class="text-center">Du har 1 rejse i dag:
-
-                                   
+                            <div class="shadow  p-3 pb-5 pt-5  rounded"><h3 class="text-center">Du har 1 rejse i dag:                   
                             </h3></div>
                         </div>
-                       
                     </div>
                 </div>
-                
             </div>
 
             <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-
                 <div class="container p-3 px-4">
                     <h2 class="mb-4">Velkommen til din profil</h2>
                     <p class="pb-3">Her kan du se og opdatere dine oplysninger.</p>
@@ -111,11 +104,6 @@
                                             <th>Vejnavn</th>
                                             <th>Nummer</th>
                                             <th>By</th>
-
-
-
-
-
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -126,17 +114,14 @@
                                                 <td>@address.AddressNumber</td>
                                                 <td>@address.City.PostalCode @address.City.CityName</td>
                                             </tr>
-
                                         }
                                     </tbody>
                                 </table>
                             }
-
                                 <a class="btn btn-outline-primary" asp-page="/UserPages/AddAddress" asp-route-userId="@Model.User.UserId">Tilføj adresse</a>
                             </div>
                         </div>
                         </div>
-                
                 </div>
             </div>
 
@@ -150,9 +135,6 @@
                             <th>Dato</th>
                             <th>Tid</th>
                             <th>Status</th>
-
-
-
                         </tr>
                     </thead>
                     <tbody>
@@ -164,20 +146,14 @@
                                 <td>@request.Trip.ToDestination</td>
                                 <td>@request.Trip.TripDate</td>
                                 <td>@request.Trip.TripTime</td>
-
                                 <td>@Model.GetRequestStatusText(request.RequestStatus)</td>
-
                                 <td>
                                     <form method="post">
                                         <a asp-page="/Delete/ConfirmDelete" asp-route-type="Request" asp-route-id="@request.RequestId" class="btn btn-danger">Delete</a>
-
                                     </form>
-
                                 </td>
-
                             </tr>
                         }
-
                     </tbody>
                 </table>
             </div>
