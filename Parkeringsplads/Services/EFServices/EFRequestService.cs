@@ -51,7 +51,8 @@ namespace Parkeringsplads.Services.EFServices
             {
                 throw new ArgumentNullException(nameof(request), "Request cannot be null");
             }
-            await _context.Request.AddAsync(request);
+            _context.Request.Add(request);
+            await _context.SaveChangesAsync();
             return request;
         }
 

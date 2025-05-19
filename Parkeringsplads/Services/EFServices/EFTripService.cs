@@ -17,10 +17,15 @@ namespace Parkeringsplads.Services.EFServices
             _context = context;
         }
 
-        public async Task CreateTripAsync(Trip trip)
+        public async Task<Trip> CreateTripAsync(Trip trip)
         {
+            if(trip == null)
+            {
+                throw new ArgumentNullException(nameof(trip), "Trip cannot be null");
+            }
             _context.Trip.Add(trip);
             await _context.SaveChangesAsync();
+            return trip;
         }
 
         public async Task<List<Trip>> GetAllAvailableTripsAsync(
