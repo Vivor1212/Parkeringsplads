@@ -340,7 +340,7 @@ namespace Parkeringsplads.Pages.Admin
         {
             try
             {
-                await _tripService.DeleteTripAsync(tripId);
+                await _tripService.AdminDeleteTripAsync(tripId);
                 TempData["SuccessMessage"] = "Trip successfully deleted.";
                 return RedirectToPage();
             }

@@ -103,7 +103,7 @@ namespace Parkeringsplads.Services.EFServices
         public async Task AdminDeleteTripAsync(int tripId)
         {
             var trip = await _context.Trip
-                .Include(t => t.Requests) 
+                .Include(t => t.Requests)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
 
             if (trip == null)
@@ -111,12 +111,12 @@ namespace Parkeringsplads.Services.EFServices
                 throw new ArgumentException($"Trip with ID {tripId} not found");
             }
 
-            _context.Request.RemoveRange(trip.Requests); 
+            _context.Request.RemoveRange(trip.Requests);
 
             _context.Trip.Remove(trip);
 
             await _context.SaveChangesAsync();
-
+        }
         public async Task<bool> DeleteTripAsync(int tripId, int userId)
         {
             var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car.Driver.UserId == userId);
