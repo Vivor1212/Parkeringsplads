@@ -7,6 +7,7 @@ namespace Parkeringsplads.Pages.Admin
     {
         public IActionResult OnGet()
         {
+
             HttpContext.Session.Clear();
             return Page();
         }

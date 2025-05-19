@@ -1,0 +1,42 @@
+﻿@page
+@model Parkeringsplads.Pages.Admin.AddSchoolAdminModel
+@{
+    ViewData["Title"] = "Admin - Opret Skole";
+}
+
+<h2>Opret ny skole</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label class="form-label">Skolens navn</label>
+        <input asp-for="SchoolName" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Vejnavn</label>
+        <input asp-for="AddressRoad" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nummer</label>
+        <input asp-for="AddressNumber" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">By</label>
+        <select asp-for="SelectedCityId" asp-items="Model.Cities" class="form-control" required>
+            <option value="">Vælg en by</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Opret skole</button>
+</form>

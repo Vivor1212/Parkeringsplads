@@ -8,7 +8,6 @@
 <h3>@(Model.CityId == 0 ? "Add New City" : "Edit City")</h3>
 
 <form method="post">
-    @* Only send the hidden ID field if editing *@
     @if (Model.CityId != 0)
     {
         <input type="hidden" asp-for="CityId" />

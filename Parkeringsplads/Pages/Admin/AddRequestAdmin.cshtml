@@ -1,4 +1,59 @@
 ﻿@page
 @model Parkeringsplads.Pages.Admin.AddRequestAdminModel
 @{
+    ViewData["Title"] = "Admin - Opret anmodning";
 }
+
+<h2>Opret anmodning (Admin)</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<form method="post">
+    <div class="mb-4">
+        <label asp-for="SelectedUserId" class="form-label">Vælg bruger</label>
+        <select asp-for="SelectedUserId" class="form-control" asp-items="Model.Users" required>
+            <option value="">Vælg en bruger</option>
+        </select>
+        <span asp-validation-for="SelectedUserId" class="text-danger"></span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.UserAddress))
+    {
+        <div class="mb-4">
+            <label class="form-label">Adresse (automatisk)</label>
+            <input class="form-control" value="@Model.UserAddress" disabled />
+            <input type="hidden" asp-for="Request.RequestAddress" />
+        </div>
+    }
+
+    <div class="mb-4">
+        <label asp-for="Request.RequestMessage" class="form-label">Besked (valgfri)</label>
+        <textarea asp-for="Request.RequestMessage" class="form-control"></textarea>
+        <span asp-validation-for="Request.RequestMessage" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">Vælg en tur</label>
+        <div class="list-group">
+            @foreach (var trip in Model.TripList)
+            {
+                var selected = Model.SelectedTripId == trip.TripId;
+                <label class="list-group-item @(selected ? "active" : "")" style="cursor: pointer;">
+                    <input type="radio" name="SelectedTripId" value="@trip.TripId" />
+                    <strong>@trip.TripDate.ToShortDateString() @trip.TripTime</strong><br />
+                    @trip.FromDestination → @trip.ToDestination
+                </label>
+            }
+        </div>
+        <span asp-validation-for="SelectedTripId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Opret anmodning</button>
+</form>

@@ -16,65 +16,75 @@
 }
 
 <form method="post">
+    <!-- Change method to post -->
     <input type="hidden" asp-for="Direction" />
     <input type="hidden" asp-for="UseCustomAddress" />
 
-    <!-- Retning -->
     <div class="mb-4">
         <label class="form-label">Retning</label><br />
-        <input type="radio" asp-for="Direction" value="ToSchool" onchange="this.form.submit()" />
-        <label>Til skole</label><br />
-        <input type="radio" asp-for="Direction" value="FromSchool" onchange="this.form.submit()" />
-        <label>Fra skole</label>
+        <input type="radio" asp-for="Direction" value="ToSchool" /> <label>Til skole</label><br />
+        <input type="radio" asp-for="Direction" value="FromSchool" /> <label>Fra skole</label>
     </div>
 
-    <!-- Chauffør -->
     <div class="mb-4">
         <label asp-for="SelectedDriverId" class="form-label">Vælg chauffør</label>
-        <select asp-for="SelectedDriverId" class="form-control" asp-items="Model.Drivers" onchange="this.form.submit()">
+        <select asp-for="SelectedDriverId" class="form-control" onchange="this.form.submit()">
             <option value="">Vælg en chauffør</option>
+            @foreach (var driver in Model.Drivers)
+            {
+                <option value="@driver.Value" selected="@(driver.Value == Model.SelectedDriverId.ToString() ? "selected" : null)">
+                    @driver.Text
+                </option>
+            }
         </select>
         <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
     </div>
 
-    <!-- Bil -->
     <div class="mb-4">
         <label asp-for="SelectedCarId" class="form-label">Vælg bil</label>
-        <select asp-for="SelectedCarId" class="form-control" asp-items="Model.Cars" onchange="this.form.submit()" required>
+        <select asp-for="SelectedCarId" class="form-control" required>
             <option value="">Vælg en bil</option>
+            @foreach (var car in Model.Cars)
+            {
+                <option value="@car.Value" selected="@(car.Value == Model.SelectedCarId.ToString() ? "selected" : null)">
+                    @car.Text
+                </option>
+            }
         </select>
         <span asp-validation-for="SelectedCarId" class="text-danger"></span>
     </div>
 
-    <!-- Passengers -->
-    @if (Model.SelectedCarId > 0 && Model.Cars.Any(c => c.Value == Model.SelectedCarId.ToString()))
+    @if (Model.SelectedCarId > 0 && Model.CarCapacities.ContainsKey(Model.SelectedCarId))
     {
-        var selectedCar = Model.Cars.FirstOrDefault(c => c.Value == Model.SelectedCarId.ToString());
-        var maxCapacity = int.Parse(selectedCar.Text.Split('(')[1].Split(')')[0]);
-
+        var maxCapacity = Model.CarCapacities[Model.SelectedCarId];
         <div class="mb-4">
             <label class="form-label">Antal passagerer</label>
             <input asp-for="TripSeats" class="form-control" type="number" min="1" max="@maxCapacity" required />
+            <span class="form-text text-muted">Maksimum: @maxCapacity passagerer</span>
             <span asp-validation-for="TripSeats" class="text-danger"></span>
         </div>
     }
 
-    <!-- Dato -->
     <div class="mb-4">
         <label asp-for="Trip.TripDate" class="form-label">Dato</label>
         <input asp-for="Trip.TripDate" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
         <span asp-validation-for="Trip.TripDate" class="text-danger"></span>
     </div>
 
-    <!-- Destination / Start -->
+    <div class="mb-4">
+        <label asp-for="Trip.TripTime" class="form-label">Tidspunkt</label>
+        <input asp-for="Trip.TripTime" class="form-control" type="time" required />
+        <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
+    </div>
+
     @if (Model.UserAddresses?.Count > 0)
     {
         <div class="mb-4">
             @{
-                string label = Model.Direction == "ToSchool" ? "Destination (f.eks. skole)" : "Start (f.eks. skole)";
+                string label = Model.Direction == "ToSchool" ? "Destination address (f.eks. skole)" : "Driver address (f.eks. chaufførens adresse)";
             }
             <label class="form-label">@label</label>
-            <select asp-for="SelectedAddress" class="form-control" onchange="this.form.submit()">
+            <select asp-for="SelectedAddress" class="form-control">
                 <option value="">Vælg en adresse</option>
                 @foreach (var address in Model.UserAddresses)
                 {
