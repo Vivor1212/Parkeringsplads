@@ -93,14 +93,14 @@ namespace Parkeringsplads.Pages.UserPages
                    .Include(u => u.UserAddresses)
             .ThenInclude(ua => ua.Address)
                 .ThenInclude(a => a.City)
-                    .FirstOrDefaultAsync(u => u.Email == userEmail);
+                    .FirstOrDefaultAsync(u => u.Email == sessionEmail);
             }
 
            
 
             var userSchool = _context.User
                 .Include(u => u.School) // Include the School navigation property
-                .FirstOrDefault(u => u.Email == userEmail);
+                .FirstOrDefault(u => u.Email == sessionEmail);
             if (user == null)
             {
                 return string.IsNullOrEmpty(sessionEmail)
