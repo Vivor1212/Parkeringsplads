@@ -19,10 +19,10 @@
 <div class="mb-4">
     <label class="form-label">Retning</label><br />
     <div class="form-check form-check-inline">
-        <a href="?handler=Direction&direction=ToSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-outline-primary @(Model.Direction == "ToSchool" ? "active" : "")">Til skole</a>
+        <a href="?handler=Direction&direction=ToSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-outline-primary @(Model.Direction == "Til Skole" ? "active" : "")">Til skole</a>
     </div>
     <div class="form-check form-check-inline">
-        <a href="?handler=Direction&direction=FromSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-outline-primary @(Model.Direction == "FromSchool" ? "active" : "")">Fra skole</a>
+        <a href="?handler=Direction&direction=FromSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-outline-primary @(Model.Direction == "Fra Skole" ? "active" : "")">Fra skole</a>
     </div>
 </div>
 
@@ -119,7 +119,7 @@
     <!-- Tidspunkt -->
     <div class="mb-3">
         <label asp-for="Trip.TripTime">Tidspunkt</label>
-        <input asp-for="Trip.TripTime" type="time" class="form-control" min="@DateTime.Today.ToString("hh-mm")" />
+        <input asp-for="Trip.TripTime" type="time" class="form-control" min="@DateTime.Today.ToString("HH-mm")" />
         <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
     </div>
 

@@ -22,11 +22,12 @@ namespace Parkeringsplads.Pages.TripPages
         }
 
         [BindProperty] public Trip Trip { get; set; } = new();
-        [BindProperty] public string Direction { get; set; } = "ToSchool";
-        [BindProperty] public int SelectedCarId { get; set; }
-        [BindProperty] public string SelectedAddress { get; set; } = "";
-        [BindProperty] public string CustomAddress { get; set; } = "";
-        [BindProperty] public bool UseCustomAddress { get; set; }
+
+        [BindProperty(SupportsGet = true)] public string Direction { get; set; } = "ToSchool";
+        [BindProperty(SupportsGet = true)] public int SelectedCarId { get; set; }
+        [BindProperty(SupportsGet = true)] public string SelectedAddress { get; set; } = "";
+        [BindProperty(SupportsGet = true)] public string CustomAddress { get; set; } = "";
+        [BindProperty(SupportsGet = true)] public bool UseCustomAddress { get; set; }
 
         [TempData] public string? SuccessMessage { get; set; }
         [TempData] public string? ErrorMessage { get; set; }
@@ -36,47 +37,8 @@ namespace Parkeringsplads.Pages.TripPages
         public List<int> SeatOptions { get; set; } = new();
         public string SchoolAddress { get; set; } = "";
 
-        public async Task<IActionResult> OnGetAsync() => await LoadDataAndReturnPageAsync();
-
-        public async Task<IActionResult> OnGetDirectionAsync(string direction, int selectedCarId)
+        public async Task<IActionResult> OnGetAsync()
         {
-            Direction = direction;
-            SelectedCarId = selectedCarId;
-            return await LoadDataAndReturnPageAsync();
-        }
-
-        public async Task<IActionResult> OnGetToggleAddressAsync(bool useCustom, int selectedCarId)
-        {
-            UseCustomAddress = useCustom;
-            SelectedCarId = selectedCarId;
-            if (useCustom) SelectedAddress = "";
-            return await LoadDataAndReturnPageAsync();
-        }
-
-        public async Task<IActionResult> OnGetUpdateCustomAddressAsync(string customAddress, string direction, int selectedCarId)
-        {
-            CustomAddress = customAddress;
-            UseCustomAddress = true;
-            Direction = direction;
-            SelectedCarId = selectedCarId;
-            return await LoadDataAndReturnPageAsync();
-        }
-
-        public async Task<IActionResult> OnGetSelectAddressAsync(string selectedAddress, string direction, int selectedCarId)
-        {
-            SelectedAddress = selectedAddress;
-            Direction = direction;
-            SelectedCarId = selectedCarId;
-            return await LoadDataAndReturnPageAsync();
-        }
-
-        public async Task<IActionResult> OnGetSelectCarAsync(int selectedCarId, string? direction, string? selectedAddress, string? customAddress, bool? useCustomAddress)
-        {
-            SelectedCarId = selectedCarId;
-            Direction = direction ?? "ToSchool";
-            SelectedAddress = selectedAddress ?? "";
-            CustomAddress = customAddress ?? "";
-            UseCustomAddress = useCustomAddress ?? false;
             return await LoadDataAndReturnPageAsync();
         }
 
@@ -89,12 +51,6 @@ namespace Parkeringsplads.Pages.TripPages
             var driver = await _context.Driver
                 .Include(d => d.Cars)
                 .FirstOrDefaultAsync(d => d.User.Email == userEmail);
-
-            if (driver == null || !driver.Cars.Any())
-            {
-                ErrorMessage = "Ingen biler fundet. Tilføj en bil i din profil.";
-                return RedirectToPage("/Account/Profile");
-            }
 
             Cars = driver.Cars.ToList();
 
@@ -126,7 +82,7 @@ namespace Parkeringsplads.Pages.TripPages
             Trip.CarId = SelectedCarId;
             Trip.TripSeats = car.CarCapacity;
 
-            if (Direction == "FromSchool")
+            if (Direction == "ToSchool")
             {
                 Trip.FromDestination = SchoolAddress;
                 Trip.ToDestination = address;
@@ -136,14 +92,13 @@ namespace Parkeringsplads.Pages.TripPages
                 Trip.FromDestination = address;
                 Trip.ToDestination = SchoolAddress;
             }
+
             if (Trip.TripDate < DateOnly.FromDateTime(DateTime.Today))
             {
                 ErrorMessage = "Datoen må ikke være i fortiden.";
                 await LoadDataAndReturnPageAsync();
                 return Page();
             }
-
-
 
             await _tripService.CreateTripAsync(Trip);
             SuccessMessage = "Turen blev oprettet!";
@@ -162,7 +117,10 @@ namespace Parkeringsplads.Pages.TripPages
                 .FirstOrDefaultAsync(d => d.User.Email == userEmail);
 
             if (driver == null || !driver.Cars.Any())
+            {
+                ErrorMessage = "Ingen biler fundet. Tilføj en bil i din profil.";
                 return RedirectToPage("/Account/Profile");
+            }
 
             Cars = driver.Cars.ToList();
 
@@ -173,6 +131,8 @@ namespace Parkeringsplads.Pages.TripPages
 
             if (user == null)
                 return RedirectToPage("/Account/Login");
+
+
 
             UserAddresses = user.UserAddresses.Select(ua => ua.Address.FullAddress).ToList();
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
