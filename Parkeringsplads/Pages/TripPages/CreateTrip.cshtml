@@ -1,7 +1,7 @@
 ﻿@page
 @model Parkeringsplads.Pages.TripPages.CreateTripModel
 @{
-    ViewData["Title"] = "Opret tur for Admin";
+    ViewData["Title"] = "Opret tur";
 }
 
 @if (!string.IsNullOrEmpty(Model.SuccessMessage))
@@ -13,7 +13,7 @@
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<h2>Opret tur for Admin</h2>
+<h2>Opret tur</h2>
 
 <!-- Debug info -->
 <p><strong>Valgt retning:</strong> @Model.Direction</p>
