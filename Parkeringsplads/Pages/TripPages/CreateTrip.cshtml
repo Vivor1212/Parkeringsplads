@@ -13,7 +13,7 @@
 }
 @if (TempData["ErrorMessage"] != null)
 {
-        <div class="alert alert alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
         @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -126,7 +126,7 @@
     <!-- Tidspunkt -->
     <div class="mb-3">
         <label asp-for="Trip.TripTime">Tidspunkt</label>
-        <input asp-for="Trip.TripTime" type="time" class="form-control" min="@DateTime.Today.ToString("hh-mm")" />
+        <input asp-for="Trip.TripTime" type="time" class="form-control" min="@DateTime.Today.ToString("HH-mm")" />
         <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
     </div>
 
