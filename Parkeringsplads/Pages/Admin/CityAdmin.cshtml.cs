@@ -27,13 +27,11 @@ public class CityAdmin : PageModel
     {
         var isAdmin = HttpContext.Session.GetString("IsAdmin");
 
-        // Check if the user is an admin
         if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
         {
             return RedirectToPage("/Admin/NotAdmin");
         }
 
-        // If CityId is provided, load the city for editing
         if (CityId != 0)
         {
             var city = await _cityService.GetCityByIdAsync(CityId);
@@ -49,7 +47,7 @@ public class CityAdmin : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (CityId == 0) // Add new city
+        if (CityId == 0)
         {
             var city = new City
             {
@@ -59,7 +57,7 @@ public class CityAdmin : PageModel
 
             await _cityService.AddCityAsync(city);
         }
-        else // Edit existing city
+        else 
         {
             var city = await _cityService.GetCityByIdAsync(CityId);
             if (city == null)

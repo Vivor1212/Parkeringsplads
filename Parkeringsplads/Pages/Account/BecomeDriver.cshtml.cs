@@ -21,14 +21,12 @@ namespace Parkeringsplads.Pages.Account
 
         public IActionResult OnGet()
         {
-            // Check if user is logged in
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
             {
                 return RedirectToPage("./Login/Login");
             }
 
-            // Check if user is already a driver
             var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
             if (user != null && _context.Driver.Any(d => d.UserId == user.UserId))
             {
@@ -53,7 +51,6 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            // Check if user is already a driver
             if (_context.Driver.Any(d => d.UserId == user.UserId))
             {
                 TempData["ErrorMessage"] = "You are already registered as a driver.";
@@ -71,7 +68,6 @@ namespace Parkeringsplads.Pages.Account
             {
                 await _driverService.CreateDriverAsync(driver);
 
-                // Set the session string "IsDriver" with the DriverId
                 HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
 
                 TempData["SuccessMessage"] = "Successfully registered as a driver!";

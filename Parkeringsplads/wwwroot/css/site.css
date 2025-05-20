@@ -24,5 +24,12 @@ body {
 }
 
 .container {
-    max-width: 1800px;
+    max-width: 1500px;
+}
+
+
+@media (min-width: 768px) {
+    .profile-container {
+        min-height: 100vh !important;
+    }
 }

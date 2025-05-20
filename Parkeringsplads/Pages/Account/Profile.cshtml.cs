@@ -24,7 +24,18 @@ namespace Parkeringsplads.Pages.Account
         public string Phone { get; set; }
         public string Title { get; set; }
 
-        public string TitleText { get; set; }
+        public string TitleText
+        {
+            get
+            {
+                return Title switch
+                {
+                    "P" => "Personale",
+                    "S" => "Studerende",
+                    _ => "Ukendt"
+                };
+            }
+        }
         public bool IsDriver { get; set; }
 
         public School School { get; set; }
@@ -32,6 +43,11 @@ namespace Parkeringsplads.Pages.Account
         public User User { get; set; }
 
         public List<Request> Requests { get; set; }
+
+        public List<Address> AddressList { get; set; }
+
+
+        public UserAddress UserAddress { get; set; }
 
         public string SchoolName { get; set; }
 
@@ -43,14 +59,12 @@ namespace Parkeringsplads.Pages.Account
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Check if the user is an admin
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
             if (!string.IsNullOrEmpty(isAdmin) && isAdmin == "true")
             {
                 return RedirectToPage("/Admin/AdminDashboard"); 
             }
 
-            // Retrieve user email from session
             var userEmail = HttpContext.Session.GetString("UserEmail");
 
             if (string.IsNullOrEmpty(userEmail))
@@ -66,24 +80,64 @@ namespace Parkeringsplads.Pages.Account
             {
                 return RedirectToPage("./Login/Login");
             }
+            AddressList = await _context.UserAddress
+           .Where(ua => ua.User_Id == user.UserId)
+            .Include(ua => ua.Address)
+            .ThenInclude(ua => ua.City)
+             .Select(ua => ua.Address)
+             .ToListAsync();
 
-            Requests = await _requestService.GetAllRequestsForUser(user); // ? Await the async method
+            Requests = await _requestService.GetAllRequestsForUser(user);
+
 
             User = user;
             UserEmail = user.Email;
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
-            TitleText = user.Title;
+            Title= user.Title;
             School = user.School;
             SchoolName = user.School?.SchoolName;
 
-            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId); // Async version
+            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId); 
             IsDriver = driver != null;
             Driver = driver;
 
             return Page();
         }
+
+        public async Task<IActionResult> OnPostStopBeingDriverAsync()
+        {
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return RedirectToPage("./Login/Login");
+            }
+
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+            if (user == null)
+            {
+                return RedirectToPage("./Login/Login");
+            }
+
+            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId);
+            if (driver != null)
+            {
+                _context.Driver.Remove(driver);
+                await _context.SaveChangesAsync();
+
+                HttpContext.Session.Remove("IsDriver");
+
+                TempData["SuccessMessage"] = "You are no longer a driver.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "You are not currently registered as a driver.";
+            }
+
+            return RedirectToPage("/Account/Profile");
+        }
+
 
     }
 }

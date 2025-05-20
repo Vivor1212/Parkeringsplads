@@ -14,7 +14,6 @@ namespace Parkeringsplads.Pages.CarPages
             _carService = carService;
         }
 
-        //public IList<Car> Cars { get; set; }
 
         public string ErrorMessage { get; set; }
 

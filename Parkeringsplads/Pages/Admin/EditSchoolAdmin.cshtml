@@ -1,0 +1,48 @@
+﻿@page
+@model Parkeringsplads.Pages.Admin.EditSchoolAdminModel
+@{
+    ViewData["Title"] = "Admin - Rediger Skole";
+}
+
+<h2>Rediger Skole</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<form method="post">
+    <input type="hidden" asp-for="SchoolId" />
+
+    <div class="mb-4">
+        <label asp-for="SchoolName" class="form-label">Skolens navn</label>
+        <input asp-for="SchoolName" class="form-control" required />
+        <span asp-validation-for="SchoolName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="AddressRoad" class="form-label">Vejnavn</label>
+        <input asp-for="AddressRoad" class="form-control" required />
+        <span asp-validation-for="AddressRoad" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="AddressNumber" class="form-label">Husnummer</label>
+        <input asp-for="AddressNumber" class="form-control" required />
+        <span asp-validation-for="AddressNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="SelectedCityId" class="form-label">Postnummer og by</label>
+        <select asp-for="SelectedCityId" class="form-control" asp-items="Model.Cities" required>
+            <option value="">Vælg by</option>
+        </select>
+        <span asp-validation-for="SelectedCityId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Gem ændringer</button>
+</form>

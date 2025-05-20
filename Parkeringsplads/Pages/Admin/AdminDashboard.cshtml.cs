@@ -16,8 +16,9 @@ namespace Parkeringsplads.Pages.Admin
         private readonly IDriverService _driverService;
         private readonly IRequestService _requestService;
         private readonly ITripService _tripService;
+        private readonly ISchoolService _schoolService;
 
-        public AdminDashboardModel(ParkeringspladsContext context, ICarService carService, IUser userService, ICityService cityService, IDriverService driverService, IRequestService requestService, ITripService tripService)
+        public AdminDashboardModel(ParkeringspladsContext context, ICarService carService, IUser userService, ICityService cityService, IDriverService driverService, IRequestService requestService, ITripService tripService, ISchoolService schoolService)
         {
             _context = context;
             _carService = carService;
@@ -26,7 +27,7 @@ namespace Parkeringsplads.Pages.Admin
             _driverService = driverService;
             _requestService = requestService;
             _tripService = tripService;
-
+            _schoolService = schoolService;
         }
 
         //User Search
@@ -351,6 +352,21 @@ namespace Parkeringsplads.Pages.Admin
             }
         }
 
+        public async Task<IActionResult> OnPostDeleteSchoolAsync(int schoolId)
+        {
+            try
+            {
+                await _schoolService.DeleteSchoolAsync(schoolId);
+                TempData["SuccessMessage"] = "Skolen blev slettet.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Der opstod en fejl: {ex.Message}";
+                return RedirectToPage();
+            }
+
+        }
 
     }
 }

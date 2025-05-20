@@ -401,3 +401,4 @@ FodyWeavers.xsd
 
 # Ignore sensitive appsettings
 appsettings.json
+appsettings.Development.json

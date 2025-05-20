@@ -104,10 +104,13 @@
                                 </a>
                             </td>
                             <td>
-                                <form method="post" asp-page-handler="DeleteUser" asp-route-userId="@user.UserId"
-                                      onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                    <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                <form method="post"
+                                      asp-page-handler="DeleteUser"
+                                      asp-route-userId="@user.UserId"
+                                      onsubmit="return confirm('Are you sure you want to delete this user?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete User" aria-label="Delete User">
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
                             </td>
@@ -168,9 +171,13 @@
                                 </a>
                             </td>
                             <td>
-                                <form method="post" asp-page-handler="DeleteCar" asp-route-carId="@car.CarId" onsubmit="return confirm('Are you sure you want to delete this car?');">
-                                    <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                <form method="post"
+                                      asp-page-handler="DeleteCar"
+                                      asp-route-carId="@car.CarId"
+                                      onsubmit="return confirm('Are you sure you want to delete this car?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Car" aria-label="Delete Car">
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
                             </td>
@@ -226,12 +233,16 @@
                                 </a>
                             </td>
                             <td>
-                                <form method="post" asp-page-handler="DeleteCity" asp-route-cityId="@city.CityId"
-                                      onsubmit="return confirm('Are you sure you want to delete this city?');">
-                                    <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                <form method="post"
+                                      asp-page-handler="DeleteCity"
+                                      asp-route-cityId="@city.CityId"
+                                      onsubmit="return confirm('Are you sure you want to delete this city?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete City" aria-label="Delete City">
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
+
                             </td>
 
                         </tr>
@@ -309,6 +320,10 @@
     <div class="tab-pane fade" id="schools" role="tabpanel" aria-labelledby="schools-tab">
         <h3>Search Schools</h3>
 
+        <a asp-page="/Admin/AddSchoolAdmin" class="btn btn-success mb-3">
+            Create New School
+        </a>
+
         <form method="get" class="mb-3">
             <div class="input-group">
                 <input type="text" class="form-control" name="SchoolSearchTerm" placeholder="Search schools..." value="@Model.SchoolSearchTerm" />
@@ -342,16 +357,17 @@
                             <td>@school.Address.City.CityName</td>
                             <td>@school.Address.City.PostalCode</td>
                             <td>
-                                <a asp-page="/SchoolPages/SchoolEdit" asp-route-schoolId="@school.SchoolId" class="text-warning me-2"
+                                <a asp-page="/Admin/EditSchoolAdmin" asp-route-schoolId="@school.SchoolId" class="text-warning me-2"
                                    onclick="return confirm('Are you sure you want to edit this school?');" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </td>
                             <td>
                                 <form method="post" asp-page-handler="DeleteSchool" asp-route-schoolId="@school.SchoolId"
-                                      onsubmit="return confirm('Are you sure you want to delete this school?');">
+                                      onsubmit="return confirm('Are you sure you want to delete this school?');"
+                                      class="d-inline">
                                     <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
                             </td>
@@ -406,16 +422,19 @@
                             <td>@driver.User.FirstName @driver.User.LastName</td>
                             <td>@driver.User.Email</td>
                             <td>
-                                <a asp-page="/Admin/DriverEditAdmin" asp-route-driverId="@driver.DriverId" class="text-warning me-2"
+                                <a asp-page="/Admin/EditDriverAdmin" asp-route-driverId="@driver.DriverId" class="text-warning me-2"
                                    onclick="return confirm('Are you sure you want to edit this driver?');" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </td>
                             <td>
-                                <form method="post" asp-page-handler="DeleteDriver" asp-route-driverId="@driver.DriverId"
-                                      onsubmit="return confirm('Are you sure you want to delete this driver?');">
-                                    <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                <form method="post"
+                                      asp-page-handler="DeleteDriver"
+                                      asp-route-driverId="@driver.DriverId"
+                                      onsubmit="return confirm('Are you sure you want to delete this driver?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Driver" aria-label="Delete Driver">
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
                             </td>
@@ -485,10 +504,13 @@
                             </td>
 
                             <td>
-                                <form method="post" asp-page-handler="DeleteTrip" asp-route-tripId="@trip.TripId"
-                                      onsubmit="return confirm('Are you sure you want to delete this trip?');">
-                                    <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                <form method="post"
+                                      asp-page-handler="DeleteTrip"
+                                      asp-route-tripId="@trip.TripId"
+                                      onsubmit="return confirm('Are you sure you want to delete this trip?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Trip" aria-label="Delete Trip">
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
                             </td>
@@ -547,10 +569,13 @@
                             <td>@(request.Users != null ? request.Users.FirstName + " " + request.Users.LastName : "N/A")</td>
                             <td>@request.Trip.FromDestination → @request.Trip.ToDestination</td>
                             <td>
-                                <form method="post" asp-page-handler="DeleteRequest" asp-route-requestId="@request.RequestId"
-                                      onsubmit="return confirm('Are you sure you want to delete this request?');">
-                                    <button type="submit" class="btn btn-link p-0" title="Delete">
-                                        <i class="fas fa-trash text-danger"></i>
+                                <form method="post"
+                                      asp-page-handler="DeleteRequest"
+                                      asp-route-requestId="@request.RequestId"
+                                      onsubmit="return confirm('Are you sure you want to delete this request?');"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0" title="Delete Request" aria-label="Delete Request">
+                                        <i class="fas fa-trash-alt text-danger"></i>
                                     </button>
                                 </form>
                             </td>

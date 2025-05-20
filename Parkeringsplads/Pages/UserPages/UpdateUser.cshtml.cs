@@ -46,7 +46,12 @@ namespace Parkeringsplads.Pages.UserPages
         [BindProperty]
         public List<SelectListItem> Schools { get; set; }
 
-       
+        public Dictionary<string, string> TitleOptions = new()
+    {
+
+        {"P", "Personale" },
+        {"S", "Studerende" }
+    };
         public List<SelectListItem> City { get; set; }
 
         public int SelectedUserId { get; set; }
@@ -85,15 +90,17 @@ namespace Parkeringsplads.Pages.UserPages
             {
                 user = await _context.User
                     .Include(u => u.School)
-                    .Include(u => u.UserAddresses)
-                        .ThenInclude(ua => ua.Address)
-                    .FirstOrDefaultAsync(u => u.Email == sessionEmail);
-            }
-            else
-            {
-                return RedirectToPage("/Account/Login/Login");
+                   .Include(u => u.UserAddresses)
+            .ThenInclude(ua => ua.Address)
+                .ThenInclude(a => a.City)
+                    .FirstOrDefaultAsync(u => u.Email == userEmail);
             }
 
+           
+
+            var userSchool = _context.User
+                .Include(u => u.School) // Include the School navigation property
+                .FirstOrDefault(u => u.Email == userEmail);
             if (user == null)
             {
                 return string.IsNullOrEmpty(sessionEmail)
@@ -103,17 +110,17 @@ namespace Parkeringsplads.Pages.UserPages
 
             User = user;
             School = user.School;
-            SchoolName = user.School?.SchoolName ?? string.Empty;
+            SchoolName = user.School?.SchoolName;
 
+            // Load address and city info into form fields
             var userAddress = user.UserAddresses?.FirstOrDefault();
-
-            if (userAddress?.Address != null)
+            if (userAddress != null)
             {
                 Address = userAddress.Address;
                 CityId = userAddress.Address.CityId;
             }
 
-            return Page();
+            return Page(); // Return the Profile page with the user's information
         }
 
 
@@ -149,7 +156,13 @@ namespace Parkeringsplads.Pages.UserPages
 
             User.UserId = userBeingUpdated.UserId;
 
-            bool updateSuccessful = await _userService.UpdateUserAsync(User);
+            bool updateSuccessful = await _userService.UpdateUserAsync(
+    User,
+    Address.AddressRoad,
+    Address.AddressNumber,
+    CityId
+);
+
 
             if (!updateSuccessful)
             {
@@ -157,7 +170,6 @@ namespace Parkeringsplads.Pages.UserPages
                 await LoadDropdownDataAsync();
                 return Page();
             }
-
             return string.IsNullOrEmpty(sessionEmail)
                 ? RedirectToPage("/UserPages/AllUsers")
                 : RedirectToPage("/Account/Profile");
