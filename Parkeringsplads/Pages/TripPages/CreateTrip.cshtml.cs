@@ -138,12 +138,6 @@ namespace Parkeringsplads.Pages.TripPages
                 Trip.ToDestination = SchoolAddress;
             }
 
-            if (Trip.TripDate < DateOnly.FromDateTime(DateTime.Today))
-            {
-                TempData["ErrorMessage"] = "Datoen må ikke være i fortiden.";
-                return RedirectToPage();
-            }
-
             await _tripService.CreateTripAsync(Trip);
             TempData["SuccessMessage"] = "Turen blev oprettet!";
             return RedirectToPage("/TripPages/DriversTrips");
