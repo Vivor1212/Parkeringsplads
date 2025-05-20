@@ -29,9 +29,6 @@ namespace Parkeringsplads.Pages.TripPages
         [BindProperty(SupportsGet = true)] public string CustomAddress { get; set; } = "";
         [BindProperty(SupportsGet = true)] public bool UseCustomAddress { get; set; }
 
-        [TempData] public string? SuccessMessage { get; set; }
-        [TempData] public string? ErrorMessage { get; set; }
-
         public List<Car> Cars { get; set; } = new();
         public List<string> UserAddresses { get; set; } = new();
         public List<int> SeatOptions { get; set; } = new();
@@ -67,7 +64,7 @@ namespace Parkeringsplads.Pages.TripPages
 
             if (driver == null || !driver.Cars.Any())
             {
-                ErrorMessage = "Ingen biler fundet. Tilføj en bil i din profil.";
+                TempData["ErrorMessage"] = "Ingen biler fundet. Tilføj en bil i din profil.";
                 return RedirectToPage("/Account/Profile");
             }
 
@@ -80,7 +77,7 @@ namespace Parkeringsplads.Pages.TripPages
 
             if (user == null)
             {
-                ErrorMessage = "Bruger ikke fundet.";
+                TempData["ErrorMessage"] = "Bruger ikke fundet.";
                 return RedirectToPage("/Account/Login");
             }
 
@@ -90,7 +87,7 @@ namespace Parkeringsplads.Pages.TripPages
             var car = Cars.FirstOrDefault(c => c.CarId == SelectedCarId);
             if (car == null)
             {
-                ErrorMessage = "Ugyldig bil valgt.";
+                TempData["ErrorMessage"] = "Ugyldig bil valgt.";
                 return Page();
             }
 
@@ -114,13 +111,13 @@ namespace Parkeringsplads.Pages.TripPages
 
             if (Trip.TripDate < DateOnly.FromDateTime(DateTime.Today))
             {
-                ErrorMessage = "Datoen må ikke være i fortiden.";
+                TempData["ErrorMessage"] = "Datoen må ikke være i fortiden.";
                 await LoadDataAndReturnPageAsync();
                 return Page();
             }
 
             await _tripService.CreateTripAsync(Trip);
-            SuccessMessage = "Turen blev oprettet!";
+            TempData["SuccessMessage"] = "Turen blev oprettet!";
             return RedirectToPage("/TripPages/AvailableTrips");
         }
 
