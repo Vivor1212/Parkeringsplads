@@ -121,7 +121,7 @@ namespace Parkeringsplads.Pages.TripPages
 
             await _tripService.CreateTripAsync(Trip);
             SuccessMessage = "Turen blev oprettet!";
-            return RedirectToPage();
+            return RedirectToPage("/TripPages/AvailableTrips");
         }
 
         private async Task<IActionResult> LoadDataAndReturnPageAsync()
@@ -173,7 +173,6 @@ namespace Parkeringsplads.Pages.TripPages
                 Trip.FromDestination = address;
                 Trip.ToDestination = SchoolAddress;
             }
-
             return Page();
         }
     }
