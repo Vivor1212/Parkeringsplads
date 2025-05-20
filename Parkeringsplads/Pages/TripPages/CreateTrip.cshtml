@@ -52,7 +52,7 @@
     @if (!Model.UseCustomAddress)
     {
             <select class="form-control"
-                    onchange="location.href='?handler=SelectAddress&selectedAddress=' + encodeURIComponent(this.value) + '&direction=@Model.Direction&selectedCarId=@Model.SelectedCarId'">
+                    onchange="location.href='?direction=@Model.Direction&selectedCarId=@Model.SelectedCarId&selectedAddress=' + encodeURIComponent(this.value)">
                 <option value="">Vælg en adresse</option>
             @foreach (var address in Model.UserAddresses)
             {
@@ -68,21 +68,22 @@
                class="form-check-input"
                id="useCustom"
         @(Model.UseCustomAddress ? "checked" : "")
-               onchange="location.href='?handler=ToggleAddress&useCustom=' + (this.checked ? 'true' : 'false') + '&direction=@Model.Direction&selectedCarId=@Model.SelectedCarId'" />
+               onchange="location.href='?direction=@Model.Direction&selectedCarId=@Model.SelectedCarId&useCustomAddress=' + this.checked" />
         <label class="form-check-label" for="useCustom">Indtast selv adresse</label>
     </div>
 
     @if (Model.UseCustomAddress)
     {
             <form method="get" class="mt-2">
-                <input type="hidden" name="handler" value="UpdateCustomAddress" />
                 <input type="hidden" name="direction" value="@Model.Direction" />
                 <input type="hidden" name="selectedCarId" value="@Model.SelectedCarId" />
+                <input type="hidden" name="useCustomAddress" value="true" />
                 <input class="form-control mb-2" name="customAddress" value="@Model.CustomAddress" placeholder="Egen adresse" />
                 <button type="submit" class="btn btn-secondary">Opdater adresse</button>
             </form>
     }
 </div>
+
 
 <!-- Formular til at oprette tur -->
 <form method="post">

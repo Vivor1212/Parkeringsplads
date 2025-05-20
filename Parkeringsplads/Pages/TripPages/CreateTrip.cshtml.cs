@@ -39,6 +39,19 @@ namespace Parkeringsplads.Pages.TripPages
 
         public async Task<IActionResult> OnGetAsync()
         {
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+                return RedirectToPage("/Account/Login");
+
+            var driver = await _context.Driver
+                .Include(d => d.Cars)
+                .FirstOrDefaultAsync(d => d.User.Email == userEmail);
+
+            if (driver == null || !driver.Cars.Any())
+            {
+                ErrorMessage = "Ingen biler fundet. Tilføj en bil i din profil.";
+                return RedirectToPage("/Account/Profile");
+            }
             return await LoadDataAndReturnPageAsync();
         }
 
