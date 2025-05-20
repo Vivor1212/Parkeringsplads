@@ -22,7 +22,7 @@ namespace Parkeringsplads.Pages.Admin
         }
 
         public List<User> UsersNotDrivers { get; set; } = new List<User>();
-        public List<SelectListItem> Users { get; set; } = new List<SelectListItem>(); 
+        public List<SelectListItem> Users { get; set; } = new List<SelectListItem>();
 
         [BindProperty]
         public Driver NewDriver { get; set; }
@@ -51,7 +51,7 @@ namespace Parkeringsplads.Pages.Admin
 
         public async Task<IActionResult> OnPostAsync()
         {
-            
+
 
             try
             {

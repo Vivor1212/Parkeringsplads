@@ -48,43 +48,24 @@
     </select>
 </form>
 
-<!-- Adressevalg -->
 <div class="mb-4">
     <label class="form-label">Adresse</label>
 
-    @if (!Model.UseCustomAddress)
-    {
-        <select class="form-control"
-                onchange="location.href='?handler=SelectAddress&selectedAddress=' + encodeURIComponent(this.value) + '&direction=@Model.Direction&selectedCarId=@Model.SelectedCarId'">
-            <option value="">Vælg en adresse</option>
-            @foreach (var address in Model.UserAddresses)
-            {
-                <option value="@address" selected="@(Model.SelectedAddress == address)">
-                    @address
-                </option>
-            }
-        </select>
-    }
+    <select class="form-control" name="selectedAddress">
+        <option value="">Vælg en adresse</option>
+        <option value="Address 1">Address 1</option>
+        <option value="Address 2">Address 2</option>
+        <option value="Address 3">Address 3</option>
+    </select>
 
     <div class="form-check mt-2">
-        <input type="checkbox"
-               class="form-check-input"
-               id="useCustom"
-        @(Model.UseCustomAddress ? "checked" : "")
-               onchange="location.href='?handler=ToggleAddress&useCustom=' + (this.checked ? 'true' : 'false') + '&direction=@Model.Direction&selectedCarId=@Model.SelectedCarId'" />
+        <input type="checkbox" class="form-check-input" id="useCustom" name="useCustom" />
         <label class="form-check-label" for="useCustom">Indtast selv adresse</label>
     </div>
 
-    @if (Model.UseCustomAddress)
-    {
-        <form method="get" class="mt-2">
-            <input type="hidden" name="handler" value="UpdateCustomAddress" />
-            <input type="hidden" name="direction" value="@Model.Direction" />
-            <input type="hidden" name="selectedCarId" value="@Model.SelectedCarId" />
-            <input class="form-control mb-2" name="customAddress" value="@Model.CustomAddress" placeholder="Egen adresse" />
-            <button type="submit" class="btn btn-secondary">Opdater adresse</button>
-        </form>
-    }
+    <div class="mt-2">
+        <input class="form-control" type="text" name="customAddress" placeholder="Egen adresse" disabled />
+    </div>
 </div>
 
 <!-- Formular til at oprette tur -->
