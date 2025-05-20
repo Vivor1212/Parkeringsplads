@@ -32,6 +32,8 @@ namespace Parkeringsplads.Pages.Account
                 {
                     "P" => "Personale",
                     "S" => "Studerende",
+                    "p" => "Personale",
+                    "s" => "Studerende",
                     _ => "Ukendt"
                 };
             }
