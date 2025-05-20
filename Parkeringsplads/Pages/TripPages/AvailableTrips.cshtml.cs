@@ -60,6 +60,10 @@ namespace Parkeringsplads.Pages.TripPages
         public async Task<IActionResult> OnGetAsync()
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail)){
+                return RedirectToPage("/Account/Login/Login");
+            }
+
             var user = await _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
