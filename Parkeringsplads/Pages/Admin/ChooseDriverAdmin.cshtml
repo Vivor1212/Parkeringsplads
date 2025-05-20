@@ -1,0 +1,26 @@
+﻿@page
+@model Parkeringsplads.Pages.Admin.ChooseDriverModel
+@{
+    ViewData["Title"] = "Vælg Chauffør";
+}
+
+<h2>Vælg Chauffør</h2>
+
+@if (Model.Drivers.Count == 0)
+{
+    <p>Ingen chauffører fundet.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var driver in Model.Drivers)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @driver.User.FirstName @driver.User.LastName
+                <a class="btn btn-primary" href="@Url.Page("/Admin/AddTripAdmin", new { selectedDriverId = driver.DriverId })">
+                    Vælg
+                </a>
+            </li>
+        }
+    </ul>
+}
