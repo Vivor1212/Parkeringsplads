@@ -33,3 +33,50 @@ body {
         min-height: 100vh !important;
     }
 }
+
+.navbar {
+    background-color: #fff387 !important;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #000;
+}
+
+
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link, .btn-check:active + .btn-outline-primary, .btn-check:checked + .btn-outline-primary, .btn-outline-primary.dropdown-toggle.show, .btn-outline-primary:active, .btn-outline-primary, .btn-primary {
+    color: #222;
+    background-color: #fff387;
+    border: 0;
+}
+
+    .btn-primary, .btn-outline-primary.active {
+        color: #fff;
+        background-color: #000;
+    }
+
+    .btn-secondary {
+        background-color: #000;
+        color: #fff;
+    }
+
+.btn-primary, .btn-outline-primary.active {
+    color: #000;
+    background-color: #fff387;
+    
+}
+.btn-primary:hover {
+    background-color: #fff387;
+    color: #000;
+}
+
+.btn-secondary {
+    background-color: #535353;
+    color: #fff;
+}
+
+
+    .btn-secondary:hover {
+        background-color: #fff387;
+        color: #000;
+    }

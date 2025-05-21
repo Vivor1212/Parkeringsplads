@@ -24,14 +24,20 @@ namespace Parkeringsplads.Pages.Account
         public string Phone { get; set; }
         public string Title { get; set; }
 
+        [TempData] public string? SuccessMessage { get; set; }
+        [TempData] public string? ErrorMessage { get; set; }
+
         public string TitleText
         {
             get
             {
                 return Title switch
                 {
+                    
                     "P" => "Personale",
+                    "p" => "Personale",
                     "S" => "Studerende",
+                    "s" => "Studerende",
                     _ => "Ukendt"
                 };
             }

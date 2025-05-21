@@ -36,7 +36,32 @@ namespace Parkeringsplads.Pages.TripPages
         public List<int> SeatOptions { get; set; } = new();
         public string SchoolAddress { get; set; } = "";
 
-        public async Task<IActionResult> OnGetAsync() => await LoadDataAndReturnPageAsync();
+        public async Task<IActionResult> OnGetAsync()
+        {
+            await LoadDataAndReturnPageAsync();
+
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+                return RedirectToPage("/Account/Login");
+
+            // Fallback: Make sure Direction gets set even if not bound correctly
+            if (string.IsNullOrWhiteSpace(Direction))
+                Direction = Request.Form["Direction"];
+
+            var driver = await _context.Driver
+                .Include(d => d.Cars)
+                .FirstOrDefaultAsync(d => d.User.Email == userEmail);
+
+            if (driver == null || !driver.Cars.Any())
+            {
+                ErrorMessage = "Ingen biler fundet. Tilføj en bil i din profil.";
+                return RedirectToPage("/Account/Profile");
+            }
+
+            
+            return Page();
+        }
+
 
         public async Task<IActionResult> OnGetDirectionAsync(string direction, int selectedCarId)
         {

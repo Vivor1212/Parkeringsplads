@@ -10,12 +10,12 @@
     <div class="row">
         <div class="mb-3 col-sm-6">
             <label asp-for="User.FirstName"></label>
-            <input asp-for="User.FirstName" class="form-control" />
+            <input asp-for="User.FirstName" class="form-control" pattern="[A-Za-zæøåÆØÅ\s]+" />
             <span asp-validation-for="User.FirstName"></span>
         </div>
         <div class="mb-3 col-sm-6">
             <label asp-for="User.LastName"></label>
-            <input asp-for="User.LastName" class="form-control" />
+            <input asp-for="User.LastName" class="form-control" pattern="[A-Za-zæøåÆØÅ\s]+" />
             <span asp-validation-for="User.LastName"></span>
         </div>
     </div>

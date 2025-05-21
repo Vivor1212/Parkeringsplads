@@ -22,7 +22,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light  box-shadow">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Account/Profile">Parkeringsplads</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -50,17 +50,7 @@
                             </li>
                         }
 
-                        <!-- Nav bar for brugere som er logget ind og er passager -->
-                        @if (isUserLoggedIn && !isDriver && !isAdmin)
-                        {
-                            
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/TripPages/AvailableTrips">Ture</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/UserPages/MyRequests">Mine requests</a>
-                            </li>
-                        }
+    
 
                       <!-- Nav bar for brugere som er logget ind og er driver -->
                         @if (isUserLoggedIn && isDriver && !isAdmin)
@@ -73,17 +63,23 @@
                                 <ul class="dropdown-menu">
                                    
                                     <li><a class="dropdown-item" asp-page="/TripPages/AvailableTrips">Alle rejser</a></li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-page="/TripPages/AvailableTrips">Ledige rejser</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-page="/UserPages/MyRequests">Mine anmodninger</a>
+                                    </li>
                                 </ul>
                             </div>
 
-                           
+
 
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/UserPages/MyRequests">Mine requests</a>
                             </li>
                           
                             @if (isDriver)
-                            {
+                                {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-page="/TripPages/CreateTrip">Opret rejser</a>
                                 </li>
