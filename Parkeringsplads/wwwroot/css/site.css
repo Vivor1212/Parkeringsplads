@@ -60,18 +60,23 @@ body {
         color: #fff;
     }
 
-.btn-primary, .btn-outline-primary.active {
-    color: #000;
-    background-color: #fff387;
+.btn-primary {
+    color: #000 !important;
+    background-color: #fff387 !important;
     
 }
-.btn-primary:hover {
-    background-color: #fff387;
+
+ .btn-outline-primary.active {
     color: #000;
+    background-color: #fff387;
+}
+.btn-primary:hover {
+    background-color: #fff387 !important;
+    color: #000 !important;
 }
 
 .btn-secondary {
-    background-color: #535353;
+    background-color: #000;
     color: #fff;
 }
 
@@ -80,3 +85,19 @@ body {
         background-color: #fff387;
         color: #000;
     }
+
+.bg-primary {
+   background-color: #fff387 !important;
+}
+
+.background-blur {
+    backdrop-filter: blur(5px);
+    display: block;
+    position: absolute !important;
+    width: 100%;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+   
+   z-index: -1;
+}

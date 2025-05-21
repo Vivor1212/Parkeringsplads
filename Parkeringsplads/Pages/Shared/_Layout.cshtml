@@ -74,9 +74,6 @@
 
 
 
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/UserPages/MyRequests">Mine requests</a>
-                            </li>
                           
                             @if (isDriver)
                                 {
@@ -84,10 +81,10 @@
                                     <a class="nav-link" asp-page="/TripPages/CreateTrip">Opret rejser</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-page="/TripPages/DriversTrips">Mine rejser</a>
+                                    <a class="nav-link" asp-page="/TripPages/DriversTrips">Mine kørsler</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-page="/CarPages/Car">My Cars</a>
+                                    <a class="nav-link" asp-page="/CarPages/Car">Mine biler</a>
                                 </li>
                             }
                             else
@@ -149,9 +146,9 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted bg-white">
         <div class="container">
-            &copy; 2025 - Parkeringsplads - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2025 - Parkeringsplads
         </div>
     </footer>
 

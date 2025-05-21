@@ -53,6 +53,10 @@ public partial class ParkeringspladsContext : DbContext
             .HasForeignKey(ua => ua.Address_Id)
             .OnDelete(DeleteBehavior.ClientSetNull);  // Configure delete behavior
 
+        modelBuilder.Entity<Address>()
+    .HasIndex(a => new { a.AddressRoad, a.AddressNumber, a.CityId })
+    .IsUnique();
+
 
         modelBuilder.Entity<School>()
     .HasOne(s => s.Address)   // A School has one Address

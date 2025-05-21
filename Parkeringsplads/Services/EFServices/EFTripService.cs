@@ -19,7 +19,7 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task<Trip> CreateTripAsync(Trip trip)
         {
-            if(trip == null)
+            if (trip == null)
             {
                 throw new ArgumentNullException(nameof(trip), "Trip cannot be null");
             }
@@ -129,6 +129,23 @@ namespace Parkeringsplads.Services.EFServices
             await _context.SaveChangesAsync();
             return true;
 
+        }
+
+        public async Task<List<Trip>> GetAllTripsOnUserAsync(User user)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            // Get trips where the user has an accepted request (RequestStatus == true)
+            var trips = await _context.Trip
+                .Include(t => t.Car.Driver).ThenInclude(d => d.User)
+                .Include(t => t.Requests)
+                .Where(t => t.Requests.Any(r => r.UserId == user.UserId && r.RequestStatus == true))
+                .OrderBy(t => t.TripDate)
+                .ThenBy(t => t.TripTime)
+                .ToListAsync();
+
+            return trips;
         }
     }
 }

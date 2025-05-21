@@ -22,5 +22,8 @@ namespace Parkeringsplads.Services.Interfaces
 
         Task<bool> DeleteTripAsync(int tripId, int userId);
 
+        Task<List<Trip>> GetAllTripsOnUserAsync(User user);
+
+
     }
 }

@@ -6,6 +6,8 @@ namespace Parkeringsplads.Services.Interfaces
     {
         Task<Address> GetOrCreateAddressAsync(string road, string number, int cityId);
         Task<bool> LinkAddressToUserAsync(int userId, int addressId);
+
+        Task<bool> DeleteAddressAsync(int addressId);
     }
 
 }

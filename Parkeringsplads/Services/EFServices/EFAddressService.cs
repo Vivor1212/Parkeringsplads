@@ -15,8 +15,13 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task<Address> GetOrCreateAddressAsync(string road, string number, int cityId)
         {
+            road = road?.Trim().ToLower();
+            number = number?.Trim();
+
             var existing = await _context.Address.FirstOrDefaultAsync(a =>
-                a.AddressRoad == road && a.AddressNumber == number && a.CityId == cityId);
+                a.AddressRoad.ToLower() == road &&
+                a.AddressNumber.Trim() == number &&
+                a.CityId == cityId);
 
             if (existing != null)
                 return existing;
@@ -48,6 +53,28 @@ namespace Parkeringsplads.Services.EFServices
             });
 
             await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAddressAsync(int addressId)
+        {
+            var address = await _context.Address.FindAsync(addressId);
+            if (address == null)
+            {
+                return false; // Address not found
+            }
+
+            // Remove related records from UserAddress table
+            var userAddresses = await _context.UserAddress
+                .Where(ua => ua.Address_Id == addressId)
+                .ToListAsync();
+
+            _context.UserAddress.RemoveRange(userAddresses);
+
+            // Delete the address
+            _context.Address.Remove(address);
+            await _context.SaveChangesAsync();
+
             return true;
         }
     }
