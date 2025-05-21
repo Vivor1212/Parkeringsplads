@@ -3,8 +3,8 @@
 @{
     ViewData["Title"] = "Send anmodning";
 }
-
-<h2>Anmod om tur</h2>
+<div class=" p-3 pt-5 pb-5">
+<h1 class="pb-3">Anmod om tur</h1>
 
 <p><strong>Tur:</strong> @Model.Trip.FromDestination → @Model.Trip.ToDestination</p>
 <p><strong>Dato:</strong> @Model.Trip.TripDate.ToShortDateString()</p>
@@ -28,3 +28,4 @@
 
     <button type="submit" class="btn btn-primary">Send anmodning</button>
 </form>
+</div>

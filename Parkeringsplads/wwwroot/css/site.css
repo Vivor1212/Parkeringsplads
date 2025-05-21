@@ -55,10 +55,7 @@ body {
         background-color: #000;
     }
 
-    .btn-secondary {
-        background-color: #000;
-        color: #fff;
-    }
+
 
 .btn-primary {
     color: #000 !important;
@@ -80,11 +77,18 @@ body {
     color: #fff;
 }
 
+.btn-secondary {
+    background-color: #000;
+    color: #fff;
+}
 
     .btn-secondary:hover {
-        background-color: #fff387;
-        color: #000;
+        background-color: #454545 !important;
+        color: #fff !important;
+        
     }
+
+
 
 .bg-primary {
    background-color: #fff387 !important;

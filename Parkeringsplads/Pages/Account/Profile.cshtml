@@ -20,17 +20,17 @@
             <div>
                 <h3 class="text-center p-3 ">Hej @Model.FirstName!</h3>
             </div>
-            <button class="nav-link active rounded-0 text-reset" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
-                Dashboard
+            <button class="nav-link active rounded-0 text-reset text-start" id="dashboard-tab" data-bs-toggle="pill" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
+                <i class="fas fa-desktop pe-2"></i> Dashboard
             </button>
-            <button class="nav-link rounded-0 text-reset" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">
-                <i  class="fas fa-user"></i> Min profil
+            <button class="nav-link rounded-0 text-reset text-start" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">
+                <i class="fas fa-user pe-2"></i> Min profil
             </button>
-            <button class="nav-link rounded-0 text-reset" id="requests-tab" data-bs-toggle="pill" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
-                Mine anmodninger
+            <button class="nav-link rounded-0 text-reset text-start" id="requests-tab" data-bs-toggle="pill" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
+                <i class="fas fa-envelope pe-2 "></i> Mine anmodninger
             </button>
-            <button class="nav-link rounded-0 text-reset" id="trips-tab" data-bs-toggle="pill" data-bs-target="#trips" type="button" role="tab" aria-controls="trips" aria-selected="false">
-                Tilmeldte rejser
+            <button class="nav-link rounded-0 text-reset text-start" id="trips-tab" data-bs-toggle="pill" data-bs-target="#trips" type="button" role="tab" aria-controls="trips" aria-selected="false">
+                <i class="fas fa-road pe-2"></i> Tilmeldte rejser
             </button>
         </div>
     </div>
@@ -121,18 +121,16 @@
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>Vejnavn</th>
-                                            <th>Nummer</th>
-                                            <th>By</th>
+                                            <th>Adresse</th>
+                                           <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach (var address in Model.AddressList)
                                         {
                                             <tr>
-                                                <td>@address.AddressRoad</td>
-                                                <td>@address.AddressNumber</td>
-                                                <td>@address.City.PostalCode @address.City.CityName</td>
+                                                    <td>@address.AddressRoad @address.AddressNumber, @address.City.PostalCode @address.City.CityName </td>
+                                            
                                                     <td>
                                                         <form method="post" asp-page-handler="Delete" asp-route-id="@address.AddressId" class="d-inline">
                                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Er du sikker på, at du vil slette denne adresse?');">Slet</button>

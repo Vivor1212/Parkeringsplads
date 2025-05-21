@@ -5,7 +5,7 @@
     Opdater oplysninger for
     @if (Model.User != null)
     {
-        <small class="">@Model.User.FirstName @Model.User.LastName</small>
+        <small>@Model.User.FirstName @Model.User.LastName</small>
     }
 </h1>
 
@@ -13,55 +13,59 @@
 {
     @if (HttpContext.Session.GetString("IsAdmin") == "true")
     {
-        <!-- Optional admin notice -->
         <p class="text-info">Du redigerer som administrator.</p>
     }
 
     <form method="post">
-        <div class="form-group">
-            <label asp-for="User.FirstName">Fornavn:</label>
-            <input asp-for="User.FirstName" class="form-control" />
-            <span asp-validation-for="User.FirstName" class="text-danger"></span>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="User.FirstName">Fornavn:</label>
+                <input asp-for="User.FirstName" class="form-control" />
+                <span asp-validation-for="User.FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="User.LastName">Efternavn:</label>
+                <input asp-for="User.LastName" class="form-control" />
+                <span asp-validation-for="User.LastName" class="text-danger"></span>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label asp-for="User.LastName">Efternavn:</label>
-            <input asp-for="User.LastName" class="form-control" />
-            <span asp-validation-for="User.LastName" class="text-danger"></span>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="User.Phone">Telefonnummer:</label>
+                <input asp-for="User.Phone" class="form-control" />
+                <span asp-validation-for="User.Phone" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="User.Email">Email:</label>
+                <input asp-for="User.Email" class="form-control" />
+                <span asp-validation-for="User.Email" class="text-danger"></span>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label asp-for="User.Phone">Telefonnummer:</label>
-            <input asp-for="User.Phone" class="form-control" />
-            <span asp-validation-for="User.Phone" class="text-danger"></span>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="User.Title" class="control-label">Rolle:</label>
+                <select asp-for="User.Title" class="form-control">
+                    @foreach (var option in Model.TitleOptions)
+                    {
+                        <option value="@option.Key">@option.Value</option>
+                    }
+                </select>
+                <span asp-validation-for="User.Title" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="User.SchoolId">Vælg skole:</label>
+                <select asp-for="User.SchoolId" asp-items="Model.Schools" class="form-control">
+                    <option value="" disabled selected>@Model.SchoolName</option>
+                </select>
+                <span asp-validation-for="User.SchoolId" class="text-danger"></span>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label asp-for="User.Email">Email:</label>
-            <input asp-for="User.Email" class="form-control" />
-            <span asp-validation-for="User.Email" class="text-danger"></span>
-        </div>
-        <div class="mb-3 col-sm-6">
-            <label asp-for="User.Title" class="control-label">Rolle</label>
-            <select asp-for="User.Title" class="form-control">
-                @foreach (var option in Model.TitleOptions)
-                {
-                    <option value="@option.Key">@option.Value</option>
-                }
-
-            </select>
-            <span asp-validation-for="User.Title" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="User.SchoolId">Vælg skole:</label>
-            <select asp-for="User.SchoolId" asp-items="Model.Schools" class="form-control">
-                <option value="" disabled selected>@Model.SchoolName</option>
-            </select>
-            <span asp-validation-for="User.SchoolId" class="text-danger"></span>
-        </div>
-
-   
         <div class="pt-3">
             <button type="submit" class="btn btn-primary">Opdater</button>
 

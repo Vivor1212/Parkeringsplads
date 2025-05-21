@@ -12,8 +12,8 @@
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
-
-<h2>Opret tur for Admin</h2>
+<div class=" p-3 pt-5 pb-5">
+<h2 class="pb-3">Opret tur for Admin</h2>
 
 <!-- Debug info -->
 <p><strong>Valgt retning:</strong> @Model.Direction</p>
@@ -21,11 +21,11 @@
 <!-- Retning -->
 <div class="mb-4">
     <label class="form-label">Retning</label><br />
-    <div class="form-check form-check-inline">
-        <a href="?handler=Direction&direction=ToSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-outline-primary @(Model.Direction == "ToSchool" ? "active" : "")">Til skole</a>
+    <div class="form-check form-check-inline" style="padding-left: 0px;">
+        <a href="?handler=Direction&direction=ToSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-secondary @(Model.Direction == "ToSchool" ? "active" : "")">Til skole</a>
     </div>
-    <div class="form-check form-check-inline">
-        <a href="?handler=Direction&direction=FromSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-outline-primary @(Model.Direction == "FromSchool" ? "active" : "")">Fra skole</a>
+    <div class="form-check form-check-inline" style="padding-left: 0px;">
+        <a href="?handler=Direction&direction=FromSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-secondary @(Model.Direction == "FromSchool" ? "active" : "")">Fra skole</a>
     </div>
 </div>
 
@@ -135,9 +135,9 @@
         <span asp-validation-for="Trip.TripSeats" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Opret tur</button>
+    <button type="submit" class="btn btn-secondary">Opret tur</button>
 </form>
-
+</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
