@@ -20,7 +20,10 @@ namespace Parkeringsplads.Services.Interfaces
 
         Task AdminDeleteTripAsync(int tripId);
 
-        Task<bool> DeleteTripAsync(int tripId, int userId);
+        Task<OperationResult> DeleteTripAsync(int tripId, int userId);
 
+        Task<TripValidation> GetDriverTripAsync(int tripId, int userId);
+        Task<IEnumerable<Trip>> GetDriversFutureTripsAsync(int userId);
+        Task<IEnumerable<Car>> GetDriversCarsAsync(int driverId);
     }
 }

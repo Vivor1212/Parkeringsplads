@@ -117,18 +117,57 @@ namespace Parkeringsplads.Services.EFServices
 
             await _context.SaveChangesAsync();
         }
-        public async Task<bool> DeleteTripAsync(int tripId, int userId)
+        public async Task<OperationResult> DeleteTripAsync(int tripId, int userId)
         {
-            var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car.Driver.UserId == userId);
+            var trip = await _context.Trip.Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == userId);
             if (trip == null)
             {
-                return false;
+                return new OperationResult
+                {
+                    Success = false,
+                    Message = "Turen blev ikke fundet, eller du har ikke tilladelse til at slette den."
+                };
             }
 
             _context.Trip.Remove(trip);
             await _context.SaveChangesAsync();
-            return true;
+            return new OperationResult
+            {
+                Success = true,
+                Message = "Turen blev slettet."
+            };
 
+        }
+
+        public async Task<TripValidation> GetDriverTripAsync(int tripId, int userId)
+        {
+            var trip = await _context.Trip.Include(t => t.Requests).ThenInclude(r => r.Users).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == userId);
+            if (trip == null)
+            {
+                return new TripValidation
+                {
+                    IsValid = false,
+                    RedirectPage = "./TripPages/DriversTrips",
+                    ErrorMessage = "Rejse blev ikke fundet eller du har ikke adgang til den."
+                };
+            }
+
+            return new TripValidation
+            {
+                IsValid = true,
+                Trip = trip
+            };
+        }
+
+        public async Task<IEnumerable<Car>> GetDriversCarsAsync(int driverId)
+        {
+            return await _context.Car.Where(c => c.DriverId == driverId).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Trip>> GetDriversFutureTripsAsync(int userId)
+        {
+            return await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver)
+                .Where(t => t.Car.Driver.UserId == userId && (t.TripDate > DateOnly.FromDateTime(DateTime.Today) || (t.TripDate == DateOnly.FromDateTime(DateTime.Today) && t.TripTime >= TimeOnly.FromDateTime(DateTime.Now)))).ToListAsync();
         }
     }
 }

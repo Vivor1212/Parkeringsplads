@@ -8,7 +8,7 @@
 }
 
 <div class="container py-4">
-    <h1 class="fw-bold mb-4">Trip Details</h1>
+    <h1 class="fw-bold mb-4">Detaljer på din rejse</h1>
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -29,49 +29,50 @@
     {
         <div class="card shadow-sm mb-5">
             <div class="card-body">
-                <h5 class="card-title fw-semibold">Trip: @Model.Trip.FromDestination til @Model.Trip.ToDestination</h5>
+                <h5 class="card-title fw-semibold">Tur: @Model.Trip.FromDestination til @Model.Trip.ToDestination</h5>
                 <div class="row">
                     <div class="col-md-6">
                         <p class="card-text">
-                            <strong>Departure Date:</strong> @Model.Trip.TripDate.ToString("d MMM yyyy")<br />
-                            <strong>Departure Time:</strong> @Model.Trip.TripTime.ToString("HH:mm")<br />
-                            <strong>Trip ID:</strong> @Model.Trip.TripId
+                            <strong>Dato:</strong> @Model.Trip.TripDate.ToString("d MMM yyyy")<br />
+                            <strong>Tidspunkt:</strong> @Model.Trip.TripTime.ToString("HH:mm")<br />
+                            <strong>Tur ID:</strong> @Model.Trip.TripId
                         </p>
                     </div>
                     <div class="col-md-6">
                         <p class="card-text">
-                            <strong>Car:</strong>
+                            <strong>Bil:</strong>
                             @if (Model.DriverCars != null && Model.DriverCars.Any())
                             {
                                 @Model.DriverCars.First().CarModel<br />
                             }
                             else
                             {
-                                @: No car assigned<br>
+                                @: Ingen bil er valgt til denne tur.<br>
                             }
-                            <strong>Available Seats:</strong> @Model.Trip.TripSeats / @(Model.Trip.Car?.CarCapacity ?? Model.Trip.TripSeats)
+                            <strong>Ledige pladser:</strong> @Model.Trip.TripSeats / @(Model.Trip.Car?.CarCapacity ?? Model.Trip.TripSeats)
                         </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <h2 class="fw-bold mb-4">Requests</h2>
+        <h2 class="fw-bold mb-4">Anmodninger</h2>
 
         @if (Model.Trip.Requests != null && Model.Trip.Requests.Any())
         {
             <!-- Accepted Requests -->
-            <h3 class="fw-semibold mb-3">Accepted Requests</h3>
+            <h3 class="fw-semibold mb-3">Accepteret Anmodninger</h3>
             @if (acceptedRequests.Any())
             {
                 <div class="table-responsive">
                     <table class="table table-hover table-sm">
                         <thead class="table-light">
                             <tr>
-                                <th>User</th>
-                                <th>Pickup Location</th>
-                                <th>Message</th>
+                                <th>Bruger</th>
+                                <th>Opsamling</th>
+                                <th>Besked</th>
                                 <th>Status</th>
+                                <th>Handlinger</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,7 +85,14 @@
                                     </td>
                                     <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
                                     <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
-                                    <td><span class="badge bg-success">Accepted</span></td>
+                                    <td><span class="badge bg-success">Accepter</span></td>
+                                    <td>
+                                        <form method="post" asp-page-handler="RejectRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bg-info bi-x-circle"></i> Afvis
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -93,22 +101,22 @@
             }
             else
             {
-                <p class="text-muted">No accepted requests.</p>
+                <p class="text-muted">Der er ingen accepteret anmodninger.</p>
             }
 
             <!-- Pending Requests -->
-            <h3 class="fw-semibold mb-3">Pending Requests</h3>
+            <h3 class="fw-semibold mb-3">Nye Anmodninger</h3>
             @if (pendingRequests.Any())
             {
                 <div class="table-responsive">
                     <table class="table table-hover table-sm">
                         <thead class="table-light">
                             <tr>
-                                <th>User</th>
-                                <th>Pickup Location</th>
-                                <th>Message</th>
+                                <th>Bruger</th>
+                                <th>Opsamling</th>
+                                <th>Besked</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th>Handlinger</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -119,26 +127,26 @@
                                         @request.Users?.FirstName @request.Users?.LastName
                                         <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
                                     </td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
-                                    <td><span class="badge bg-warning text-dark">Pending</span></td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "Jeg møder op på start addressen.")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "Ingen besked.")</td>
+                                    <td><span class="badge bg-warning text-dark">Venter</span></td>
                                     <td>
                                         @if (hasAvailableSeats)
                                         {
                                             <form method="post" asp-page-handler="AcceptRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
                                                 <button type="submit" class="btn btn-outline-success btn-sm">
-                                                    <i class="bi bi-check-circle"></i> Accept
+                                                    <i class="bi bi-check-circle"></i> Accepter
                                                 </button>
                                             </form>
                                             <form method="post" asp-page-handler="RejectRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
                                                 <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                    <i class="bg-info bi-x-circle"></i> Reject
+                                                    <i class="bg-info bi-x-circle"></i> Afvis
                                                 </button>
                                             </form>
                                         }
                                         else
                                         {
-                                            <span class="text-muted">No actions available (trip full)</span>
+                                            <span class="text-muted">Din tur er fuldt op.</span>
                                         }
                                     </td>
                                 </tr>
@@ -149,20 +157,20 @@
             }
             else
             {
-                <p class="text-muted">No pending requests.</p>
+                <p class="text-muted">Der er ingen nye anmodninger.</p>
             }
 
             <!-- Rejected Requests -->
-            <h3 class="fw-semibold mb-3">Rejected Requests</h3>
+            <h3 class="fw-semibold mb-3">Afvistede anmodninger</h3>
             @if (rejectedRequests.Any())
             {
                 <div class="table-responsive">
                     <table class="table table-hover table-sm">
                         <thead class="table-light">
                             <tr>
-                                <th>User</th>
-                                <th>Pickup Location</th>
-                                <th>Message</th>
+                                <th>Bruger</th>
+                                <th>Opsamling</th>
+                                <th>Besked</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -176,7 +184,7 @@
                                     </td>
                                     <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
                                     <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
-                                    <td><span class="badge bg-danger">Rejected</span></td>
+                                    <td><span class="badge bg-danger">Afvist</span></td>
                                 </tr>
                             }
                         </tbody>
@@ -185,17 +193,17 @@
             }
             else
             {
-                <p class="text-muted">No rejected requests.</p>
+                <p class="text-muted">Der er ingen afviste anmodninger.</p>
             }
         }
         else
         {
-            <p class="text-muted">No requests for this trip.</p>
+            <p class="text-muted">Du har ikke nogle anmodninger på din tur endnu.</p>
         }
     }
     else
     {
-        <p class="text-danger">Trip not found.</p>
+        <p class="text-danger">Turen ikke fundet.</p>
     }
 </div>
 

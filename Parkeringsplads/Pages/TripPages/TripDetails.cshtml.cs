@@ -7,140 +7,97 @@ using Parkeringsplads.Services.Interfaces;
 
 namespace Parkeringsplads.Pages.TripPages
 {
-    public class TripDetailsModel : PageModel
+    public class TripDetailsModel : BasePageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly ITripService _tripService;
         private readonly IRequestService _requestService;
 
-        public TripDetailsModel(ParkeringspladsContext context, IRequestService requestService)
+        public TripDetailsModel(IUser userService, ITripService tripService, IRequestService requestService) : base(userService)
         {
-            _context = context;
+            _tripService = tripService;
             _requestService = requestService;
         }
 
         public Trip Trip { get; set; }
-        public IEnumerable<Car> DriverCars { get; set; }
+        public IEnumerable<Car> DriverCars { get; set; } 
 
-        public IActionResult OnGet(int tripId)
+        private async Task<IActionResult> HandleValidationAndRedirect(UserValidation userResult, TripValidation tripResult = null)
         {
-            var userEmail = HttpContext.Session.GetString("UserEmail");
-            if (string.IsNullOrEmpty(userEmail))
+            if (!userResult.IsValid)
             {
-                return RedirectToPage("./Login/Login");
+                TempData["ErrorMessage"] = userResult.ErrorMessage;
+                return RedirectToPage(userResult.RedirectPage);
             }
 
-            var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
-            if (user == null)
+            if (tripResult != null && !tripResult.IsValid)
             {
-                return RedirectToPage("./Login/Login");
+                TempData["ErrorMessage"] = tripResult.ErrorMessage;
+                return RedirectToPage(tripResult.RedirectPage);
             }
 
-            var isDriver = _context.Driver.Any(d => d.UserId == user.UserId);
-            if (!isDriver)
+            return null;
+        }
+
+        public async Task<IActionResult> OnGetAsync(int tripId)
+        {
+            var userResult = await _userService.ValidateDriverAsync(HttpContext);
+            var redirectResult = await HandleValidationAndRedirect(userResult);
+            if (redirectResult != null)
             {
-                TempData["ErrorMessage"] = "You must be a driver to access this page.";
-                return RedirectToPage("./Account/Profile");
+                return redirectResult;
             }
 
-            Trip = _context.Trip.Include(t => t.Requests).ThenInclude(r => r.Users).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefault(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == user.UserId);
-
-            if (Trip == null)
+            var tripResult = await _tripService.GetDriverTripAsync(tripId, userResult.User.UserId);
+            redirectResult = await HandleValidationAndRedirect(userResult, tripResult);
+            if (redirectResult != null)
             {
-                TempData["ErrorMessage"] = "Trip not found or you do not have access it it.";
-                return RedirectToPage("./DriversTrips");
+                return redirectResult;
             }
 
-            DriverCars = Trip.Car != null ? _context.Car.Where(c => c.DriverId == Trip.Car.DriverId).ToList() : new List<Car>();
-
+            Trip = tripResult.Trip;
+            DriverCars = await _tripService.GetDriversCarsAsync(Trip.Car.DriverId);
             return Page();
         }
 
         public async Task<IActionResult> OnPostAcceptRequestAsync(int tripId, int requestId)
         {
-            var userEmail = HttpContext.Session.GetString("UserEmail");
-            if (string.IsNullOrEmpty(userEmail))
+            var userResult = await _userService.ValidateDriverAsync(HttpContext);
+            var redirectResult = await HandleValidationAndRedirect(userResult);
+            if (redirectResult != null)
             {
-                return RedirectToPage("./Login/Login");
+                return redirectResult;
             }
 
-            var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
-            if (user == null)
+            var tripResult = await _tripService.GetDriverTripAsync(tripId, userResult.User.UserId);
+            redirectResult = await HandleValidationAndRedirect(userResult, tripResult);
+            if (redirectResult != null)
             {
-                return RedirectToPage("./Login/Login");
+                return redirectResult;
             }
 
-            var isDriver = await _context.Driver.AnyAsync(d => d.UserId == user.UserId);
-            if (!isDriver)
-            {
-                TempData["ErrorMessage"] = "You must be a driver to perfom this action.";
-                return RedirectToPage("./Account/Profile");
-            }
-
-            var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == user.UserId);
-            if (trip == null)
-            {
-                TempData["ErrorMessage"] = "Trip not found or you do not have access to it.";
-                return RedirectToPage("./TripPages/DriversTrips");
-            }
-
-            var acceptedRequests = trip.Requests.Count(r => r.RequestStatus == true);
-            if (acceptedRequests >= trip.TripSeats)
-            {
-                TempData["ErrorMessage"] = "Cannot accept request: Trip is full.";
-                return RedirectToPage(new { tripId });
-            }
-
-            try
-            {
-                await _requestService.AcceptRequestAsync(requestId);
-                TempData["SuccessMessage"] = "Request accepted successfully.";
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "An error occurred while accepting the request. Please try again.";
-            }
-
+            var result = await _requestService.AcceptRequestAsync(requestId, tripId);
+            TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Message;
             return RedirectToPage(new { tripId });
         }
 
         public async Task<IActionResult> OnPostRejectRequestAsync(int tripId, int requestId)
         {
-            var userEmail = HttpContext.Session.GetString("UserEmail");
-            if (string.IsNullOrEmpty(userEmail))
+            var userResult = await _userService.ValidateDriverAsync(HttpContext);
+            var redirectResult = await HandleValidationAndRedirect(userResult);
+            if (redirectResult != null)
             {
-                return RedirectToPage("./Login/Login");
+                return redirectResult;
             }
 
-            var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
-            if (user == null)
+            var tripResult = await _tripService.GetDriverTripAsync(tripId, userResult.User.UserId);
+            redirectResult = await HandleValidationAndRedirect(userResult, tripResult);
+            if (redirectResult != null)
             {
-                return RedirectToPage("./Login/Login");
+                return redirectResult;
             }
 
-            var isDriver = await _context.Driver.AnyAsync(d => d.UserId == user.UserId);
-            if (!isDriver)
-            {
-                TempData["ErrorMessage"] = "You must be a driver to perfom this action.";
-                return RedirectToPage("./Account/Profile");
-            }
-
-            var trip = await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == user.UserId);
-            if (trip == null)
-            {
-                TempData["ErrorMessage"] = "Trip not found or you do not have access to it.";
-                return RedirectToPage("./TripPages/DriversTrips");
-            }
-
-            try
-            {
-                await _requestService.RejectRequestAsync(requestId);
-                TempData["SuccessMessage"] = "Request rejected successfully.";
-            }
-            catch (Exception)
-            {
-                TempData["ErrorMessage"] = "An error occurred while rejecting the request. Please try again.";
-            }
-
+            var result = await _requestService.RejectRequestAsync(requestId);
+            TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Message;
             return RedirectToPage(new { tripId });
         }
     }

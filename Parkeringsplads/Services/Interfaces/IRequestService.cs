@@ -9,8 +9,8 @@ namespace Parkeringsplads.Services.Interfaces
         Task<Request> GetRequestByIdAsync(int requestId);
         Task DeleteRequestAsync(int requestId);
         Task<Request> CreateRequestAsync(Request request);
-        Task<Request> AcceptRequestAsync(int requestId);
-        Task<Request> RejectRequestAsync(int requestId);
+        Task<OperationResult> AcceptRequestAsync(int requestId, int tripId);
+        Task<OperationResult> RejectRequestAsync(int requestId);
         Task<IEnumerable<Request>> GetRequestsForTripAsync(int tripId);
     }
 }
