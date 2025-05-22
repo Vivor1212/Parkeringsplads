@@ -21,7 +21,6 @@
 
 <h2>Opret anmodning (Admin)</h2>
 
-
 <form method="post">
     <div class="mb-4">
         <label asp-for="SelectedUserId" class="form-label">Vælg bruger</label>
@@ -46,6 +45,8 @@
         <span asp-validation-for="Request.RequestMessage" class="text-danger"></span>
     </div>
 
+    
+
     <div class="mb-4">
         <label class="form-label">Vælg en tur</label>
         <div class="list-group">
@@ -54,9 +55,11 @@
                 var selected = Model.SelectedTripId == trip.TripId;
                 <label class="list-group-item @(selected ? "active" : "")" style="cursor: pointer;">
                     <input type="radio" name="SelectedTripId" value="@trip.TripId" />
-                    <strong>@trip.TripDate.ToShortDateString() @trip.TripTime</strong><br />
-                    @trip.FromDestination → @trip.ToDestination
+                    <strong>Tur @trip.TripId:</strong> @trip.TripDate.ToShortDateString() @trip.TripTime <br />
+                    <strong>Fra:</strong> @trip.FromDestination → <strong>Til:</strong> @trip.ToDestination <br />
+                    <strong>Chauffør:</strong> @trip.Car?.Driver?.User?.FirstName @trip.Car?.Driver?.User?.LastName
                 </label>
+
             }
         </div>
         <span asp-validation-for="SelectedTripId" class="text-danger"></span>
@@ -64,3 +67,5 @@
 
     <button type="submit" class="btn btn-primary">Opret anmodning</button>
 </form>
+
+<a href="/Admin/AdminDashboard" class="btn btn-secondary mt-3">Tilbage til oversigt</a>

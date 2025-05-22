@@ -47,31 +47,42 @@ public class CityAdmin : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (CityId == 0)
+        try
         {
-            var city = new City
+            if (CityId == 0)
             {
-                CityName = CityName,
-                PostalCode = PostalCode
-            };
+                var city = new City
+                {
+                    CityName = CityName,
+                    PostalCode = PostalCode
+                };
 
-            await _cityService.AddCityAsync(city);
-        }
-        else 
-        {
-            var city = await _cityService.GetCityByIdAsync(CityId);
-            if (city == null)
+                await _cityService.AddCityAsync(city);
+                TempData["SuccessMessage"] = "By tilføjet.";
+            }
+            else
             {
-                ModelState.AddModelError("", "City not found.");
-                return Page();
+                var city = await _cityService.GetCityByIdAsync(CityId);
+                if (city == null)
+                {
+                    TempData["ErrorMessage"] = "By ikke fundet.";
+                    return Page();
+                }
+
+                city.CityName = CityName;
+                city.PostalCode = PostalCode;
+
+                await _cityService.UpdateCityAsync(city);
+                TempData["SuccessMessage"] = "By opdateret.";
             }
 
-            city.CityName = CityName;
-            city.PostalCode = PostalCode;
-
-            await _cityService.UpdateCityAsync(city);
+            return RedirectToPage("/Admin/Admindashboard");
         }
-
-        return RedirectToPage("/Admin/Admindashboard");
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = "Der skete en fejl: " + ex.Message;
+            return Page();
+        }
     }
+
 }

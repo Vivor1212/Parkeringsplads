@@ -31,12 +31,6 @@ namespace Parkeringsplads.Pages.Admin
 
         public string SelectedDriverName { get; set; } = string.Empty;
 
-        [TempData]
-        public string? SuccessMessage { get; set; }
-
-        [TempData]
-        public string? ErrorMessage { get; set; }
-
         public async Task<IActionResult> OnGetAsync(int? driverId)
         {
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
@@ -46,11 +40,10 @@ namespace Parkeringsplads.Pages.Admin
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
-            ErrorMessage = null;
 
             if (driverId == null || driverId == 0)
             {
-                ErrorMessage = "Chauffør-ID mangler.";
+                TempData["ErrorMessage"] = "Chauffør-ID mangler.";
                 return RedirectToPage("/Admin/AdminDashboard");
             }
 
@@ -62,7 +55,7 @@ namespace Parkeringsplads.Pages.Admin
 
             if (driver == null)
             {
-                ErrorMessage = "Chaufføren blev ikke fundet.";
+                TempData["ErrorMessage"] = "Chaufføren blev ikke fundet.";
                 return RedirectToPage("/Admin/AdminDashboard");
             }
 
@@ -92,7 +85,7 @@ namespace Parkeringsplads.Pages.Admin
 
             if (driver == null)
             {
-                ErrorMessage = "Chaufføren blev ikke fundet.";
+                TempData["ErrorMessage"] = "Chaufføren blev ikke fundet.";
                 return Page();
             }
 
@@ -103,12 +96,13 @@ namespace Parkeringsplads.Pages.Admin
             try
             {
                 await _context.SaveChangesAsync();
-                SuccessMessage = "Chaufføren er blevet opdateret.";
+                TempData["SuccessMessage"] = "Chaufføren er blevet opdateret.";
                 return RedirectToPage("/Admin/AdminDashboard"); 
             }
-            catch (Exception)
+            
+            catch (Exception ex)
             {
-                ErrorMessage = "Der opstod en fejl ved opdatering af chaufføren.";
+                TempData["ErrorMessage"] = "Der opstod en fejl ved opdatering af chaufføren.: " + ex.Message;
                 return Page();
             }
         }

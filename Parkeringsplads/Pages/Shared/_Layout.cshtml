@@ -43,10 +43,10 @@
                         @if (isUserLoggedIn && isAdmin)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-page="/Admin/AdminDashboard">Admin Dashboard</a>
+                                <a class="nav-link" asp-page="/Admin/AdminDashboard">Admin Oversigt</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-page="/Admin/ResetPassword">Reset Password</a>
+                                <a class="nav-link" asp-page="/Admin/ResetPassword">Skift Adgangskode</a>
                             </li>
                         }
 
@@ -91,7 +91,7 @@
                                     <a class="nav-link" asp-page="/TripPages/DriversTrips">Mine rejser</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-page="/CarPages/Car">My Cars</a>
+                                    <a class="nav-link" asp-page="/CarPages/Car">Mine Biler</a>
                                 </li>
                             }
                             else
@@ -115,7 +115,7 @@
                                     <i class="fas fa-sign-out-alt"></i>
                                       
                                  
-                                    Logout <!-- Logout Icon and Text -->
+                                    Log ud <!-- Logout Icon and Text -->
                                 </a>
                             </li>
                             <!-- Profile Button -->
@@ -136,7 +136,7 @@
                                     {
                                         <div>@userEmail</div> <!-- or a placeholder name -->
                                     }
-                                    <i class="fas fa-sign-in-alt"></i> Login <!-- Login Icon and Text -->
+                                    <i class="fas fa-sign-in-alt"></i> Log ind <!-- Login Icon and Text -->
                                 </a>
                             </li>
                         }

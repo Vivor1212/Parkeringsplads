@@ -1,6 +1,8 @@
 ﻿@page
 @model Parkeringsplads.Pages.CarPages.CarModel
-
+@{
+    ViewData["Title"] = "Biler";
+}
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -17,7 +19,14 @@
     </div>
 }
 
-<h1>Mine Biler</h1>
+@if (HttpContext.Session.GetString("IsAdmin") == "true")
+{
+    <h1>Admin Tilføj Bil</h1>
+}
+else
+{
+    <h1>Mine Biler</h1>
+}
 
 <div class="row">
 
@@ -27,14 +36,21 @@
                 <h5>Tilføj en ny bil</h5>
             </div>
             <div class="card-body">
-                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                {
-                    <div class="alert alert-danger">@Model.ErrorMessage</div>
-                }
+                
 
                 <form method="post">
+
+                    @if (HttpContext.Session.GetString("IsAdmin") == "true")
+                    {
+                        <div class="form-group">
+                            <label asp-for="SelectedDriverId" class="form-label">Vælg chauffør</label>
+                            <select asp-for="SelectedDriverId" asp-items="Model.Drivers" class="form-control" required>
+                                <option value="">-- Vælg en chauffør --</option>
+                            </select>
+                        </div>
+                    }
                     <div class="form-group">
-                        <label asp-for="CarModelName" class="form-label">Bilnavn</label>
+                        <label asp-for="CarModelName" class="form-label">Bilmodel</label>
                         <input asp-for="CarModelName" class="form-control" required />
                     </div>
 
@@ -48,15 +64,7 @@
                         <input asp-for="CarCapacity" class="form-control" type="number" required min="1" max="10" />
                     </div>
 
-                    @if (HttpContext.Session.GetString("IsAdmin") == "true")
-                    {
-                        <div class="form-group">
-                            <label asp-for="SelectedDriverId" class="form-label">Vælg chauffør</label>
-                            <select asp-for="SelectedDriverId" asp-items="Model.Drivers" class="form-control" required>
-                                <option value="">-- Vælg en chauffør --</option>
-                            </select>
-                        </div>
-                    }
+                    
 
                     <button type="submit" class="btn btn-primary mt-2 w-100">Tilføj bil</button>
                 </form>
@@ -70,7 +78,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Bilnavn</th>
+                        <th>Bilmodel</th>
                         <th>Nummerplade</th>
                         <th>Passagersæder</th>
                         <th>Handling</th>
@@ -100,6 +108,12 @@
         }
     </div>
 </div>
+
+@if (HttpContext.Session.GetString("IsAdmin") == "true")
+{
+
+    <a href="/Admin/AdminDashboard" class="btn btn-secondary mt-3">Tilbage til oversigt</a>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

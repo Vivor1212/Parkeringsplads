@@ -31,7 +31,7 @@ namespace Parkeringsplads.Pages.Account
             var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
             if (user != null && await _context.Driver.AnyAsync(d => d.UserId == user.UserId))
             {
-                TempData["ErrorMessage"] = "Du er allerede registeret som kører.";
+                TempData["ErrorMessage"] = "Du er allerede registeret som kÃ¸rer.";
                 return RedirectToPage("/Account/Profile");
             }
 
@@ -54,7 +54,7 @@ namespace Parkeringsplads.Pages.Account
 
             if ( await _context.Driver.AnyAsync(d => d.UserId == user.UserId))
             {
-                TempData["ErrorMessage"] = "Du er allerede registeret som kører.";
+                TempData["ErrorMessage"] = "Du er allerede chauffÃ¸r.";
                 return RedirectToPage("/Account/Profile");
             }
 
@@ -68,15 +68,13 @@ namespace Parkeringsplads.Pages.Account
             try
             {
                 await _driverService.CreateDriverAsync(driver);
-
                 HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
-
-                TempData["SuccessMessage"] = "Du er nu registeret som en kører. Husk at registere din bil <a href='/CarPages/Car'>her</a>.";
+                TempData["SuccessMessage"] = "Du er nu oprettet som chauffÃ¸r. Husk at registere din bil <a href='/CarPages/Car'>her</a>."";
                 return RedirectToPage("/Account/Profile");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "Der skete en fejl mens du prøvede at registere som en kører. Prøve venligst igen.");
+                TempData["ErrorMessage"] = "Der skete en fejl" + ex.Message;
                 return Page();
             }
         }
