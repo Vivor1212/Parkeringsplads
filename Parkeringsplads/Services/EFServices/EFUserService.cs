@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
 using System.Threading.Tasks;
@@ -181,4 +183,50 @@ public class EFUserService : IUser
                      .ToListAsync();
     }
 
+    public async Task<UserValidation> ValidateDriverAsync(HttpContext httpContext)
+    {
+        var userEmail = httpContext.Session.GetString("UserEmail");
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            return new UserValidation
+            {
+                IsValid = false,
+                RedirectPage = "./Login/Login",
+                ErrorMessage = "Bruger er ikke logget ind."
+            };
+        }
+
+        var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+        if (user == null)
+        {
+            return new UserValidation
+            {
+                IsValid = false,
+                RedirectPage = "./Login/Login",
+                ErrorMessage = "Bruger ikke fundet."
+            };
+        }
+
+        var isDriver = await _context.Driver.AnyAsync(d => d.UserId == user.UserId);
+        if (!isDriver)
+        {
+            return new UserValidation
+            {
+                IsValid = false,
+                RedirectPage = "./Account/Profile",
+                ErrorMessage = "Du skal være en chauffør for at udføre denne handling."
+            };
+        }
+
+        return new UserValidation
+        {
+            IsValid = true,
+            User = user
+        };
+    }
+
+    public async Task<IEnumerable<Car>> GetDriverCarsAsync(int driverId)
+    {
+        return await _context.Car.Where(c => c.DriverId == driverId).ToListAsync();
+    }
 }

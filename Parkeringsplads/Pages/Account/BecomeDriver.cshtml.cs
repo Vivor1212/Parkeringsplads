@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
 
@@ -19,7 +20,7 @@ namespace Parkeringsplads.Pages.Account
         [BindProperty]
         public Driver Driver { get; set; }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
@@ -27,10 +28,10 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
-            if (user != null && _context.Driver.Any(d => d.UserId == user.UserId))
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+            if (user != null && await _context.Driver.AnyAsync(d => d.UserId == user.UserId))
             {
-                TempData["ErrorMessage"] = "You are already registered as a driver.";
+                TempData["ErrorMessage"] = "Du er allerede registeret som kÃ¸rer.";
                 return RedirectToPage("/Account/Profile");
             }
 
@@ -45,15 +46,15 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
             if (user == null)
             {
                 return RedirectToPage("./Login/Login");
             }
 
-            if (_context.Driver.Any(d => d.UserId == user.UserId))
+            if ( await _context.Driver.AnyAsync(d => d.UserId == user.UserId))
             {
-                TempData["ErrorMessage"] = "Du er allerede chauffør.";
+                TempData["ErrorMessage"] = "Du er allerede chauffÃ¸r.";
                 return RedirectToPage("/Account/Profile");
             }
 
@@ -67,10 +68,8 @@ namespace Parkeringsplads.Pages.Account
             try
             {
                 await _driverService.CreateDriverAsync(driver);
-
                 HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
-
-                TempData["SuccessMessage"] = "Du er nu oprettet som chauffør.";
+                TempData["SuccessMessage"] = "Du er nu oprettet som chauffÃ¸r. Husk at registere din bil <a href='/CarPages/Car'>her</a>."";
                 return RedirectToPage("/Account/Profile");
             }
             catch (Exception ex)

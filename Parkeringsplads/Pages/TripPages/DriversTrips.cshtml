@@ -6,7 +6,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
 <div class="container py-4">
-    <h2 class="fw-bold mb-4">Your Trips</h2>
+    <h2 class="fw-bold mb-4">Dine Turer</h2>
 
     @if (TempData["SuccessMessage"] != null)
     {
@@ -30,13 +30,13 @@
             <table class="table table-hover table-sm">
                 <thead class="table-light">
                     <tr>
-                        <th>From Destination</th>
-                        <th>To Destination</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Available Seats</th>
-                        <th>Requests</th>
-                        <th>Actions</th>
+                        <th>Kører fra</th>
+                        <th>Kører til</th>
+                        <th>Dato</th>
+                        <th>Tidspunkt</th>
+                        <th>Pladser</th>
+                        <th>Anmodninger</th>
+                        <th>Handlinger</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,27 +56,27 @@
                                 else
                                 {
                                     @trip.TripSeats
-                                    <small class="text-muted">(No car assigned)</small>
+                                    <small class="text-muted">(Ingen bil fundet.)</small>
                                 }
                             </td>
                             <td>
                                 @if (trip.Requests.Any() == true)
                                 {
                                     <a asp-page="/TripPages/TripDetails" asp-route-tripId="@trip.TripId" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-eye"></i> View Requests <span class="badge bg-primary">@pendingRequests.Count</span>
+                                        <i class="bi bi-eye"></i> Se Anmodninger <span class="badge bg-primary">@pendingRequests.Count</span>
                                     </a>
                                 }
                                 else
                                 {
                                     <a asp-page="/TripPages/TripDetails" asp-route-tripId="@trip.TripId" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-eye"></i> View Requests <span class="badge bg-primary">0</span>
+                                        <i class="bi bi-eye"></i> Se Anmodninger <span class="badge bg-primary">0</span>
                                     </a>
                                 }
                             </td>
                             <td>
-                                <form asp-page-handler="Delete" asp-route-tripId="@trip.TripId" method="post" onsubmit="return confirm('Are you sure you want to delete this trip?');">
+                                <form asp-page-handler="Delete" asp-route-tripId="@trip.TripId" method="post" onsubmit="return confirm('Er du sikker på at du gerne vil slette denne rejse?');">
                                     <button type="submit" class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-trash"></i> Delete
+                                        <i class="bi bi-trash"></i> Slet
                                     </button>
                                 </form>
                             </td>
@@ -88,7 +88,7 @@
     }
     else
     {
-        <p class="text-muted">No trips created yet.</p>
+        <p class="text-muted">Du har ikke nogle planlagte turer.</p>
     }
 </div>
 
