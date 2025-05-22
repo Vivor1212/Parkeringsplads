@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Parkeringsplads.Pages.Account
@@ -23,7 +24,6 @@ namespace Parkeringsplads.Pages.Account
         [BindProperty]
         public string Password { get; set; }
 
-        public string ErrorMessage { get; set; }
 
         public IActionResult OnGet() 
         {
@@ -66,10 +66,12 @@ namespace Parkeringsplads.Pages.Account
 
                 HttpContext.Session.SetString("UserEmail", user.Email);
 
+                TempData["SuccessMessage"] = "Du er nu logget ind.";
+
                 return RedirectToPage("/Account/Profile");
             }
 
-            ErrorMessage = "Invalid email or password.";
+            TempData["ErrorMessage"] = "Indtastet email eller adgangskode er forkert.";
             return Page();
         }
 

@@ -130,15 +130,16 @@ namespace Parkeringsplads.Pages.Account
 
                 HttpContext.Session.Remove("IsDriver");
 
-                TempData["SuccessMessage"] = "You are no longer a driver.";
+                TempData["SuccessMessage"] = "Du er ikke længere chauffør.";
             }
             else
             {
-                TempData["ErrorMessage"] = "You are not currently registered as a driver.";
+                TempData["ErrorMessage"] = "Du er ikke registreret som chauffør.";
             }
 
             return RedirectToPage("/Account/Profile");
         }
+
 
 
     }

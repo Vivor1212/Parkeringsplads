@@ -1,6 +1,7 @@
 ﻿@page
 @model Parkeringsplads.Pages.CarPages.CarEditModel
 @{
+    ViewData["Title"] = "Opdater biler";
 }
 
 @if (TempData["SuccessMessage"] != null)
@@ -18,15 +19,21 @@
     </div>
 }
 
-
-<h2>Edit Car</h2>
+@if (HttpContext.Session.GetString("IsAdmin") == "true")
+{
+    <h1>Admin Opdater Bil</h1>
+}
+else
+{
+    <h1>Mine Biler</h1>
+}
 
 @if (Model.CarToEdit != null)
 {
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h5>Edit Car Details</h5>
+                <h5>Ændringer til bil</h5>
             </div>
             <div class="card-body">
                 
@@ -45,7 +52,7 @@
                         <label asp-for="CarToEdit.CarCapacity" class="form-label"></label>
                         <input asp-for="CarToEdit.CarCapacity" class="form-control " type="number" required min="1" max="10" />
                     </div>
-                    <button type="submit" class="btn btn-primary">Update Car</button>
+                    <button type="submit" class="btn btn-primary">Opdater bil</button>
                 </form>
             </div>
         </div>
@@ -56,4 +63,10 @@
 else
 {
     <p>Car not found.</p>
+}
+
+@if (HttpContext.Session.GetString("IsAdmin") == "true")
+{
+
+    <a href="/Admin/AdminDashboard" class="btn btn-secondary mt-3">Tilbage til oversigt</a>
 }

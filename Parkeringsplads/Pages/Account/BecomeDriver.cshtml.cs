@@ -53,7 +53,7 @@ namespace Parkeringsplads.Pages.Account
 
             if (_context.Driver.Any(d => d.UserId == user.UserId))
             {
-                TempData["ErrorMessage"] = "You are already registered as a driver.";
+                TempData["ErrorMessage"] = "Du er allerede chauffør.";
                 return RedirectToPage("/Account/Profile");
             }
 
@@ -70,12 +70,12 @@ namespace Parkeringsplads.Pages.Account
 
                 HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
 
-                TempData["SuccessMessage"] = "Successfully registered as a driver!";
+                TempData["SuccessMessage"] = "Du er nu oprettet som chauffør.";
                 return RedirectToPage("/Account/Profile");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while registering as a driver. Please try again.");
+                TempData["ErrorMessage"] = "Der skete en fejl" + ex.Message;
                 return Page();
             }
         }

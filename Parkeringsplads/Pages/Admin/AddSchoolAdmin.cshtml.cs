@@ -35,15 +35,11 @@ namespace Parkeringsplads.Pages.Admin
 
         public List<SelectListItem> Cities { get; set; } = new();
 
-        [TempData]
-        public string? SuccessMessage { get; set; }
-
-        [TempData]
-        public string? ErrorMessage { get; set; }
-
-        public async Task OnGetAsync()
+        
+        public async Task<IActionResult> OnGetAsync()
         {
             await LoadCitiesAsync();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -59,19 +55,19 @@ namespace Parkeringsplads.Pages.Admin
 
             if (!ModelState.IsValid)
             {
-                ErrorMessage = "Udfyld alle felter korrekt.";
+                TempData["ErrorMessage"] = "Udfyld alle felter korrekt.";
                 return Page();
             }
 
             try
             {
                 await _schoolService.CreateSchoolAsync(SchoolName, AddressRoad, AddressNumber, SelectedCityId);
-                SuccessMessage = "Skolen er oprettet.";
+                TempData["SuccessMessage"] = "Skolen er oprettet.";
                 return RedirectToPage("/Admin/AdminDashboard"); 
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Der opstod en fejl: {ex.Message}";
+                TempData["ErrorMessage"] = $"Der opstod en fejl: {ex.Message}";
                 return Page();
             }
         }
