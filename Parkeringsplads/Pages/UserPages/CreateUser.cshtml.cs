@@ -78,7 +78,7 @@ public class CreateUserModel : PageModel
 
             bool createUser = await _createUserService.CreateUserAsync(User, AddressRoad, AddressNumber, CityId);
 
-            TempData["SuccesMessage"] = "Bruger er nu oprettet. Klar til at logge ind";
+            TempData["SuccessMessage"] = "Bruger er nu oprettet. Klar til at logge ind";
 
             if (createUser)
             {
