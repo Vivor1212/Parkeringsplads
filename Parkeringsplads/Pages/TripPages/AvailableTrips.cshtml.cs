@@ -112,7 +112,7 @@ namespace Parkeringsplads.Pages.TripPages
                 _context.Request.Add(new Request
                 {
                     TripId = tripId,
-                    UserId = user.UserId,
+                    UserId = user?.UserId,
                     RequestStatus = null,
                     RequestTime = TimeOnly.FromDateTime(DateTime.Now)
                 });

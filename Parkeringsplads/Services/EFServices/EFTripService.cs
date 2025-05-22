@@ -66,13 +66,13 @@ namespace Parkeringsplads.Services.EFServices
             {
                 string cityLower = cityFilter.ToLower();
 
-                if (directionFilter == "ToSchool")
+                if (directionFilter == "Til Skole")
                 {
                     query = query.Where(t =>
                         !string.IsNullOrEmpty(t.FromDestination) &&
                         t.FromDestination.ToLower().Contains(cityLower));
                 }
-                else if (directionFilter == "FromSchool")
+                else if (directionFilter == "Fra Skole")
                 {
                     query = query.Where(t =>
                         !string.IsNullOrEmpty(t.ToDestination) &&
