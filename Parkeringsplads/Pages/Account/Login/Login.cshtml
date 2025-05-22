@@ -1,6 +1,25 @@
 ﻿@page
 @model Parkeringsplads.Pages.Account.LoginModel
 
+@{
+	ViewData["Title"] = "Log ind";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+	<div class="alert alert-success alert-dismissible fade show" role="alert">
+		@TempData["SuccessMessage"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger alert-dismissible fade show" role="alert">
+		@TempData["ErrorMessage"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
+
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -9,6 +28,8 @@
 
 <!DOCTYPE html>
 <html>
+
+
 <head>
 	<title>Login Page</title>
 
@@ -20,7 +41,6 @@
 </head>
 <body class="" style="margin: 0; padding: 0; background-image: url('/img/standard-bg.jpg');     background-size: cover;
     background-position: center center;">
-	<!-- This wrapper fills the viewport and centers content -->
 	<div class="background-blur"></div>
 	<div style="min-height: calc(100vh - 200px); display: flex; justify-content: center; align-items: center;">
 		<div class="card border-0 shadow" style="width: 100%; max-width: 400px;">
@@ -39,31 +59,20 @@
 						<div class="input-group-prepend">
 							<span class="input-group-text"><i class="fas fa-key"></i></span>
 						</div>
-						<input type="password" class="form-control" placeholder="Password" asp-for="Password" required>
+						<input type="password" class="form-control" placeholder="Adgangskode" asp-for="Password" required>
 					</div>
-					<div class="form-group  d-flex pb-3">
-						<button type="submit" class="btn border-0 btn-primary w-100" style="border: 2px solid #007bff;">Login</button>
+					<div class="form-group d-flex pb-3">
+						<button type="submit" class="btn btn-primary w-100">Log ind</button>
 					</div>
 					<div class="form-group d-flex justify-content-center border-top pt-3">
 						<p class="text-center">Mangler du en bruger? <a href="/userPages/createuser" class="text-decoration-underline">Opret dig her</a></p>
 					</div>
 				</form>
-
-				@if (!string.IsNullOrEmpty(Model.ErrorMessage))
-				{
-					<div class="alert alert-danger text-center">
-						@Model.ErrorMessage
-					</div>
-				}
 			</div>
 				<div class="card-footer text-center" style="background-color: #fff387;">
-				
 			</div>
 		</div>
 	</div>
-	
 </body>
 </html>
 
-@{
-}

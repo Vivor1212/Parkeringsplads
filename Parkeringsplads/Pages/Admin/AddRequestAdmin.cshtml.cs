@@ -33,11 +33,8 @@ namespace Parkeringsplads.Pages.Admin
 
         public string? UserAddress { get; set; }
 
-        [TempData]
-        public string? SuccessMessage { get; set; }
 
-        [TempData]
-        public string? ErrorMessage { get; set; }
+
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -59,7 +56,7 @@ namespace Parkeringsplads.Pages.Admin
 
             if (SelectedUserId <= 0 || SelectedTripId <= 0)
             {
-                ErrorMessage = "Vælg både bruger og tur.";
+                TempData["ErrorMessage"] = "Vælg både bruger og tur.";
                 return Page();
             }
 
@@ -81,7 +78,7 @@ namespace Parkeringsplads.Pages.Admin
             _context.Request.Add(Request);
             await _context.SaveChangesAsync();
 
-            SuccessMessage = "Anmodningen er oprettet!";
+            TempData["SuccessMessage"] = "Anmodningen er oprettet!";
             return RedirectToPage("/Admin/AdminDashboard");
         }
 
@@ -95,9 +92,12 @@ namespace Parkeringsplads.Pages.Admin
                 }).ToListAsync();
 
             TripList = await _context.Trip
-                .OrderByDescending(t => t.TripDate)
-                .ThenBy(t => t.TripTime)
-                .ToListAsync();
+    .Include(t => t.Car)
+        .ThenInclude(c => c.Driver)
+            .ThenInclude(d => d.User)
+    .OrderByDescending(t => t.TripDate)
+    .ThenBy(t => t.TripTime)
+    .ToListAsync();
 
             if (SelectedUserId > 0)
             {

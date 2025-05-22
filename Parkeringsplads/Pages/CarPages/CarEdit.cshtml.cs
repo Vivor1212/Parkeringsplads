@@ -26,9 +26,9 @@ namespace Parkeringsplads.Pages.CarPages
 
             if (CarToEdit == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Bil ikke fundet.";
+                return RedirectToPage("/Account/Proile");
             }
-
             return Page();
         }
         public async Task<IActionResult> OnPostUpdateAsync()
@@ -38,6 +38,8 @@ namespace Parkeringsplads.Pages.CarPages
             try
             {
                 await _carService.UpdateCarAsync(CarToEdit);
+
+                TempData["SuccessMessage"] = "Bil er opdateret.";
 
                 var isAdmin = HttpContext.Session.GetString("IsAdmin");
                 var userEmail = HttpContext.Session.GetString("UserEmail");
@@ -52,10 +54,10 @@ namespace Parkeringsplads.Pages.CarPages
                 }
                 return RedirectToPage("/Account/login/login");
             }
-            catch
+            catch (Exception ex)
             {
-                ErrorMessage = "An error occurred while updating the car.";
-                return Page();
+                TempData["ErrorMessage"] = "Fejl ved opdatering af bil: " + ex.Message;
+                return RedirectToPage();
             }
         }
     }

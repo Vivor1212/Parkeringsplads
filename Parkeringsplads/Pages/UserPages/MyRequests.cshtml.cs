@@ -9,11 +9,11 @@ namespace Parkeringsplads.Pages.UserPages
     public class MyRequestsModel : PageModel
     {
         private readonly ParkeringspladsContext _context;
-        private readonly IRequestService _userService;
+        private readonly IRequestService _requestService;
 
         public MyRequestsModel(ParkeringspladsContext context, IRequestService userService)
         {
-            _userService = userService;
+            _requestService = userService;
             _context = context;
         }
 
@@ -45,7 +45,7 @@ namespace Parkeringsplads.Pages.UserPages
 
             var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
 
-            Requests = await _userService.GetAllRequestsForUser(user);
+            Requests = await _requestService.GetAllRequestsForUser(user);
 
             return Page();
         }

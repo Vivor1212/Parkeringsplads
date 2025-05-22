@@ -2,10 +2,26 @@
 @model Parkeringsplads.Pages.Admin.CityAdmin
 
 @{
-    ViewData["Title"] = Model.CityId == 0 ? "Add New City" : "Edit City";
+    ViewData["Title"] = Model.CityId == 0 ? "Tilføj by" : "Opdater by";
 }
 
-<h3>@(Model.CityId == 0 ? "Add New City" : "Edit City")</h3>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+<h3>@(Model.CityId == 0 ? "Tilføj by" : "Opdater by")</h3>
 
 <form method="post">
     @if (Model.CityId != 0)
@@ -24,6 +40,11 @@
     </div>
 
     <button type="submit" class="btn btn-primary">
-        @(Model.CityId == 0 ? "Add City" : "Update City")
+        @(Model.CityId == 0 ? "Tilføj by" : "Opdater by")
     </button>
 </form>
+
+@if (HttpContext.Session.GetString("IsAdmin") == "true"){
+
+<a href="/Admin/AdminDashboard" class="btn btn-secondary mt-3">Tilbage til oversigt</a>
+}

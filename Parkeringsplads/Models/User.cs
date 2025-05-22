@@ -24,6 +24,7 @@ public partial class User
     public string LastName { get; set; }
 
     [Required]
+    [EmailAddress(ErrorMessage = "Indtast gyldig email.")]
     [StringLength(255)]
     [Unicode(false)]
     public string Email { get; set; }

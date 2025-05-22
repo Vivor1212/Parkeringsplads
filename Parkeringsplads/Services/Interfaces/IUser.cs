@@ -15,5 +15,7 @@ namespace Parkeringsplads.Services.Interfaces
 
         Task<List<User>> GetAllUsersAsync();
 
+        Task<UserValidation> ValidateDriverAsync(HttpContext httpContext);
+
     }
 }

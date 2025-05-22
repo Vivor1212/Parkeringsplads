@@ -22,7 +22,7 @@ namespace Parkeringsplads.Pages.Admin
         }
 
         public List<User> UsersNotDrivers { get; set; } = new List<User>();
-        public List<SelectListItem> Users { get; set; } = new List<SelectListItem>(); 
+        public List<SelectListItem> Users { get; set; } = new List<SelectListItem>();
 
         [BindProperty]
         public Driver NewDriver { get; set; }
@@ -51,41 +51,40 @@ namespace Parkeringsplads.Pages.Admin
 
         public async Task<IActionResult> OnPostAsync()
         {
-            
-
-            try
+            if (NewDriver.UserId == 0)
             {
-                if (NewDriver.UserId == 0)
-                {
-                    TempData["ErrorMessage"] = "Vælg en bruger for chaufføren.";
-                    return Page();
-                }
-
-                var user = await _context.User.FindAsync(NewDriver.UserId);
-                if (user == null)
-                {
-                    TempData["ErrorMessage"] = "Brugeren blev ikke fundet.";
-                    return Page();
-                }
-
-                var driver = new Driver
-                {
-                    UserId = NewDriver.UserId,
-                    DriverLicense = NewDriver.DriverLicense,
-                    DriverCpr = NewDriver.DriverCpr
-                };
-
-                _context.Driver.Add(driver);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Chauffør tilføjet med succes!";
-                return RedirectToPage("/Admin/AdminDashboard");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "Der opstod en fejl under tilføjelsen af chaufføren: " + ex.Message;
+                TempData["ErrorMessage"] = "Vælg en bruger for chaufføren.";
                 return Page();
             }
+
+            var user = await _context.User.FindAsync(NewDriver.UserId);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Brugeren blev ikke fundet.";
+                return Page();
+            }
+
+            var existingDriver = await _context.Driver
+                .FirstOrDefaultAsync(d => d.UserId == NewDriver.UserId);
+            if (existingDriver != null)
+            {
+                TempData["ErrorMessage"] = "Brugeren er allerede tilknyttet som chauffør.";
+                return Page();
+            }
+
+            var driver = new Driver
+            {
+                UserId = NewDriver.UserId,
+                DriverLicense = NewDriver.DriverLicense,
+                DriverCpr = NewDriver.DriverCpr
+            };
+
+            _context.Driver.Add(driver);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Chauffør tilføjet med succes!";
+            return RedirectToPage("/Admin/AdminDashboard");
         }
+
     }
 }

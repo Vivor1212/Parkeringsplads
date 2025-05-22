@@ -6,6 +6,21 @@
 <div class=" p-3 pt-5 pb-5">
 <h1 class="pb-3">Anmod om tur</h1>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <p><strong>Tur:</strong> @Model.Trip.FromDestination → @Model.Trip.ToDestination</p>
 <p><strong>Dato:</strong> @Model.Trip.TripDate.ToShortDateString()</p>
 <p><strong>Tidspunkt:</strong> @Model.Trip.TripTime</p>

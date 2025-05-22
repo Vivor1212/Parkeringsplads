@@ -2,10 +2,26 @@
 @model Parkeringsplads.Pages.Account.LogoutModel
 
 @{
-    ViewData["Title"] = "Logout";
+    ViewData["Title"] = "Log ud";
 }
 
-<p>You have been logged out. Redirecting to login in 3 seconds...</p>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+<p>Du bliver omdirigeret til forsiden.</p>
 
 <script>
     setTimeout(function () {

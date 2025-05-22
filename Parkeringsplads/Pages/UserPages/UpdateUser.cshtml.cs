@@ -59,7 +59,6 @@ namespace Parkeringsplads.Pages.UserPages
 
         private async Task LoadDropdownDataAsync()
         {
-            // Fetch the dropdown data
             Schools = await _schoolService.SchoolDropDownAsync();
             City = await _cityService.CityDropDownAsync();
         }
@@ -99,7 +98,7 @@ namespace Parkeringsplads.Pages.UserPages
            
 
             var userSchool = _context.User
-                .Include(u => u.School) // Include the School navigation property
+                .Include(u => u.School)
                 .FirstOrDefault(u => u.Email == sessionEmail);
             if (user == null)
             {
@@ -112,7 +111,6 @@ namespace Parkeringsplads.Pages.UserPages
             School = user.School;
             SchoolName = user.School?.SchoolName;
 
-            // Load address and city info into form fields
             var userAddress = user.UserAddresses?.FirstOrDefault();
             if (userAddress != null)
             {
@@ -120,7 +118,7 @@ namespace Parkeringsplads.Pages.UserPages
                 CityId = userAddress.Address.CityId;
             }
 
-            return Page(); // Return the Profile page with the user's information
+            return Page(); 
         }
 
 
@@ -134,45 +132,63 @@ namespace Parkeringsplads.Pages.UserPages
 
             User userBeingUpdated;
 
-            if (isAdmin == "true" && userId > 0)
+            try
             {
-                userBeingUpdated = await _userService.GetUserAsync(userId);
+                if (isAdmin == "true" && userId > 0)
+                {
+                    userBeingUpdated = await _userService.GetUserAsync(userId);
+                }
+                else if (!string.IsNullOrEmpty(sessionEmail))
+                {
+                    userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
+                }
+                else
+                {
+                    return RedirectToPage("/Account/Login/Login");
+                }
+
+                if (userBeingUpdated == null)
+                {
+                    return string.IsNullOrEmpty(sessionEmail)
+                        ? RedirectToPage("/UserPages/AllUsers")
+                        : RedirectToPage("/Account/Login/Login");
+                }
+
+            bool updateSuccessful = await _userService.UpdateUserAsync(User);
+
+                bool updateSuccessful = await _userService.UpdateUserAsync(
+                    User,
+                    Address.AddressRoad,
+                    Address.AddressNumber,
+                    CityId
+                );
+
+                if (updateSuccessful)
+                {
+                    TempData["SuccesMessage"] = "Bruger opdateret";
+
+                    if (isAdmin == "true")
+                    {
+                        return RedirectToPage("/Admin/AdminDashboard");
+                    }
+                    else
+                    {
+                        return RedirectToPage("/Account/Profile");
+                    }
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Der skete en fejl, prøv igen.";
+                    await LoadDropdownDataAsync();
+                    return Page(); 
+                }
             }
-            else if (!string.IsNullOrEmpty(sessionEmail))
+            catch (Exception ex)
             {
-                userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
-            }
-            else
-            {
-                return RedirectToPage("/Account/Login/Login");
-            }
-
-            if (userBeingUpdated == null)
-            {
-                return string.IsNullOrEmpty(sessionEmail)
-                    ? RedirectToPage("/UserPages/AllUsers")
-                    : RedirectToPage("/Account/Login/Login");
-            }
-
-            User.UserId = userBeingUpdated.UserId;
-
-            bool updateSuccessful = await _userService.UpdateUserAsync(
-    User
-);
-
-
-            if (!updateSuccessful)
-            {
-                ModelState.AddModelError(string.Empty, "The email is already in use by another user.");
+                TempData["ErrorMessage"] = "Fejl ved opdatering af bruger: " + ex.Message;
                 await LoadDropdownDataAsync();
-                return Page();
+                return Page(); 
             }
-            return string.IsNullOrEmpty(sessionEmail)
-                ? RedirectToPage("/UserPages/AllUsers")
-                : RedirectToPage("/Account/Profile");
         }
     }
-
-
-
 }

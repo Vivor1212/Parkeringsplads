@@ -20,8 +20,9 @@ namespace Parkeringsplads.Pages.Admin
         [BindProperty]
         public string NewPassword { get; set; }
 
-        public string ErrorMessage { get; set; }
-        public string SuccessMessage { get; set; }
+        [BindProperty]
+        public string ConfirmNewPassword { get; set; }
+
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -37,9 +38,15 @@ namespace Parkeringsplads.Pages.Admin
 
         public IActionResult OnPost()
         {
-            if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(NewPassword))
+            if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(NewPassword) || string.IsNullOrEmpty(ConfirmNewPassword))
             {
-                ErrorMessage = "Both email and new password are required.";
+                TempData["ErrorMessage"] = "Both email and passwords are required.";
+                return Page();
+            }
+
+            if (NewPassword != ConfirmNewPassword)
+            {
+                TempData["ErrorMessage"] = "Passwords do not match.";
                 return Page();
             }
 
@@ -47,7 +54,7 @@ namespace Parkeringsplads.Pages.Admin
 
             if (user == null)
             {
-                ErrorMessage = "User not found.";
+                TempData["ErrorMessage"] = "User not found.";
                 return Page();
             }
 
@@ -55,9 +62,9 @@ namespace Parkeringsplads.Pages.Admin
 
             _context.SaveChanges();
 
-            SuccessMessage = "Password updated successfully.";
+            TempData["SuccessMessage"] = "Password updated successfully.";
 
-            return Page();
+            return RedirectToPage("/Admin/AdminDashboard");
         }
     }
 }

@@ -60,13 +60,17 @@ namespace Parkeringsplads.Pages.TripPages
         public async Task<IActionResult> OnGetAsync()
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail)){
+                return RedirectToPage("/Account/Login/Login");
+            }
+
             var user = await _context.User
                 .Include(u => u.School)
                     .ThenInclude(s => s.Address)
                 .FirstOrDefaultAsync(u => u.Email == userEmail);
 
-            SchoolAddress = user?.School?.Address?.FullAddress?.Trim() ?? "";
-            SchoolName = user?.School?.SchoolName ?? "";
+            SchoolAddress = user.School.Address.FullAddress;
+            SchoolName = user.School.SchoolName;
 
             Trips = await _tripService.GetAllAvailableTripsAsync(
                 DirectionFilter,
@@ -108,7 +112,7 @@ namespace Parkeringsplads.Pages.TripPages
                 _context.Request.Add(new Request
                 {
                     TripId = tripId,
-                    UserId = user.UserId,
+                    UserId = user?.UserId,
                     RequestStatus = null,
                     RequestTime = TimeOnly.FromDateTime(DateTime.Now)
                 });

@@ -62,33 +62,29 @@ namespace Parkeringsplads.Services.EFServices
         }
 
 
-        public async Task<Request> AcceptRequestAsync(int requestId)
+        public async Task<OperationResult> AcceptRequestAsync(int requestId, int tripId)
         {
-            if (requestId <= 0)
+            var trip = await _context.Trip.Include(t => t.Requests).FirstOrDefaultAsync(t => t.TripId == tripId);
+            if (trip == null)
             {
-                throw new ArgumentException("Invalid request ID", nameof(requestId));
+                return new OperationResult { Success = false, Message = "Tur blev ikke fundet." };
             }
 
-            var request = await _context.Request.Include(r => r.Trip).FirstOrDefaultAsync(r => r.RequestId == requestId);
+            var acceptedRequests = trip.Requests.Count(r => r.RequestStatus == true);
+            if (acceptedRequests >= trip.TripSeats)
+            {
+                return new OperationResult { Success = false, Message = "Kunne ikke acceptere anmodningen: Alle pladser er fuldt." };
+            }
 
+            var request = await _context.Request.FindAsync(requestId);
             if (request == null)
             {
-                throw new ArgumentException($"Request with ID {requestId} not found");
-            }
-            if (request.RequestStatus != null)
-            {
-                throw new InvalidOperationException("Request is not in pending status");
-            }
-            if (request.Trip.TripSeats <= 0)
-            {
-                throw new InvalidOperationException("No available seats for this trip");
+                return new OperationResult { Success = false, Message = "Anmodning blev ikke fundet." };
             }
 
             request.RequestStatus = true;
-            request.Trip.TripSeats--;
-
             await _context.SaveChangesAsync();
-            return request;
+            return new OperationResult { Success = true, Message = "Anmodningen blev accepteret." };
         }
 
         public async Task<IEnumerable<Request>> GetRequestsForTripAsync(int tripId)
@@ -101,27 +97,17 @@ namespace Parkeringsplads.Services.EFServices
             return await _context.Request.Where(r => r.TripId == tripId).OrderBy(r => r.RequestTime).ToListAsync();
         }
 
-        public async Task<Request> RejectRequestAsync(int requestId)
+        public async Task<OperationResult> RejectRequestAsync(int requestId)
         {
-            if (requestId <= 0)
-            {
-                throw new ArgumentException("Invalid request ID", nameof(requestId));
-            }
-
-            var request = await _context.Request.FirstOrDefaultAsync(r => r.RequestId == requestId);
-
+            var request = await _context.Request.FindAsync(requestId);
             if (request == null)
             {
-                throw new ArgumentException($"Request with ID {requestId} not found");
-            }
-            if (request.RequestStatus != null)
-            {
-                throw new InvalidOperationException("Request is not in pending status");
+                return new OperationResult { Success = false, Message = "Anmodningen blev ikke fundet." };
             }
 
             request.RequestStatus = false;
             await _context.SaveChangesAsync();
-            return request;
+            return new OperationResult { Success = true, Message = "Anmodningen blev afvist." };
         }
     }
 }

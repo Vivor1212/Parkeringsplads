@@ -1,33 +1,36 @@
 ﻿@page
 @model Parkeringsplads.Pages.TripPages.CreateTripModel
 @{
-    ViewData["Title"] = "Opret tur for Admin";
+    ViewData["Title"] = "Opret tur";
 }
 
-@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+@if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success">@Model.SuccessMessage</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
-@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+@if (TempData["ErrorMessage"] != null)
 {
-    <div class="alert alert-danger">@Model.ErrorMessage</div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
-<div class=" p-3 pt-5 pb-5">
-<h2 class="pb-3">Opret tur for Admin</h2>
-
-<!-- Debug info -->
-<p><strong>Valgt retning:</strong> @Model.Direction</p>
+<h1>Opret tur</h1>
 
 <!-- Retning -->
 <div class="mb-4">
     <label class="form-label">Retning</label><br />
-    <div class="form-check form-check-inline" style="padding-left: 0px;">
-        <a href="?handler=Direction&direction=ToSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-secondary @(Model.Direction == "ToSchool" ? "active" : "")">Til skole</a>
-    </div>
-    <div class="form-check form-check-inline" style="padding-left: 0px;">
-        <a href="?handler=Direction&direction=FromSchool&selectedCarId=@Model.SelectedCarId" class="btn btn-secondary @(Model.Direction == "FromSchool" ? "active" : "")">Fra skole</a>
+    <div class="btn-group" role="group">
+        <a href="?handler=Direction&direction=ToSchool&selectedCarId=@Model.SelectedCarId"
+           class="btn @(Model.Direction == "ToSchool" ? "btn-primary" : "btn-outline-primary")">Til skole</a>
+        <a href="?handler=Direction&direction=FromSchool&selectedCarId=@Model.SelectedCarId"
+           class="btn @(Model.Direction == "FromSchool" ? "btn-primary" : "btn-outline-primary")">Fra skole</a>
     </div>
 </div>
+
 
 <!-- Bilvalg -->
 <form method="get" class="mb-4">
@@ -55,7 +58,7 @@
     @if (!Model.UseCustomAddress)
     {
         <select class="form-control"
-                onchange="location.href='?handler=SelectAddress&selectedAddress=' + encodeURIComponent(this.value) + '&direction=@Model.Direction&selectedCarId=@Model.SelectedCarId'">
+                onchange="location.href='?direction=@Model.Direction&selectedCarId=@Model.SelectedCarId&selectedAddress=' + encodeURIComponent(this.value)">
             <option value="">Vælg en adresse</option>
             @foreach (var address in Model.UserAddresses)
             {
@@ -71,70 +74,79 @@
                class="form-check-input"
                id="useCustom"
         @(Model.UseCustomAddress ? "checked" : "")
-               onchange="location.href='?handler=ToggleAddress&useCustom=' + (this.checked ? 'true' : 'false') + '&direction=@Model.Direction&selectedCarId=@Model.SelectedCarId'" />
+               onchange="location.href='?direction=@Model.Direction&selectedCarId=@Model.SelectedCarId&useCustomAddress=' + this.checked" />
         <label class="form-check-label" for="useCustom">Indtast selv adresse</label>
     </div>
 
     @if (Model.UseCustomAddress)
     {
         <form method="get" class="mt-2">
-            <input type="hidden" name="handler" value="UpdateCustomAddress" />
             <input type="hidden" name="direction" value="@Model.Direction" />
             <input type="hidden" name="selectedCarId" value="@Model.SelectedCarId" />
+            <input type="hidden" name="useCustomAddress" value="true" />
             <input class="form-control mb-2" name="customAddress" value="@Model.CustomAddress" placeholder="Egen adresse" />
             <button type="submit" class="btn btn-secondary">Opdater adresse</button>
         </form>
     }
 </div>
 
-<!-- Formular til at oprette tur -->
-<form method="post">
-    <input type="hidden" asp-for="Direction" />
-    <input type="hidden" asp-for="SelectedCarId" />
-    <input type="hidden" asp-for="SelectedAddress" />
-    <input type="hidden" asp-for="CustomAddress" />
-    <input type="hidden" asp-for="UseCustomAddress" />
+<!-- To-kolonne layout -->
+<div class="row gy-4 gx-5">
+    <!-- Venstre kolonne: Formular -->
+    <div class="col-12 col-md-6">
+        <form method="post">
+            <input type="hidden" asp-for="Direction" />
+            <input type="hidden" asp-for="SelectedCarId" />
+            <input type="hidden" asp-for="SelectedAddress" />
+            <input type="hidden" asp-for="CustomAddress" />
+            <input type="hidden" asp-for="UseCustomAddress" />
 
-    <!-- Destination -->
-    @if (!string.IsNullOrWhiteSpace(Model.Trip.FromDestination))
-    {
-        <div class="mb-3">
-            <label>Fra</label>
-            <input type="text" class="form-control" value="@Model.Trip.FromDestination" readonly />
+            <div class="mb-3">
+                <label asp-for="Trip.TripDate">Dato</label>
+                <input asp-for="Trip.TripDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="Trip.TripDate" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Trip.TripTime">Tidspunkt</label>
+                <input asp-for="Trip.TripTime" type="time" class="form-control" />
+                <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Trip.TripSeats">Antal passagersæder</label>
+                <select asp-for="Trip.TripSeats" class="form-control" asp-items="@(new SelectList(Model.SeatOptions))">
+                    <option value="">Vælg antal</option>
+                </select>
+                <span asp-validation-for="Trip.TripSeats" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Opret tur</button>
+        </form>
+    </div>
+
+    <!-- Højre kolonne: Turinformation -->
+    <div class="col-12 col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                Turinformation
+            </div>
+            <div class="card-body">
+                <p>
+                    <strong>Retning:</strong>
+                    @(Model.Direction == "ToSchool" ? "Til Skole" :
+                        Model.Direction == "FromSchool" ? "Fra Skole" : Model.Direction)
+                </p>
+
+                <p><strong>Bil:</strong> @(Model.Cars.FirstOrDefault(c => c.CarId == Model.SelectedCarId)?.CarModel ?? "Ikke valgt")</p>
+                <p><strong>Fra:</strong> @Model.Trip.FromDestination</p>
+                <p><strong>Til:</strong> @Model.Trip.ToDestination</p>
+                <p><strong>Dato:</strong> @Model.Trip.TripDate.ToString("dd-MM-yyyy")</p>
+                <p><strong>Tid:</strong> @Model.Trip.TripTime.ToString(@"hh\:mm")</p>
+                <p><strong>Pladser:</strong> @Model.Trip.TripSeats</p>
+            </div>
         </div>
-    }
-
-    @if (!string.IsNullOrWhiteSpace(Model.Trip.ToDestination))
-    {
-        <div class="mb-3">
-            <label>Til</label>
-            <input type="text" class="form-control" value="@Model.Trip.ToDestination" readonly />
-        </div>
-    }
-
-    <!-- Dato -->
-    <div class="mb-3">
-        <label asp-for="Trip.TripDate">Dato</label>
-        <input asp-for="Trip.TripDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="Trip.TripDate" class="text-danger"></span>
     </div>
-
-    <!-- Tidspunkt -->
-    <div class="mb-3">
-        <label asp-for="Trip.TripTime">Tidspunkt</label>
-        <input asp-for="Trip.TripTime" type="time" class="form-control" />
-        <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
-    </div>
-
-    <!-- Sæder -->
-    <div class="mb-3">
-        <label asp-for="Trip.TripSeats">Antal passagersæder</label>
-        <select asp-for="Trip.TripSeats" class="form-control" asp-items="@(new SelectList(Model.SeatOptions))">
-            <option value="">Vælg antal</option>
-        </select>
-        <span asp-validation-for="Trip.TripSeats" class="text-danger"></span>
-    </div>
-
     <button type="submit" class="btn btn-secondary">Opret tur</button>
 </form>
 </div>

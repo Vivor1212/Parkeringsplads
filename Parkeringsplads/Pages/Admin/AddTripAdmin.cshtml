@@ -4,107 +4,148 @@
     ViewData["Title"] = "Admin - Opret tur";
 }
 
-<h2>Opret tur (Admin)</h2>
-
-@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+@if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-danger">@Model.ErrorMessage</div>
-}
-@if (!string.IsNullOrEmpty(Model.SuccessMessage))
-{
-    <div class="alert alert-success">@Model.SuccessMessage</div>
-}
-
-<form method="post">
-    <!-- Change method to post -->
-    <input type="hidden" asp-for="Direction" />
-    <input type="hidden" asp-for="UseCustomAddress" />
-
-    <div class="mb-4">
-        <label class="form-label">Retning</label><br />
-        <input type="radio" asp-for="Direction" value="ToSchool" /> <label>Til skole</label><br />
-        <input type="radio" asp-for="Direction" value="FromSchool" /> <label>Fra skole</label>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
-    <div class="mb-4">
-        <label asp-for="SelectedDriverId" class="form-label">Vælg chauffør</label>
-        <select asp-for="SelectedDriverId" class="form-control" onchange="this.form.submit()">
-            <option value="">Vælg en chauffør</option>
-            @foreach (var driver in Model.Drivers)
+<h2>Opret tur for chauffør</h2>
+
+<!-- Retning -->
+<div class="mb-4">
+    <label class="form-label">Retning</label><br />
+    <div class="form-check form-check-inline">
+        <a href="?handler=Direction&direction=ToSchool&selectedCarId=@Model.SelectedCarId&selectedDriverId=@Model.selectedDriverId" class="btn btn-outline-primary @(Model.Direction == "Til Skole" ? "active" : "")">Til skole</a>
+    </div>
+    <div class="form-check form-check-inline">
+        <a href="?handler=Direction&direction=FromSchool&selectedCarId=@Model.SelectedCarId&selectedDriverId=@Model.selectedDriverId" class="btn btn-outline-primary @(Model.Direction == "Fra Skole" ? "active" : "")">Fra skole</a>
+    </div>
+</div>
+
+<!-- Bilvalg -->
+<form method="get" class="mb-4">
+    <input type="hidden" name="handler" value="SelectCar" />
+    <input type="hidden" name="direction" value="@Model.Direction" />
+    <input type="hidden" name="selectedAddress" value="@Model.SelectedAddress" />
+    <input type="hidden" name="customAddress" value="@Model.CustomAddress" />
+    <input type="hidden" name="useCustomAddress" value="@Model.UseCustomAddress" />
+    <input type="hidden" name="selectedDriverId" value="@Model.selectedDriverId" />
+    <label class="form-label">Vælg bil</label>
+    <select name="selectedCarId" class="form-control" onchange="this.form.submit()">
+        <option value="">Vælg en bil</option>
+        @foreach (var car in Model.Cars)
+        {
+            <option value="@car.CarId" selected="@(Model.SelectedCarId == car.CarId)">
+                @car.CarModel
+            </option>
+        }
+    </select>
+</form>
+
+<!-- Adressevalg -->
+<div class="mb-4">
+    <label class="form-label">Adresse</label>
+
+    @if (!Model.UseCustomAddress)
+    {
+        <select class="form-control"
+                onchange="location.href='?direction=@Model.Direction&selectedCarId=@Model.SelectedCarId&selectedAddress=' + encodeURIComponent(this.value) + '&selectedDriverId=@Model.selectedDriverId'">
+            <option value="">Vælg en adresse</option>
+            @foreach (var address in Model.UserAddresses)
             {
-                <option value="@driver.Value" selected="@(driver.Value == Model.SelectedDriverId.ToString() ? "selected" : null)">
-                    @driver.Text
+                <option value="@address" selected="@(Model.SelectedAddress == address)">
+                    @address
                 </option>
             }
         </select>
-        <span asp-validation-for="SelectedDriverId" class="text-danger"></span>
-    </div>
-
-    <div class="mb-4">
-        <label asp-for="SelectedCarId" class="form-label">Vælg bil</label>
-        <select asp-for="SelectedCarId" class="form-control" required>
-            <option value="">Vælg en bil</option>
-            @foreach (var car in Model.Cars)
-            {
-                <option value="@car.Value" selected="@(car.Value == Model.SelectedCarId.ToString() ? "selected" : null)">
-                    @car.Text
-                </option>
-            }
-        </select>
-        <span asp-validation-for="SelectedCarId" class="text-danger"></span>
-    </div>
-
-    @if (Model.SelectedCarId > 0 && Model.CarCapacities.ContainsKey(Model.SelectedCarId))
-    {
-        var maxCapacity = Model.CarCapacities[Model.SelectedCarId];
-        <div class="mb-4">
-            <label class="form-label">Antal passagerer</label>
-            <input asp-for="TripSeats" class="form-control" type="number" min="1" max="@maxCapacity" required />
-            <span class="form-text text-muted">Maksimum: @maxCapacity passagerer</span>
-            <span asp-validation-for="TripSeats" class="text-danger"></span>
-        </div>
     }
 
-    <div class="mb-4">
-        <label asp-for="Trip.TripDate" class="form-label">Dato</label>
-        <input asp-for="Trip.TripDate" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
-        <span asp-validation-for="Trip.TripDate" class="text-danger"></span>
+    <div class="form-check mt-2">
+        <input type="checkbox"
+               class="form-check-input"
+               id="useCustom"
+        @(Model.UseCustomAddress ? "checked" : "")
+               onchange="location.href='?direction=@Model.Direction&selectedCarId=@Model.SelectedCarId&useCustomAddress=' + this.checked + '&selectedDriverId=@Model.selectedDriverId'" />
+        <label class="form-check-label" for="useCustom">Indtast selv adresse</label>
     </div>
-
-    <div class="mb-4">
-        <label asp-for="Trip.TripTime" class="form-label">Tidspunkt</label>
-        <input asp-for="Trip.TripTime" class="form-control" type="time" required />
-        <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
-    </div>
-
-    @if (Model.UserAddresses?.Count > 0)
-    {
-        <div class="mb-4">
-            @{
-                string label = Model.Direction == "ToSchool" ? "Destination address (f.eks. skole)" : "Driver address (f.eks. chaufførens adresse)";
-            }
-            <label class="form-label">@label</label>
-            <select asp-for="SelectedAddress" class="form-control">
-                <option value="">Vælg en adresse</option>
-                @foreach (var address in Model.UserAddresses)
-                {
-                    <option value="@address" selected="@(Model.SelectedAddress == address)">
-                        @address
-                    </option>
-                }
-                <option value="__custom__" selected="@(Model.UseCustomAddress ? "selected" : null)">Anden adresse...</option>
-            </select>
-        </div>
-    }
 
     @if (Model.UseCustomAddress)
     {
-        <div class="mb-4">
-            <label asp-for="CustomAddress" class="form-label">Angiv anden adresse</label>
-            <input asp-for="CustomAddress" class="form-control" />
-            <span asp-validation-for="CustomAddress" class="text-danger"></span>
+        <form method="get" class="mt-2">
+            <input type="hidden" name="direction" value="@Model.Direction" />
+            <input type="hidden" name="selectedCarId" value="@Model.SelectedCarId" />
+            <input type="hidden" name="useCustomAddress" value="true" />
+            <input type="hidden" name="selectedDriverId" value="@Model.selectedDriverId" />
+            <input class="form-control mb-2" name="customAddress" value="@Model.CustomAddress" placeholder="Egen adresse" />
+            <button type="submit" class="btn btn-secondary">Opdater adresse</button>
+        </form>
+    }
+</div>
+
+<!-- Formular til at oprette tur -->
+<form method="post">
+    <input type="hidden" asp-for="Direction" />
+    <input type="hidden" asp-for="SelectedCarId" />
+    <input type="hidden" asp-for="SelectedAddress" />
+    <input type="hidden" asp-for="CustomAddress" />
+    <input type="hidden" asp-for="UseCustomAddress" />
+    <input type="hidden" asp-for="selectedDriverId" />
+
+    <!-- Destination -->
+    @if (!string.IsNullOrWhiteSpace(Model.Trip.FromDestination))
+    {
+        <div class="mb-3">
+            <label>Fra</label>
+            <input type="text" class="form-control" value="@Model.Trip.FromDestination" readonly />
         </div>
     }
 
+    @if (!string.IsNullOrWhiteSpace(Model.Trip.ToDestination))
+    {
+        <div class="mb-3">
+            <label>Til</label>
+            <input type="text" class="form-control" value="@Model.Trip.ToDestination" readonly />
+        </div>
+    }
+
+    <!-- Dato -->
+    <div class="mb-3">
+        <label asp-for="Trip.TripDate">Dato</label>
+        <input asp-for="Trip.TripDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="Trip.TripDate" class="text-danger"></span>
+    </div>
+
+    <!-- Tidspunkt -->
+    <div class="mb-3">
+        <label asp-for="Trip.TripTime">Tidspunkt</label>
+        <input asp-for="Trip.TripTime" type="time" class="form-control" min="@DateTime.Today.ToString("HH-mm")" />
+        <span asp-validation-for="Trip.TripTime" class="text-danger"></span>
+    </div>
+
+    <!-- Sæder -->
+    <div class="mb-3">
+        <label asp-for="Trip.TripSeats">Antal passagersæder</label>
+        <select asp-for="Trip.TripSeats" class="form-control" asp-items="@(new SelectList(Model.SeatOptions))">
+            <option value="">Vælg antal</option>
+        </select>
+        <span asp-validation-for="Trip.TripSeats" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-primary">Opret tur</button>
 </form>
+
+<a href="/Admin/AdminDashboard" class="btn btn-secondary mt-3">Tilbage til oversigt</a>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
