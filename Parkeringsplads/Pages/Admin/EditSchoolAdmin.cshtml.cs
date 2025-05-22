@@ -32,12 +32,6 @@ namespace Parkeringsplads.Pages.Admin
 
         public List<SelectListItem> Cities { get; set; } = new();
 
-        [TempData]
-        public string? SuccessMessage { get; set; }
-
-        [TempData]
-        public string? ErrorMessage { get; set; }
-
         public async Task<IActionResult> OnGetAsync(int? schoolId)
         {
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
@@ -47,11 +41,9 @@ namespace Parkeringsplads.Pages.Admin
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
-            ErrorMessage = null;
-
             if (schoolId == null || schoolId == 0)
             {
-                ErrorMessage = "Skole-ID mangler.";
+                TempData["ErrorMessage"] = "Skole-ID mangler.";
                 return RedirectToPage("/Admin/AdminDashboard");
             }
 
@@ -64,7 +56,7 @@ namespace Parkeringsplads.Pages.Admin
 
             if (school == null)
             {
-                ErrorMessage = "Skolen blev ikke fundet.";
+                TempData["ErrorMessage"] = "Skolen blev ikke fundet.";
                 return RedirectToPage("/Admin/AdminDashboard");
             }
 
@@ -80,39 +72,48 @@ namespace Parkeringsplads.Pages.Admin
 
         public async Task<IActionResult> OnPostAsync()
         {
-            await LoadCitiesAsync();
-
-            if (!ModelState.IsValid)
+            try
             {
-                ErrorMessage = "Udfyld alle felter korrekt.";
+                await LoadCitiesAsync();
+
+                if (string.IsNullOrWhiteSpace(SchoolName) || string.IsNullOrWhiteSpace(AddressRoad) || string.IsNullOrWhiteSpace(AddressNumber) || SelectedCityId == 0)
+                {
+                    TempData["ErrorMessage"] = "Udfyld alle felter korrekt.";
+                    return Page();
+                }
+
+                var school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == SchoolId);
+                if (school == null)
+                {
+                    TempData["ErrorMessage"] = "Skolen blev ikke fundet.";
+                    return Page();
+                }
+
+                var newAddress = new Address
+                {
+                    AddressRoad = AddressRoad,
+                    AddressNumber = AddressNumber,
+                    CityId = SelectedCityId
+                };
+
+                _context.Address.Add(newAddress);
+                await _context.SaveChangesAsync();
+
+                school.SchoolName = SchoolName;
+                school.AddressId = newAddress.AddressId;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Skolen er opdateret.";
+                return RedirectToPage("/Admin/AdminDashboard");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Der opstod en fejl: {ex.Message}";
                 return Page();
             }
-
-            var school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == SchoolId);
-            if (school == null)
-            {
-                ErrorMessage = "Skolen blev ikke fundet.";
-                return Page();
-            }
-
-            var newAddress = new Address
-            {
-                AddressRoad = AddressRoad,
-                AddressNumber = AddressNumber,
-                CityId = SelectedCityId
-            };
-
-            _context.Address.Add(newAddress);
-            await _context.SaveChangesAsync();
-
-            school.SchoolName = SchoolName;
-            school.AddressId = newAddress.AddressId;
-
-            await _context.SaveChangesAsync();
-
-            SuccessMessage = "Skolen er opdateret.";
-            return RedirectToPage();
         }
+
 
         private async Task LoadCitiesAsync()
         {

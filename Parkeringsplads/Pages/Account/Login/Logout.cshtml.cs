@@ -8,6 +8,7 @@ namespace Parkeringsplads.Pages.Account
         public IActionResult OnGet()
         {
             HttpContext.Session.Clear();
+            TempData["SuccessMessage"] = "Du er nu logget ud.";
             return Page();
         }
     }

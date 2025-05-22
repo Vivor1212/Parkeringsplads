@@ -20,8 +20,6 @@ namespace Parkeringsplads.Pages.CarPages
 
         public IList<Car> Cars { get; set; }
 
-        public string ErrorMessage { get; set; }
-
         [BindProperty]
         public string CarModelName { get; set; }
 
@@ -50,9 +48,9 @@ namespace Parkeringsplads.Pages.CarPages
 
                 if (string.IsNullOrEmpty(driverIdString))
                 {
-                    ErrorMessage = "You are not logged in as a driver.";
+                    TempData["ErrorMessage"] = "Ikke registreret som chauffør.";
                     Cars = new List<Car>();
-                    return;
+                    RedirectToPage("/Account/Profile");
                 }
 
                 int driverId = int.Parse(driverIdString);
@@ -70,7 +68,7 @@ namespace Parkeringsplads.Pages.CarPages
             {
                 if (SelectedDriverId == null || SelectedDriverId == 0)
                 {
-                    ErrorMessage = "Please select a driver.";
+                    TempData["ErrorMessage"] = "Vælg chauffør";
                     Drivers = await _driverService.GetAllDriversAsync();
                     return Page();
                 }
@@ -83,8 +81,8 @@ namespace Parkeringsplads.Pages.CarPages
 
                 if (string.IsNullOrEmpty(driverIdString))
                 {
-                    ErrorMessage = "You are not logged in as a driver.";
-                    return Page();
+                    TempData["ErrorMessage"] = "Ikke registreret som chauffør";
+                    RedirectToPage("/Account/Profile");
                 }
 
                 driverId = int.Parse(driverIdString);
@@ -102,6 +100,8 @@ namespace Parkeringsplads.Pages.CarPages
             {
                 await _carService.AddCarToDriverAsync(driverId, newCar);
 
+                TempData["SuccessMessage"] = "Bil tilføjet.";
+
                 if (isAdmin == "true")
                 {
                     return RedirectToPage("/Admin/AdminDashboard");
@@ -110,9 +110,9 @@ namespace Parkeringsplads.Pages.CarPages
                 Cars = await _carService.GetCarsByDriverIdAsync(driverId);
                 return RedirectToPage("/CarPages/Car");
             }
-            catch
+            catch (Exception ex) 
             {
-                ErrorMessage = "An error occurred while adding the car.";
+                TempData["ErrorMessage"] = "Der opstod en fejl" + ex.Message;
                 if (isAdmin == "true")
                     Drivers = await _driverService.GetAllDriversAsync();
                 return Page();
@@ -122,8 +122,19 @@ namespace Parkeringsplads.Pages.CarPages
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            await _carService.DeleteCarAsync(id);
-            return RedirectToPage();
+            
+            try
+            {
+                await _carService.DeleteCarAsync(id);
+
+                TempData["SuccessMessage"] = "Bil slettet.";
+                return RedirectToPage();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Fejl ved sletning af bil: " + ex.Message;
+                return RedirectToPage();
+            }
         }
 
     }

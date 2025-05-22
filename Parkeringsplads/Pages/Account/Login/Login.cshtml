@@ -1,6 +1,10 @@
 ﻿@page
 @model Parkeringsplads.Pages.Account.LoginModel
 
+@{
+	ViewData["Title"] = "Log ind";
+}
+
 @if (TempData["SuccessMessage"] != null)
 {
 	<div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -24,6 +28,8 @@
 
 <!DOCTYPE html>
 <html>
+
+
 <head>
 	<title>Login Page</title>
 
@@ -34,11 +40,11 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" crossorigin="anonymous">
 </head>
 <body style="margin: 0; padding: 0;">
-	<!-- This wrapper fills the viewport and centers content -->
+	
 	<div style="min-height: calc(100vh - 200px); display: flex; justify-content: center; align-items: center;">
 		<div class="card shadow" style="width: 100%; max-width: 400px;">
 			<div class="card-header" style="background-color: rgba(144, 238, 144, 0.6);">
-				<h3 class="text-center">Sign In</h3>
+				<h3 class="text-center">Log ind</h3>
 			</div>
 			<div class="card-body">
 				<form method="post">
@@ -52,22 +58,16 @@
 						<div class="input-group-prepend">
 							<span class="input-group-text"><i class="fas fa-key"></i></span>
 						</div>
-						<input type="password" class="form-control" placeholder="Password" asp-for="Password" required>
+						<input type="password" class="form-control" placeholder="Adgangskode" asp-for="Password" required>
 					</div>
 					<div class="form-group d-flex pb-3">
-						<button type="submit" class="btn btn-primary w-100" style="border: 2px solid #007bff;">Login</button>
+						<button type="submit" class="btn btn-primary w-100" style="border: 2px solid #007bff;">Log ind</button>
 					</div>
 					<div class="form-group d-flex justify-content-center border-top pt-3">
 						<p class="text-center">Mangler du en bruger? <a href="/userPages/createuser" class="text-decoration-underline">Opret dig her</a></p>
 					</div>
 				</form>
 
-				@if (!string.IsNullOrEmpty(Model.ErrorMessage))
-				{
-					<div class="alert alert-danger text-center">
-						@Model.ErrorMessage
-					</div>
-				}
 			</div>
 			<div class="card-footer text-center" style="background-color: rgba(144, 238, 144, 0.6);">
 				
@@ -77,5 +77,3 @@
 </body>
 </html>
 
-@{
-}

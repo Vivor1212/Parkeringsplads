@@ -57,10 +57,11 @@
     </div>
 
     <div class="mb-3">
-        <label asp-for="User.Email"></label>
-        <input asp-for="User.Email" class="form-control" />
-        <span asp-validation-for="User.Email"></span>
+        <label asp-for="User.Email" class="form-label"></label>
+        <input asp-for="User.Email" class="form-control" type="email" required />
+        <span asp-validation-for="User.Email" class="text-danger"></span>
     </div>
+
 
     <div class="mb-3">
         <label asp-for="User.Password"></label>

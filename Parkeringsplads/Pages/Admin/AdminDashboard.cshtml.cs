@@ -79,7 +79,6 @@ namespace Parkeringsplads.Pages.Admin
 
             if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
             {
-                // User is not an admin, redirect to login
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
@@ -231,9 +230,9 @@ namespace Parkeringsplads.Pages.Admin
                     r.RequestTime.ToString().Contains(lowerRequestSearchTerm) ||
 
                     (
-                        (lowerRequestSearchTerm == "approved" || lowerRequestSearchTerm == "accepted") && r.RequestStatus == true ||
-                        (lowerRequestSearchTerm == "declined" || lowerRequestSearchTerm == "rejected") && r.RequestStatus == false ||
-                        (lowerRequestSearchTerm == "pending" && r.RequestStatus == null)
+                        (lowerRequestSearchTerm == "accepteret") && r.RequestStatus == true ||
+                        (lowerRequestSearchTerm == "afslået") && r.RequestStatus == false ||
+                        (lowerRequestSearchTerm == "afventer" && r.RequestStatus == null)
                     ) ||
 
                     (r.Users != null && (
@@ -263,12 +262,12 @@ namespace Parkeringsplads.Pages.Admin
             {
                 await _carService.DeleteCarAsync(carId);
 
-                TempData["SuccessMessage"] = "Car successfully deleted.";
+                TempData["SuccessMessage"] = "Bil slettet.";
                 return RedirectToPage();
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error deleting car: " + ex.Message;
+                TempData["ErrorMessage"] = "Fejl ved sletning af bil: " + ex.Message;
                 return RedirectToPage();
             }
         }
@@ -279,12 +278,12 @@ namespace Parkeringsplads.Pages.Admin
 
             if (result)
             {
-                TempData["SuccessMessage"] = "User successfully deleted.";
+                TempData["SuccessMessage"] = "Bruger slettet.";
                 return RedirectToPage();
             }
             else
             {
-                TempData["ErrorMessage"] = "Failed to delete the user.";
+                TempData["ErrorMessage"] = "Fejl ved sletning af bruger.";
                 return RedirectToPage();
             }
         }
@@ -295,12 +294,12 @@ namespace Parkeringsplads.Pages.Admin
             {
                 await _cityService.DeleteCityAsync(cityId);
 
-                TempData["SuccessMessage"] = "City successfully deleted.";
+                TempData["SuccessMessage"] = "By slettet.";
                 return RedirectToPage("/Admin/admindashboard");
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error deleting city: " + ex.Message;
+                TempData["ErrorMessage"] = "Fejl ved sletning af by: " + ex.Message;
                 return RedirectToPage();
             }
         }
@@ -311,12 +310,12 @@ namespace Parkeringsplads.Pages.Admin
             {
                 await _driverService.DeleteDriverAsync(driverId);
 
-                TempData["SuccessMessage"] = "Driver successfully deleted.";
+                TempData["SuccessMessage"] = "Chauffør slettet.";
                 return RedirectToPage();
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error deleting driver: " + ex.Message;
+                TempData["ErrorMessage"] = "Fejl ved sletning af chauffør: " + ex.Message;
                 return RedirectToPage();
             }
         }
@@ -327,12 +326,12 @@ namespace Parkeringsplads.Pages.Admin
             {
                 await _requestService.DeleteRequestAsync(requestId);
 
-                TempData["SuccessMessage"] = "Request successfully deleted.";
+                TempData["SuccessMessage"] = "Adnmodning slettet.";
                 return RedirectToPage();
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error deleting request: " + ex.Message;
+                TempData["ErrorMessage"] = "Fejl ved sletning af anmodning: " + ex.Message;
                 return RedirectToPage();
             }
         }
@@ -342,12 +341,12 @@ namespace Parkeringsplads.Pages.Admin
             try
             {
                 await _tripService.AdminDeleteTripAsync(tripId);
-                TempData["SuccessMessage"] = "Trip successfully deleted.";
+                TempData["SuccessMessage"] = "Tur slettet.";
                 return RedirectToPage();
             }
             catch (ArgumentException ex)
             {
-                TempData["ErrorMessage"] = "Error deleting trip: " + ex.Message;
+                TempData["ErrorMessage"] = "Fejl ved sletning af tur: " + ex.Message;
                 return NotFound(ex.Message);
             }
         }
@@ -357,12 +356,12 @@ namespace Parkeringsplads.Pages.Admin
             try
             {
                 await _schoolService.DeleteSchoolAsync(schoolId);
-                TempData["SuccessMessage"] = "Skolen blev slettet.";
+                TempData["SuccessMessage"] = "Skole slettet.";
                 return RedirectToPage();
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Der opstod en fejl: {ex.Message}";
+                TempData["ErrorMessage"] = $"Fejl ved sletning af skole: {ex.Message}";
                 return RedirectToPage();
             }
 
