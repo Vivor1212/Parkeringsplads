@@ -39,11 +39,12 @@
 	<!-- FontAwesome -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" crossorigin="anonymous">
 </head>
-<body style="margin: 0; padding: 0;">
-	
+<body class="" style="margin: 0; padding: 0; background-image: url('/img/standard-bg.jpg');     background-size: cover;
+    background-position: center center;">
+	<div class="background-blur"></div>
 	<div style="min-height: calc(100vh - 200px); display: flex; justify-content: center; align-items: center;">
-		<div class="card shadow" style="width: 100%; max-width: 400px;">
-			<div class="card-header" style="background-color: rgba(144, 238, 144, 0.6);">
+		<div class="card border-0 shadow" style="width: 100%; max-width: 400px;">
+				<div class="card-header" style="background-color: #fff387;">
 				<h3 class="text-center">Log ind</h3>
 			</div>
 			<div class="card-body">
@@ -61,16 +62,14 @@
 						<input type="password" class="form-control" placeholder="Adgangskode" asp-for="Password" required>
 					</div>
 					<div class="form-group d-flex pb-3">
-						<button type="submit" class="btn btn-primary w-100" style="border: 2px solid #007bff;">Log ind</button>
+						<button type="submit" class="btn btn-primary w-100">Log ind</button>
 					</div>
 					<div class="form-group d-flex justify-content-center border-top pt-3">
 						<p class="text-center">Mangler du en bruger? <a href="/userPages/createuser" class="text-decoration-underline">Opret dig her</a></p>
 					</div>
 				</form>
-
 			</div>
-			<div class="card-footer text-center" style="background-color: rgba(144, 238, 144, 0.6);">
-				
+				<div class="card-footer text-center" style="background-color: #fff387;">
 			</div>
 		</div>
 	</div>

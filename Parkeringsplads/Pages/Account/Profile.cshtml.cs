@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using Parkeringsplads.Pages.TripPages;
+using Parkeringsplads.Services.EFServices;
 using Parkeringsplads.Services.Interfaces;
 using System.Linq;
 
@@ -11,10 +13,15 @@ namespace Parkeringsplads.Pages.Account
     {
         private readonly ParkeringspladsContext _context;
         private readonly IRequestService _requestService;
-        public ProfileModel(ParkeringspladsContext context, IRequestService requestService)
+        private readonly IAddressService _addressService;
+        private readonly ITripService _tripService;
+
+        public ProfileModel(ParkeringspladsContext context, IRequestService requestService, IAddressService addressService, ITripService tripService)
         {
             _context = context;
             _requestService = requestService;
+            _addressService = addressService;
+            _tripService = tripService;
         }
 
         public Driver? Driver { get; set; }
@@ -24,15 +31,19 @@ namespace Parkeringsplads.Pages.Account
         public string Phone { get; set; }
         public string Title { get; set; }
 
+        [TempData] public string? SuccessMessage { get; set; }
+        [TempData] public string? ErrorMessage { get; set; }
+
         public string TitleText
         {
             get
             {
                 return Title switch
                 {
+                    
                     "P" => "Personale",
-                    "S" => "Studerende",
                     "p" => "Personale",
+                    "S" => "Studerende",
                     "s" => "Studerende",
                     _ => "Ukendt"
                 };
@@ -45,6 +56,10 @@ namespace Parkeringsplads.Pages.Account
         public User User { get; set; }
 
         public List<Request> Requests { get; set; }
+
+        public List<Trip> AllTripsOnUser { get; set; }
+
+        public List<Trip> TodayTrips { get; set; }
 
         public List<Address> AddressList { get; set; }
 
@@ -89,8 +104,17 @@ namespace Parkeringsplads.Pages.Account
              .Select(ua => ua.Address)
              .ToListAsync();
 
+           
+
             Requests = await _requestService.GetAllRequestsForUser(user);
 
+            AllTripsOnUser = await _tripService.GetAllTripsOnUserAsync(user);
+
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+
+            TodayTrips = AllTripsOnUser?
+            .Where(t => t.TripDate == today)
+           .ToList() ?? new List<Trip>();
 
             User = user;
             UserEmail = user.Email;
@@ -130,15 +154,38 @@ namespace Parkeringsplads.Pages.Account
 
                 HttpContext.Session.Remove("IsDriver");
 
-                TempData["SuccessMessage"] = "Du er ikke længere chauffør.";
+                TempData["SuccessMessage"] = "Du er ikke lÃ¦ngere chauffÃ¸r.";
             }
             else
             {
-                TempData["ErrorMessage"] = "Du er ikke registreret som chauffør.";
+                TempData["ErrorMessage"] = "Du er ikke registreret som chauffÃ¸r.";
             }
 
             return RedirectToPage("/Account/Profile");
         }
+
+        public async Task<IActionResult> OnPostDeleteAsync(int id, string type)
+        {
+            switch (type)
+            {
+                case "Address":
+                    await _addressService.DeleteAddressAsync(id);
+                    TempData["SuccessMessage"] = "Adressen blev slettet.";
+                    break;
+
+                case "Request":
+                    await _requestService.DeleteRequestAsync(id);
+                    TempData["SuccessMessage"] = "Anmodningen blev slettet.";
+                    break;
+
+                default:
+                    TempData["ErrorMessage"] = "Ugyldig type til sletning.";
+                    break;
+            }
+
+            return RedirectToPage();
+        }
+
 
 
 

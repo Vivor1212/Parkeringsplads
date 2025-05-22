@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
 using System;
@@ -19,7 +19,7 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task<Trip> CreateTripAsync(Trip trip)
         {
-            if(trip == null)
+            if (trip == null)
             {
                 throw new ArgumentNullException(nameof(trip), "Trip cannot be null");
             }
@@ -168,6 +168,21 @@ namespace Parkeringsplads.Services.EFServices
         {
             return await _context.Trip.Include(t => t.Requests).Include(t => t.Car).ThenInclude(c => c.Driver)
                 .Where(t => t.Car.Driver.UserId == userId && (t.TripDate > DateOnly.FromDateTime(DateTime.Today) || (t.TripDate == DateOnly.FromDateTime(DateTime.Today) && t.TripTime >= TimeOnly.FromDateTime(DateTime.Now)))).ToListAsync();
+        }
+
+        public async Task<List<Trip>> GetAllTripsOnUserAsync(User user)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+            var trips = await _context.Trip
+                .Include(t => t.Car.Driver).ThenInclude(d => d.User)
+                .Include(t => t.Requests)
+                .Where(t => t.Requests.Any(r => r.UserId == user.UserId && r.RequestStatus == true))
+                .OrderBy(t => t.TripDate)
+                .ThenBy(t => t.TripTime)
+                .ToListAsync();
+
+            return trips;
         }
     }
 }

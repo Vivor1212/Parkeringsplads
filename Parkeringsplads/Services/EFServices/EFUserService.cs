@@ -69,7 +69,7 @@ public class EFUserService : IUser
 
         return true;
     }
-    public async Task<bool> UpdateUserAsync(User updatedUser, string addressRoad, string addressNumber, int cityId)
+    public async Task<bool> UpdateUserAsync(User updatedUser)
     {
         var existingUser = await _context.User
             .Include(u => u.UserAddresses)
@@ -96,47 +96,7 @@ public class EFUserService : IUser
 
         // --- Address handling ---
 
-        // Find or create the address
-        var existingAddress = await _context.Address
-            .FirstOrDefaultAsync(a => a.AddressRoad == addressRoad && a.AddressNumber == addressNumber && a.CityId == cityId);
-
-        int newAddressId;
-
-        if (existingAddress == null)
-        {
-            var newAddress = new Address
-            {
-                AddressRoad = addressRoad,
-                AddressNumber = addressNumber,
-                CityId = cityId
-            };
-            _context.Address.Add(newAddress);
-            await _context.SaveChangesAsync();
-            newAddressId = newAddress.AddressId;
-        }
-        else
-        {
-            newAddressId = existingAddress.AddressId;
-        }
-
-        // Get current UserAddress
-        var userAddress = await _context.UserAddress
-            .FirstOrDefaultAsync(ua => ua.User_Id == existingUser.UserId);
-
-        if (userAddress != null && userAddress.Address_Id != newAddressId)
-        {
-            // Remove old link and create new one
-            _context.UserAddress.Remove(userAddress);
-            await _context.SaveChangesAsync();
-
-            var newUserAddress = new UserAddress
-            {
-                User_Id = existingUser.UserId,
-                Address_Id = newAddressId
-            };
-            _context.UserAddress.Add(newUserAddress);
-        }
-
+      
         await _context.SaveChangesAsync();
 
         return true;

@@ -154,7 +154,7 @@ namespace Parkeringsplads.Pages.UserPages
                         : RedirectToPage("/Account/Login/Login");
                 }
 
-                User.UserId = userBeingUpdated.UserId;
+            bool updateSuccessful = await _userService.UpdateUserAsync(User);
 
                 bool updateSuccessful = await _userService.UpdateUserAsync(
                     User,
@@ -190,10 +190,5 @@ namespace Parkeringsplads.Pages.UserPages
                 return Page(); 
             }
         }
-
-
     }
-
-
-
 }

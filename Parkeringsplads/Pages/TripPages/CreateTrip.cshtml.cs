@@ -46,7 +46,7 @@ namespace Parkeringsplads.Pages.TripPages
 
             if (driver == null || !driver.Cars.Any())
             {
-                TempData["ErrorMessage"] = "Ingen biler fundet. Tilføj en bil under Mine Biler.";
+                TempData["ErrorMessage"] = "Ingen biler fundet. TilfÃ¸j en bil under Mine Biler.";
                 return RedirectToPage("/Account/Profile");
             }
 
@@ -99,7 +99,7 @@ namespace Parkeringsplads.Pages.TripPages
 
             if (driver == null || !driver.Cars.Any())
             {
-                TempData["ErrorMessage"] = "Ingen biler fundet. Tilføj en bil under Mine Biler.";
+                TempData["ErrorMessage"] = "Ingen biler fundet. TilfÃ¸j en bil under Mine Biler.";
                 return RedirectToPage("/Account/Profile");
             }
 

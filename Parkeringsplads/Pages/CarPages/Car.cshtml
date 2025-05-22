@@ -1,5 +1,7 @@
 ﻿@page
 @model Parkeringsplads.Pages.CarPages.CarModel
+<div class=" p-3 pt-5 pb-5">
+<h1 class="pb-3">Mine Biler</h1>
 @{
     ViewData["Title"] = "Biler";
 }
@@ -66,7 +68,7 @@ else
 
                     
 
-                    <button type="submit" class="btn btn-primary mt-2 w-100">Tilføj bil</button>
+                    <button type="submit" class="btn btn-secondary mt-2 w-100">Tilføj bil</button>
                 </form>
             </div>
         </div>
@@ -107,6 +109,7 @@ else
             <p>Du har ingen biler tilknyttet din konto.</p>
         }
     </div>
+</div>
 </div>
 
 @if (HttpContext.Session.GetString("IsAdmin") == "true")
