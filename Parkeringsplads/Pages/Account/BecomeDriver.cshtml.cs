@@ -69,7 +69,7 @@ namespace Parkeringsplads.Pages.Account
             {
                 await _driverService.CreateDriverAsync(driver);
                 HttpContext.Session.SetString("IsDriver", driver.DriverId.ToString());
-                TempData["SuccessMessage"] = "Du er nu oprettet som chauffør. Husk at registere din bil <a href='/CarPages/Car'>her</a>."";
+                TempData["SuccessMessage"] = "Du er nu oprettet som chauffør. Husk at registere din bil <a href='/CarPages/Car'>her</a>.";
                 return RedirectToPage("/Account/Profile");
             }
             catch (Exception ex)

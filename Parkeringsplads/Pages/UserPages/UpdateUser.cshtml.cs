@@ -156,13 +156,6 @@ namespace Parkeringsplads.Pages.UserPages
 
             bool updateSuccessful = await _userService.UpdateUserAsync(User);
 
-                bool updateSuccessful = await _userService.UpdateUserAsync(
-                    User,
-                    Address.AddressRoad,
-                    Address.AddressNumber,
-                    CityId
-                );
-
                 if (updateSuccessful)
                 {
                     TempData["SuccesMessage"] = "Bruger opdateret";

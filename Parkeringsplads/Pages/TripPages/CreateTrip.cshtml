@@ -53,7 +53,12 @@
 
 <!-- Adressevalg -->
 <div class="mb-4">
-    <label class="form-label">Adresse</label>
+    <p>
+        <strong>Retning:</strong>
+        @(Model.Direction == "ToSchool" ? "Til Skole" :
+            Model.Direction == "FromSchool" ? "Fra Skole" : Model.Direction)
+    </p>
+    <label class="form-label">Vælg Rejsens </label>
 
     @if (!Model.UseCustomAddress)
     {
@@ -148,7 +153,6 @@
         </div>
     </div>
     <button type="submit" class="btn btn-secondary">Opret tur</button>
-</form>
 </div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
