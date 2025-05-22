@@ -157,10 +157,7 @@ namespace Parkeringsplads.Pages.UserPages
             User.UserId = userBeingUpdated.UserId;
 
             bool updateSuccessful = await _userService.UpdateUserAsync(
-    User,
-    Address.AddressRoad,
-    Address.AddressNumber,
-    CityId
+    User
 );
 
 
