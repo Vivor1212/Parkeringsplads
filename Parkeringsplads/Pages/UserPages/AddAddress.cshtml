@@ -19,25 +19,27 @@
     </div>
 }
 
-<h2>Tilføj en adresse</h2>
-
-@if (TempData["SuccessMessage"] != null)
+@if (HttpContext.Session.GetString("IsAdmin") == "true")
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-       
-    </div>
+    <h1>Admin Tilføj Adresse</h1>
 }
-@if (TempData["ErrorMessage"] != null)
+else
 {
-    <div class="alert alert alert-dismissible fade show" role="alert">
-        @TempData["ErrorMessage"]
-      
-    </div>
+    <h1>Tilføj Adresse</h1>
 }
 
 <form method="post">
     
+    @if (HttpContext.Session.GetString("IsAdmin") == "true")
+    {
+        <div class="mb-3">
+            <label asp-for="UserId">Vælg bruger</label>
+            <select asp-for="UserId" asp-items="Model.UserList" class="form-control">
+                <option value="">-- Vælg en bruger --</option>
+            </select>
+            <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+    }
 
     <div class="mb-3">
         <label asp-for="Address.AddressRoad">Vejnavn</label>
@@ -61,10 +63,16 @@
         <span asp-validation-for="CityId" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Gem adresse</button>
-    <a asp-page="/Account/Profile" class="btn btn-secondary">Annuller</a>
+    <button type="submit" class="btn btn-primary border-0">Tilføj adresse</button>
+    @if (HttpContext.Session.GetString("IsAdmin") == "true")
+    {
+        <a href="/Admin/AdminDashboard" class="btn btn-secondary">Tilbage til oversigt</a>
+    }
+    else
+    {
+        <a asp-page="/Account/Profile" class="btn btn-secondary">Annuller</a>
+    }
 </form>
-
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
