@@ -15,14 +15,8 @@ namespace Parkeringsplads.Services.EFServices
         }
 
         public async Task<List<Request>> GetAllRequestsForUser(User user)
-
         {
-            return await _context.Request
-           .Where(r => r.UserId == user.UserId)
-        .Include(r => r.Trip)
-            .ThenInclude(t => t.Car.Driver)
-                .ThenInclude(d => d.User)
-        .ToListAsync();
+            return await _context.Request.Include(r => r.Trip).ThenInclude(t => t.Car).ThenInclude(c => c.Driver).ThenInclude(d => d.User).Include(r => r.Users).Where(r => r.UserId == user.UserId).ToListAsync();
         }
 
         public async Task DeleteRequestAsync(int requestId)
@@ -108,6 +102,33 @@ namespace Parkeringsplads.Services.EFServices
             request.RequestStatus = false;
             await _context.SaveChangesAsync();
             return new OperationResult { Success = true, Message = "Anmodningen blev afvist." };
+        }
+
+        public async Task<bool> RequestExistsAsync(int tripId, int userId)
+        {
+            return await _context.Request.AnyAsync(r => r.TripId == tripId && r.UserId == userId);
+        }
+
+        public async Task<List<Request>> GetRequestsWithDetailsAsync(string? searchTerm = null)
+        {
+            var query = _context.Request.Include(r => r.Users).Include(r => r.Trip).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lower = searchTerm.ToLower();
+                query = query.Where(r => (r.RequestMessage != null && r.RequestMessage.ToLower().Contains(lower)) ||
+                (r.RequestAddress != null && r.RequestAddress.ToLower().Contains(lower)) ||
+                r.RequestTime.ToString().Contains(lower) ||
+                ((lower == "accepteret" && r.RequestStatus == true) ||
+                (lower == "afslået" && r.RequestStatus == false) ||
+                (lower == "afventer" && r.RequestStatus == null)) ||
+                (r.Users != null && (r.Users.FirstName.ToLower().Contains(lower) ||
+                r.Users.LastName.ToLower().Contains(lower) ||
+                r.Users.Email.ToLower().Contains(lower))) ||
+                (r.Trip != null && (r.Trip.FromDestination.ToLower().Contains(lower) ||
+                r.Trip.ToDestination.ToLower().Contains(lower))));
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

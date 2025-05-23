@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using Parkeringsplads.Services.Interfaces;
 
 namespace Parkeringsplads.Pages.Admin
 {
     public class EditDriverAdminModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IDriverService _driverService;
+        private readonly IUser _userService;
 
-        public EditDriverAdminModel(ParkeringspladsContext context)
+        public EditDriverAdminModel(IDriverService driverService, IUser userService)
         {
-            _context = context;
+            _driverService = driverService;
+            _userService = userService;
         }
 
         [BindProperty]
@@ -40,7 +43,6 @@ namespace Parkeringsplads.Pages.Admin
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
-
             if (driverId == null || driverId == 0)
             {
                 TempData["ErrorMessage"] = "Chauffør-ID mangler.";
@@ -48,11 +50,7 @@ namespace Parkeringsplads.Pages.Admin
             }
 
             DriverId = driverId.Value;
-
-            var driver = await _context.Driver
-                .Include(d => d.User)
-                .FirstOrDefaultAsync(d => d.DriverId == DriverId);
-
+            var driver = await _driverService.GetDriverWithUserAsync(DriverId);
             if (driver == null)
             {
                 TempData["ErrorMessage"] = "Chaufføren blev ikke fundet.";
@@ -70,38 +68,27 @@ namespace Parkeringsplads.Pages.Admin
 
         private async Task LoadUsersAsync()
         {
-            Users = await _context.User
-                .OrderBy(u => u.UserId)
-                .Select(u => new SelectListItem
-                {
-                    Value = u.UserId.ToString(),
-                    Text = $"{u.FirstName} {u.LastName} ({u.Email})"
-                }).ToListAsync();
+            Users = await _userService.UserDropDownAsync();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.DriverId == DriverId);
-
-            if (driver == null)
-            {
-                TempData["ErrorMessage"] = "Chaufføren blev ikke fundet.";
-                return Page();
-            }
-
-            driver.DriverLicense = DriverLicense;
-            driver.DriverCpr = DriverCpr;
-            driver.UserId = SelectedUserId;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var success = await _driverService.UpdateDriverAsync(DriverId, DriverLicense, DriverCpr, SelectedUserId);
+                if (!success)
+                {
+                    await LoadUsersAsync();
+                    TempData["ErrorMessage"] = "Chaufføren blev ikke fundet.";
+                    return Page();
+                }
+
                 TempData["SuccessMessage"] = "Chaufføren er blevet opdateret.";
                 return RedirectToPage("/Admin/AdminDashboard"); 
             }
-            
             catch (Exception ex)
             {
+                await LoadUsersAsync();
                 TempData["ErrorMessage"] = "Der opstod en fejl ved opdatering af chaufføren.: " + ex.Message;
                 return Page();
             }

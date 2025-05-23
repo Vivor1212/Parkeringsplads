@@ -14,7 +14,6 @@ namespace Parkeringsplads.Services.EFServices
             _context = context;
         }
 
-
         public async Task<List<SelectListItem>> CityDropDownAsync()
         {
             return await _context.City
@@ -23,8 +22,6 @@ namespace Parkeringsplads.Services.EFServices
                     Value = s.CityId.ToString(),
                     Text = s.PostalCode + " " + s.CityName
                 }).ToListAsync();
-
-          
         }
 
         public async Task<List<City>> GetAllCitiesAsync()
@@ -85,6 +82,19 @@ namespace Parkeringsplads.Services.EFServices
                 _context.City.Remove(city);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<City>> GetCitiesAsync(string? searchTerm = null)
+        {
+            var query = _context.City.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lower = searchTerm.ToLower();
+                query = query.Where(c => c.CityName.ToLower().Contains(lower) ||
+                c.PostalCode.Contains(lower));
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

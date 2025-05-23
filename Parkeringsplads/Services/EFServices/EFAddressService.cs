@@ -77,6 +77,36 @@ namespace Parkeringsplads.Services.EFServices
 
             return true;
         }
+
+        public async Task<List<Address>> GetUserAddressesAsync(int userId)
+        {
+            return await _context.UserAddress.Where(ua => ua.User_Id == userId).Include(ua => ua.Address).ThenInclude(a => a.City).Select(ua => ua.Address).ToListAsync();
+        }
+
+        public async Task<Address> CreateAddressAsync(Address address)
+        {
+            if (address == null)
+                throw new ArgumentNullException(nameof(address), "Address cannot be null");
+
+            _context.Address.Add(address);
+            await _context.SaveChangesAsync();
+            return address;
+        }
+
+        public async Task<List<Address>> GetAddressesWithCityAsync(string? searchTerm = null)
+        {
+            var query = _context.Address.Include(a => a.City).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lower = searchTerm.ToLower();
+                query = query.Where(a => a.AddressRoad.ToLower().Contains(lower) ||
+                a.AddressNumber.ToLower().Contains(lower) ||
+                a.City.CityName.ToLower().Contains(lower) ||
+                a.City.PostalCode.Contains(lower));
+            }
+
+            return await query.ToListAsync();
+        }
     }
 
 }

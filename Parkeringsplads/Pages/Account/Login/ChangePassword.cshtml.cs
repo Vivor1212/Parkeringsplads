@@ -2,16 +2,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Parkeringsplads.Models;
 using BCrypt.Net;
+using Parkeringsplads.Services.Interfaces;
 
 namespace Parkeringsplads.Pages.Account
 {
     public class ChangePasswordModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
 
-        public ChangePasswordModel(ParkeringspladsContext context)
+        public ChangePasswordModel(IUser userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [BindProperty]
@@ -43,31 +44,20 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            var user = _context.User.FirstOrDefault(u => u.Email == userEmail);
-
-            if (user == null)
-            {
-                return RedirectToPage("./Login/Login");
-            }
-
-            if (!BCrypt.Net.BCrypt.Verify(CurrentPassword, user.Password))
-            {
-                TempData["ErrorMessage"] = "Current password is incorrect.";
-                return Page();
-            }
-
             if (NewPassword != ConfirmPassword)
             {
                 TempData["ErrorMessage"] = "New password and confirmation password do not match.";
                 return Page();
             }
 
-            user.Password = BCrypt.Net.BCrypt.HashPassword(NewPassword);
-
-            await _context.SaveChangesAsync();
+            var success = await _userService.ChangePasswordAsync(userEmail, CurrentPassword, NewPassword);
+            if (!success)
+            {
+                TempData["ErrorMessage"] = "Current password is incorrect or user not found.";
+                return Page();
+            }
 
             TempData["SuccessMessage"] = "Password changed successfully.";
-
             return RedirectToPage("/Account/Profile");
         }
     }

@@ -3,17 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using Parkeringsplads.Services.Interfaces;
 
 
 namespace Parkeringsplads.Pages.Admin
 {
     public class ChooseDriverModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IDriverService _driverService;
 
-        public ChooseDriverModel(ParkeringspladsContext context)
+        public ChooseDriverModel(IDriverService driverService)
         {
-            _context = context;
+            _driverService = driverService;
         }
 
         public List<Driver> Drivers { get; set; } = new();
@@ -22,30 +23,13 @@ namespace Parkeringsplads.Pages.Admin
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var isAdmin = HttpContext.Session.GetString("IsAdmin");
-
-            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+            var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
+            if (!isAdmin)
             {
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
-            Drivers = await _context.Driver
-                .Include(d => d.User)
-                .ToListAsync();
-
-            var query = _context.Driver
-        .Include(d => d.User)
-        .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(SearchTerm))
-            {
-                query = query.Where(d =>
-    d.DriverId.ToString().Contains(SearchTerm) ||
-    d.User.FirstName.ToLower().Contains(SearchTerm.ToLower()) ||
-    d.User.LastName.ToLower().Contains(SearchTerm.ToLower()));
-            }
-
-            Drivers = await query.ToListAsync();
+            Drivers = await _driverService.GetDriversWithUserAsync(SearchTerm);
 
             return Page();
         }

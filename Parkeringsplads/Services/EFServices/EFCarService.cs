@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
 using Parkeringsplads.Services.Interfaces;
+using System.Runtime.InteropServices;
 namespace Parkeringsplads.Services.EFServices
 {
     public class EFCarService : ICarService
@@ -71,6 +72,22 @@ namespace Parkeringsplads.Services.EFServices
                 _context.Car.Remove(car);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<Car>> GetCarsAsync(string? searchTerm = null)
+        {
+            var query = _context.Car.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lower = searchTerm.ToLower();
+                query = query.Where(c => c.CarModel.ToLower().Contains(lower)||
+                c.CarPlate.ToLower().Contains(lower) ||
+                c.CarCapacity.ToString().Contains(lower) ||
+                c.DriverId.ToString().Contains(lower));
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

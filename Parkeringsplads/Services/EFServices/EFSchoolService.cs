@@ -14,7 +14,6 @@ namespace Parkeringsplads.Services.EFServices
             _context = context;
         }
 
-
         public async Task<List<SelectListItem>> SchoolDropDownAsync()
         {
             return await _context.School
@@ -23,8 +22,6 @@ namespace Parkeringsplads.Services.EFServices
                     Value = s.SchoolId.ToString(),
                     Text = s.SchoolName
                 }).ToListAsync();
-        
-
         }
 
         public async Task CreateSchoolAsync(string schoolName, string addressRoad, string addressNumber, int cityId)
@@ -71,6 +68,41 @@ namespace Parkeringsplads.Services.EFServices
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<School?> GetSchoolWithAddressAsync(int schoolId)
+        {
+            return await _context.School.Include(s => s.Address).ThenInclude(a => a.City).FirstOrDefaultAsync(s => s.SchoolId == schoolId);
+        }
+
+        public async Task<bool> UpdateSchoolAsync(int schoolId, string schoolName, int addressId)
+        {
+            var school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == schoolId);
+            if (school == null)
+            {
+                return false;
+            }
+
+            school.SchoolName = schoolName;
+            school.AddressId = addressId;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<School>> GetSchoolsWithAddressAsync(string? serachTerm = null)
+        {
+            var query = _context.School.Include(s => s.Address).ThenInclude(a => a.City).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(serachTerm))
+            {
+                var lower = serachTerm.ToLower();
+                query = query.Where(s => s.SchoolName.ToLower().Contains(lower) ||
+                s.Address.AddressRoad.ToLower().Contains(lower) ||
+                s.Address.AddressNumber.ToLower().Contains(lower) ||
+                s.Address.City.CityName.ToLower().Contains(lower) ||
+                s.Address.City.PostalCode.Contains(lower));
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

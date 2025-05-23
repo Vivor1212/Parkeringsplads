@@ -21,23 +21,6 @@ namespace Parkeringsplads.Pages.TripPages
         public Trip Trip { get; set; }
         public IEnumerable<Car> DriverCars { get; set; } 
 
-        private async Task<IActionResult> HandleValidationAndRedirect(UserValidation userResult, TripValidation tripResult = null)
-        {
-            if (!userResult.IsValid)
-            {
-                TempData["ErrorMessage"] = userResult.ErrorMessage;
-                return RedirectToPage(userResult.RedirectPage);
-            }
-
-            if (tripResult != null && !tripResult.IsValid)
-            {
-                TempData["ErrorMessage"] = tripResult.ErrorMessage;
-                return RedirectToPage(tripResult.RedirectPage);
-            }
-
-            return null;
-        }
-
         public async Task<IActionResult> OnGetAsync(int tripId)
         {
             var userResult = await _userService.ValidateDriverAsync(HttpContext);

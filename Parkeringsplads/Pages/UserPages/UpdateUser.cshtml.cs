@@ -11,28 +11,22 @@ namespace Parkeringsplads.Pages.UserPages
 {
     public class UpdateUserModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
         private readonly Services.Interfaces.IUser _userService;
         private readonly ISchoolService _schoolService;
         private readonly ICityService _cityService;
 
-        public UpdateUserModel(Services.Interfaces.IUser userService, ParkeringspladsContext context, ISchoolService schoolService, ICityService cityService)
+        public UpdateUserModel(Services.Interfaces.IUser userService, ISchoolService schoolService, ICityService cityService)
         {
-            _context = context;
             _userService = userService;
             _schoolService = schoolService;
             _cityService = cityService;
-
         }
-
-
 
         [BindProperty]
         public User User { get; set; }
         
         [BindProperty]
         public School School { get; set; }
-
 
         [BindProperty]
         public int CityId { get; set; }
@@ -78,35 +72,21 @@ namespace Parkeringsplads.Pages.UserPages
 
                 if (userId > 0)
                 {
-                    user = await _context.User
-                        .Include(u => u.School)
-                        .Include(u => u.UserAddresses)
-                            .ThenInclude(ua => ua.Address)
-                        .FirstOrDefaultAsync(u => u.UserId == userId);
+                    user = await _userService.GetUserWithDetailsByIdAsync(userId);
                 }
             }
             else if (!string.IsNullOrEmpty(sessionEmail))
             {
-                user = await _context.User
-                    .Include(u => u.School)
-                   .Include(u => u.UserAddresses)
-            .ThenInclude(ua => ua.Address)
-                .ThenInclude(a => a.City)
-                    .FirstOrDefaultAsync(u => u.Email == sessionEmail);
+                user = await _userService.GetUserWithDetailsByEmailAsync(sessionEmail);
             }
 
-           
-
-            var userSchool = _context.User
-                .Include(u => u.School)
-                .FirstOrDefault(u => u.Email == sessionEmail);
             if (user == null)
             {
                 return string.IsNullOrEmpty(sessionEmail)
                     ? RedirectToPage("/Account/Login/Login")
                     : RedirectToPage("/Account/Profile");
             }
-
+           
             User = user;
             School = user.School;
             SchoolName = user.School?.SchoolName;
@@ -121,14 +101,17 @@ namespace Parkeringsplads.Pages.UserPages
             return Page(); 
         }
 
-
-
-
-
         public async Task<IActionResult> OnPostAsync(int userId)
         {
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
             var sessionEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Ugyldige data indsendt: " + string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                await LoadDropdownDataAsync();
+                return Page();
+            }
 
             User userBeingUpdated;
 
@@ -140,7 +123,7 @@ namespace Parkeringsplads.Pages.UserPages
                 }
                 else if (!string.IsNullOrEmpty(sessionEmail))
                 {
-                    userBeingUpdated = await _context.User.FirstOrDefaultAsync(u => u.Email == sessionEmail);
+                    userBeingUpdated = await _userService.GetUserWithDetailsByEmailAsync(sessionEmail);
                 }
                 else
                 {
@@ -154,7 +137,10 @@ namespace Parkeringsplads.Pages.UserPages
                         : RedirectToPage("/Account/Login/Login");
                 }
 
-            bool updateSuccessful = await _userService.UpdateUserAsync(User);
+                User.UserId = userBeingUpdated.UserId;
+                Console.WriteLine($"Updating user: ID={User.UserId}, Email={User.Email}");
+
+                bool updateSuccessful = await _userService.UpdateUserAsync(User);
 
                 if (updateSuccessful)
                 {
