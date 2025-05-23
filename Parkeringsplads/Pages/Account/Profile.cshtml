@@ -32,7 +32,7 @@
                 <i class="fas fa-user pe-2"></i> Min profil
             </button>
             <button class="nav-link rounded-0 text-reset text-start" id="requests-tab" data-bs-toggle="pill" data-bs-target="#requests" type="button" role="tab" aria-controls="requests" aria-selected="false">
-                <i class="fas fa-envelope pe-2 "></i> Mine anmodninger
+                <i class="fas fa-envelope pe-2 "></i> Mine rejseforspørgsler
             </button>
             <button class="nav-link rounded-0 text-reset text-start" id="trips-tab" data-bs-toggle="pill" data-bs-target="#trips" type="button" role="tab" aria-controls="trips" aria-selected="false">
                 <i class="fas fa-road pe-2"></i> Tilmeldte rejser
@@ -46,7 +46,23 @@
                 <div class="container  px-4">
                     <div class="d-flex flex-sm-row row flex-column gx-5">
                         <div class="col">
-                            <div class="shadow  p-3 pt-5 pb-5  rounded"><h4 class="text-center">Du har sparet</h4><h3 class="text-center text-lg-center">21</h3><h4 class="text-center">parkeringspladser!</h4> <p class="text-center">Godt arbejde!</p></div>
+                            @if (Model.IsDriver)
+                            {
+                                <div class="shadow p-3 pt-5 pb-5 rounded text-center bg-light">
+                                    <h4>Du har været med på</h4>
+                                    <h3><strong>@Model.NumberOfTrips</strong></h3>
+                                    <h4>ture</h4>
+                                    <p class="mt-2">og transporteret <strong>@Model.NumberOfPassengers</strong> passagerer. Godt gået!</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="shadow p-3 pt-5 pb-5 rounded text-center bg-light">
+                                    <h4>Du har deltaget i</h4>
+                                    <h3><strong>@Model.NumberOfTrips</strong></h3>
+                                    <h4>rejse(r). Godt gået!</h4>
+                                </div>
+                            }
                         </div>
                         <div class="col ">
                             <div class="shadow p-3 pb-5 pt-5 rounded">
@@ -154,7 +170,7 @@
             </div>
             <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
                 <div class="container p-3 px-4">
-                    <h2 class="mb-4">Dine rejseforespørgsler</h2>
+                    <h2 class="mb-4">Mine rejseforespørgsler</h2>
 
                     @if (Model.Requests != null && Model.Requests.Any())
                     {

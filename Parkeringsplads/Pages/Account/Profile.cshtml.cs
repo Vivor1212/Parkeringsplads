@@ -26,6 +26,8 @@ namespace Parkeringsplads.Pages.Account
             _tripService = tripService;
         }
 
+        public int NumberOfTrips { get; set; }
+        public int NumberOfPassengers { get; set; }
         public Driver? Driver { get; set; }
         public string UserEmail { get; set; }
         public string FirstName { get; set; }
@@ -77,7 +79,7 @@ namespace Parkeringsplads.Pages.Account
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
             if (!string.IsNullOrEmpty(isAdmin) && isAdmin == "true")
             {
-                return RedirectToPage("/Admin/AdminDashboard"); 
+                return RedirectToPage("/Admin/AdminDashboard");
             }
 
             var userEmail = HttpContext.Session.GetString("UserEmail");
@@ -89,28 +91,30 @@ namespace Parkeringsplads.Pages.Account
 
             var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
 
+
             if (user == null)
             {
                 return RedirectToPage("./Login/Login");
             }
+            
             AddressList = await _addressService.GetUserAddressesAsync(user.UserId);
             Requests = await _requestService.GetAllRequestsForUser(user);
             AllTripsOnUser = await _tripService.GetAllTripsOnUserAsync(user);
 
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-
             TodayTrips = AllTripsOnUser?
-            .Where(t => t.TripDate == today)
-           .ToList() ?? new List<Trip>();
+                .Where(t => t.TripDate == today)
+                .ToList() ?? new List<Trip>();
 
             User = user;
             UserEmail = user.Email;
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
-            Title= user.Title;
+            Title = user.Title;
             School = user.School;
             SchoolName = user.School?.SchoolName;
+
 
             var driver = await _driverService.GetDriverByUserIdAsync(user.UserId);
             IsDriver = driver != null;
@@ -118,6 +122,8 @@ namespace Parkeringsplads.Pages.Account
 
             return Page();
         }
+
+
 
         public async Task<IActionResult> OnPostStopBeingDriverAsync()
         {

@@ -17,6 +17,8 @@ namespace Parkeringsplads.Pages.Admin
         private readonly IRequestService _requestService;
         private readonly ITripService _tripService;
         private readonly ISchoolService _schoolService;
+        private readonly IAddressService _addressService;
+
 
         public AdminDashboardModel(ICarService carService, IUser userService, ICityService cityService, IAddressService addressService, IDriverService driverService, IRequestService requestService, ITripService tripService, ISchoolService schoolService)
         {
@@ -28,6 +30,7 @@ namespace Parkeringsplads.Pages.Admin
             _requestService = requestService;
             _tripService = tripService;
             _schoolService = schoolService;
+            _addressService = addressService;
         }
 
         //User Search
@@ -69,6 +72,9 @@ namespace Parkeringsplads.Pages.Admin
         [BindProperty(SupportsGet = true)]
         public string RequestSearchTerm { get; set; }
         public List<Request> Requests { get; set; }
+        public Dictionary<int, bool> AddressUsageMap { get; set; } = new Dictionary<int, bool>();
+
+
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -77,6 +83,7 @@ namespace Parkeringsplads.Pages.Admin
             {
                 return RedirectToPage("/Admin/NotAdmin");
             }
+
 
             Users = await _userService.GetUsersWithSchoolAsync(SearchTerm);
             Cars = await _carService.GetCarsAsync(CarSearchTerm);
@@ -87,7 +94,17 @@ namespace Parkeringsplads.Pages.Admin
             Trips = await _tripService.GetTripsWithDriverAsync(TripSearchTerm);
             Requests = await _requestService.GetRequestsWithDetailsAsync(RequestSearchTerm);
 
+
             return Page();
+        }
+
+        private async Task<bool> IsAddressInUseAsync(int addressId)
+        {
+            bool usedInSchools = await _context.School.AnyAsync(s => s.AddressId == addressId);
+
+            bool usedInUserAddresses = await _context.UserAddress.AnyAsync(ua => ua.Address_Id == addressId);
+
+            return usedInSchools || usedInUserAddresses;
         }
 
         public async Task<IActionResult> OnPostDeleteCarAsync(int carId)
@@ -142,12 +159,12 @@ namespace Parkeringsplads.Pages.Admin
             try
             {
                 await _driverService.DeleteDriverAsync(driverId);
-                TempData["SuccessMessage"] = "Chauffør slettet.";
+                TempData["SuccessMessage"] = "ChauffÃ¸r slettet.";
                 return RedirectToPage();
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Fejl ved sletning af chauffør: " + ex.Message;
+                TempData["ErrorMessage"] = "Fejl ved sletning af chauffÃ¸r: " + ex.Message;
                 return RedirectToPage();
             }
         }
@@ -188,13 +205,40 @@ namespace Parkeringsplads.Pages.Admin
             {
                 await _schoolService.DeleteSchoolAsync(schoolId);
                 TempData["SuccessMessage"] = "Skole slettet.";
-                return RedirectToPage();
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Fejl ved sletning af skole: {ex.Message}";
-                return RedirectToPage();
             }
+
+            return RedirectToPage();
         }
+
+        public async Task<IActionResult> OnPostDeleteAddressAsync(int id)
+        {
+            try
+            {
+                var deleted = await _addressService.DeleteAddressAsync(id);
+
+                if (!deleted)
+                {
+                    TempData["ErrorMessage"] = "Adresse kunne ikke slettes, da den er i brug.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Adressen er blevet slettet.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Fejl ved sletning af adresse: {ex.Message}";
+            }
+
+            return RedirectToPage();
+        }
+
+
+
+
     }
 }

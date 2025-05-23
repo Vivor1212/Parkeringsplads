@@ -58,25 +58,28 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task<bool> DeleteAddressAsync(int addressId)
         {
-            var address = await _context.Address.FindAsync(addressId);
+            var address = await _context.Address
+                .Include(a => a.UserAddresses)
+                .Include(a => a.Schools)
+                .FirstOrDefaultAsync(a => a.AddressId == addressId);
+
             if (address == null)
             {
                 return false; // Address not found
             }
 
-            // Remove related records from UserAddress table
-            var userAddresses = await _context.UserAddress
-                .Where(ua => ua.Address_Id == addressId)
-                .ToListAsync();
+            bool isInUse = address.UserAddresses.Any() || address.Schools.Any();
+            if (isInUse)
+            {
+                return false; // Cannot delete - still in use
+            }
 
-            _context.UserAddress.RemoveRange(userAddresses);
-
-            // Delete the address
             _context.Address.Remove(address);
             await _context.SaveChangesAsync();
 
             return true;
         }
+
 
         public async Task<List<Address>> GetUserAddressesAsync(int userId)
         {
@@ -106,6 +109,12 @@ namespace Parkeringsplads.Services.EFServices
             }
 
             return await query.ToListAsync();
+
+        public async Task<bool> IsAddressInUseAsync(int addressId)
+        {
+            return await _context.UserAddress.AnyAsync(ua => ua.Address_Id == addressId)
+                || await _context.School.AnyAsync(s => s.AddressId == addressId);
+
         }
     }
 

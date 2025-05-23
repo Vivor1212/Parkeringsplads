@@ -184,6 +184,7 @@ namespace Parkeringsplads.Services.EFServices
             return trips;
         }
 
+
         public async Task<Driver?> GetDriverWithCarsByEmailAsync(string email)
         {
             return await _context.Driver.Include(d => d.Cars).FirstOrDefaultAsync(d => d.User.Email == email);
@@ -211,6 +212,18 @@ namespace Parkeringsplads.Services.EFServices
         public async Task<List<Trip>> GetTripsWithDetailsAsync()
         {
             return await _context.Trip.Include(t => t.Car).ThenInclude(c => c.Driver).ThenInclude(d => d.User).OrderByDescending(t => t.TripDate).ThenBy(t => t.TripTime).ToListAsync();
+
+        public async Task<List<Trip>> GetAllTripsForDriverAsync(int userId)
+        {
+            return await _context.Trip
+                .Include(t => t.Requests)
+                .Include(t => t.Car)
+                    .ThenInclude(c => c.Driver)
+                .Where(t => t.Car.Driver.UserId == userId)
+                .OrderBy(t => t.TripDate)
+                .ThenBy(t => t.TripTime)
+                .ToListAsync();
+
         }
     }
 }
