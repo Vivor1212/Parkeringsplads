@@ -14,12 +14,12 @@ namespace Parkeringsplads.Pages.Admin
     public class AddTripAdminModel : PageModel
     {
         private readonly ITripService _tripService;
-        private readonly ParkeringspladsContext _context;
+        private readonly IDriverService _driverService;
 
-        public AddTripAdminModel(ITripService tripService, ParkeringspladsContext context)
+        public AddTripAdminModel(ITripService tripService, IDriverService driverService)
         {
             _tripService = tripService;
-            _context = context;
+            _driverService = driverService;
         }
 
         [BindProperty] public Trip Trip { get; set; } = new();
@@ -28,7 +28,7 @@ namespace Parkeringsplads.Pages.Admin
         [BindProperty(SupportsGet = true)] public string SelectedAddress { get; set; } = "";
         [BindProperty(SupportsGet = true)] public string CustomAddress { get; set; } = "";
         [BindProperty(SupportsGet = true)] public bool UseCustomAddress { get; set; }
-        [BindProperty(SupportsGet = true)] public int selectedDriverId { get; set; }
+        [BindProperty(SupportsGet = true)] public int SelectedDriverId { get; set; }
 
         public List<Car> Cars { get; set; } = new();
         public List<string> UserAddresses { get; set; } = new();
@@ -45,20 +45,13 @@ namespace Parkeringsplads.Pages.Admin
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
-            if (selectedDriverId <= 0)
+            if (SelectedDriverId <= 0)
             {
                 TempData["ErrorMessage"] = "Ingen chauffør valgt. Vælg en chauffør først.";
                 return RedirectToPage("/Admin/ChooseDriverAdmin");
             }
 
-            var driver = await _context.Driver
-                .Include(d => d.Cars)
-                .Include(d => d.User)
-                .ThenInclude(u => u.School).ThenInclude(s => s.Address).ThenInclude(a => a.City)
-                .Include(d => d.User)
-                .ThenInclude(u => u.UserAddresses).ThenInclude(ua => ua.Address).ThenInclude(a => a.City)
-                .FirstOrDefaultAsync(d => d.DriverId == selectedDriverId);
-
+            var driver = await _driverService.GetDriverWithDetailsAsync(SelectedDriverId);
             if (driver == null || !driver.Cars.Any())
             {
                 TempData["ErrorMessage"] = "Ingen biler fundet for den valgte chauffør.";
@@ -97,20 +90,13 @@ namespace Parkeringsplads.Pages.Admin
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (selectedDriverId <= 0)
+            if (SelectedDriverId <= 0)
             {
                 TempData["ErrorMessage"] = "Ingen chauffør valgt.";
                 return RedirectToPage("/Admin/ChooseDriverAdmin");
             }
 
-            var driver = await _context.Driver
-                .Include(d => d.Cars)
-                .Include(d => d.User)
-                .ThenInclude(u => u.School).ThenInclude(s => s.Address).ThenInclude(a => a.City)
-                .Include(d => d.User)
-                .ThenInclude(u => u.UserAddresses).ThenInclude(ua => ua.Address).ThenInclude(a => a.City)
-                .FirstOrDefaultAsync(d => d.DriverId == selectedDriverId);
-
+            var driver = await _driverService.GetDriverWithDetailsAsync(SelectedDriverId);
             if (driver == null || !driver.Cars.Any())
             {
                 TempData["ErrorMessage"] = "Ingen biler fundet for den valgte chauffør.";
@@ -118,7 +104,6 @@ namespace Parkeringsplads.Pages.Admin
             }
 
             Cars = driver.Cars.ToList();
-
             UserAddresses = driver.User.UserAddresses.Select(ua => ua.Address.FullAddress).ToList();
             SchoolAddress = driver.User.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
 

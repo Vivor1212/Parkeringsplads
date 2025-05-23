@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using Parkeringsplads.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
@@ -9,12 +10,14 @@ namespace Parkeringsplads.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
+        private readonly IDriverService _driverService;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(ParkeringspladsContext context, ILogger<LoginModel> logger)
+        public LoginModel(IUser userService, IDriverService driverService, ILogger<LoginModel> logger)
         {
-            _context = context;
+            _userService = userService;
+            _driverService = driverService;
             _logger = logger;
         }
 
@@ -23,7 +26,6 @@ namespace Parkeringsplads.Pages.Account
 
         [BindProperty]
         public string Password { get; set; }
-
 
         public IActionResult OnGet() 
         {
@@ -40,7 +42,7 @@ namespace Parkeringsplads.Pages.Account
 
        public async Task<IActionResult> OnPostAsync()
         {
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == Email);
+            var user = await _userService.GetUserByEmailAsync(Email);
 
             if (user != null && VerifyPassword(Password, user.Password))
             {
@@ -55,7 +57,7 @@ namespace Parkeringsplads.Pages.Account
 
                 else
                 {
-                    var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId);
+                    var driver = await _driverService.GetDriverByUserIdAsync(user.UserId);
 
                     if (driver != null)
                     {

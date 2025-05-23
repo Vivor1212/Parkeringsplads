@@ -92,10 +92,9 @@ namespace Parkeringsplads.Services.EFServices
         public async Task<Trip?> GetTripByIdAsync(int tripId)
         {
             return await _context.Trip
-                .Include(t => t.Car.Driver)
-                    .ThenInclude(d => d.User)
-                .Include(t => t.Requests.Where(r => r.RequestStatus == true))
-                    .ThenInclude(r => r.Users)
+                .Include(t => t.Car)
+                    .ThenInclude(c => c.Driver)
+                        .ThenInclude(d => d.User)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
         }
 
@@ -185,6 +184,35 @@ namespace Parkeringsplads.Services.EFServices
             return trips;
         }
 
+
+        public async Task<Driver?> GetDriverWithCarsByEmailAsync(string email)
+        {
+            return await _context.Driver.Include(d => d.Cars).FirstOrDefaultAsync(d => d.User.Email == email);
+        }
+
+        public async Task<List<Trip>> GetTripsWithDriverAsync(string? searchTerm = null)
+        {
+            var query = _context.Trip.Include(t => t.Car).ThenInclude(c => c.Driver).ThenInclude(d => d.User).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var lower = searchTerm.ToLower();
+                query = query.Where(t => t.FromDestination.ToLower().Contains(lower) ||
+                t.ToDestination.ToLower().Contains(lower) ||
+                t.TripDate.ToString().Contains(lower) ||
+                t.TripTime.ToString().Contains(lower) ||
+                t.TripSeats.ToString().Contains(lower) ||
+                t.Car.Driver.DriverLicense.ToLower().Contains(lower) ||
+                t.Car.Driver.User.FirstName.ToLower().Contains(lower) ||
+                t.Car.Driver.User.LastName.ToLower().Contains(lower));
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<Trip>> GetTripsWithDetailsAsync()
+        {
+            return await _context.Trip.Include(t => t.Car).ThenInclude(c => c.Driver).ThenInclude(d => d.User).OrderByDescending(t => t.TripDate).ThenBy(t => t.TripTime).ToListAsync();
+
         public async Task<List<Trip>> GetAllTripsForDriverAsync(int userId)
         {
             return await _context.Trip
@@ -195,6 +223,7 @@ namespace Parkeringsplads.Services.EFServices
                 .OrderBy(t => t.TripDate)
                 .ThenBy(t => t.TripTime)
                 .ToListAsync();
+
         }
     }
 }

@@ -8,13 +8,13 @@ namespace Parkeringsplads.Pages.UserPages
 {
     public class MyRequestsModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
         private readonly IRequestService _requestService;
 
-        public MyRequestsModel(ParkeringspladsContext context, IRequestService userService)
+        public MyRequestsModel(IUser userService, IRequestService requestService)
         {
-            _requestService = userService;
-            _context = context;
+            _userService = userService;
+            _requestService = requestService;
         }
 
         public List<Request> Requests { get; set; }
@@ -43,10 +43,13 @@ namespace Parkeringsplads.Pages.UserPages
                 return RedirectToPage("/Account/Login/Login");
             }
 
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
+            if (user == null)
+            {
+                return RedirectToPage("/Account/Login/Login");
+            }
 
             Requests = await _requestService.GetAllRequestsForUser(user);
-
             return Page();
         }
 

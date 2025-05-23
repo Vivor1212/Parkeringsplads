@@ -8,13 +8,11 @@ namespace Parkeringsplads.Pages.UserPages
 {
     public class AllUsersModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
         private readonly IUser _userService;
 
-        public AllUsersModel(ParkeringspladsContext context, IUser userService)
+        public AllUsersModel(IUser userService)
         {
             _userService = userService;
-            _context = context;
         }
 
         public List<User> Users { get; set; }

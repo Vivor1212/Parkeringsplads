@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using Parkeringsplads.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +13,15 @@ namespace Parkeringsplads.Pages.Admin
 {
     public class AddRequestAdminModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
+        private readonly ITripService _tripService;
+        private readonly IRequestService _requestService;
 
-        public AddRequestAdminModel(ParkeringspladsContext context)
+        public AddRequestAdminModel(IUser userService, ITripService tripService, IRequestService requestService)
         {
-            _context = context;
+            _userService = userService;
+            _tripService = tripService;
+            _requestService = requestService;
         }
 
         [BindProperty]
@@ -33,9 +38,6 @@ namespace Parkeringsplads.Pages.Admin
 
         public string? UserAddress { get; set; }
 
-
-
-
         public async Task<IActionResult> OnGetAsync()
         {
             await LoadDataAsync();
@@ -45,9 +47,8 @@ namespace Parkeringsplads.Pages.Admin
         public async Task<IActionResult> OnPostAsync()
         {
 
-            var isAdmin = HttpContext.Session.GetString("IsAdmin");
-
-            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+            var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
+            if (!isAdmin)
             {
                 return RedirectToPage("/Admin/NotAdmin");
             }
@@ -60,11 +61,7 @@ namespace Parkeringsplads.Pages.Admin
                 return Page();
             }
 
-            var user = await _context.User
-                .Include(u => u.UserAddresses)
-                .ThenInclude(ua => ua.Address)
-                .FirstOrDefaultAsync(u => u.UserId == SelectedUserId);
-
+            var user = await _userService.GetUserWithAddressesAsync(SelectedUserId);
             if (user?.UserAddresses.FirstOrDefault()?.Address is Address address)
             {
                 Request.RequestAddress = $"{address.AddressRoad} {address.AddressNumber}, {address.City?.PostalCode} {address.City?.CityName}";
@@ -75,38 +72,19 @@ namespace Parkeringsplads.Pages.Admin
             Request.RequestTime = TimeOnly.FromDateTime(DateTime.Now);
             Request.RequestStatus = null;
 
-            _context.Request.Add(Request);
-            await _context.SaveChangesAsync();
-
+            await _requestService.CreateRequestAsync(Request);
             TempData["SuccessMessage"] = "Anmodningen er oprettet!";
             return RedirectToPage("/Admin/AdminDashboard");
         }
 
         private async Task LoadDataAsync()
         {
-            Users = await _context.User
-                .Select(u => new SelectListItem
-                {
-                    Value = u.UserId.ToString(),
-                    Text = $"{u.FirstName} {u.LastName} ({u.Email})"
-                }).ToListAsync();
-
-            TripList = await _context.Trip
-    .Include(t => t.Car)
-        .ThenInclude(c => c.Driver)
-            .ThenInclude(d => d.User)
-    .OrderByDescending(t => t.TripDate)
-    .ThenBy(t => t.TripTime)
-    .ToListAsync();
+            Users = await _userService.UserDropDownAsync();
+            TripList = await _tripService.GetTripsWithDetailsAsync();
 
             if (SelectedUserId > 0)
             {
-                var user = await _context.User
-                    .Include(u => u.UserAddresses)
-                        .ThenInclude(ua => ua.Address)
-                            .ThenInclude(a => a.City)
-                    .FirstOrDefaultAsync(u => u.UserId == SelectedUserId);
-
+                var user = await _userService.GetUserWithAddressesAsync(SelectedUserId);
                 var addr = user?.UserAddresses.FirstOrDefault()?.Address;
                 if (addr != null)
                 {

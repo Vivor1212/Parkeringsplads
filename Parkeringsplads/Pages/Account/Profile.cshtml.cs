@@ -11,14 +11,16 @@ namespace Parkeringsplads.Pages.Account
 {
     public class ProfileModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
+        private readonly IDriverService _driverService;
         private readonly IRequestService _requestService;
         private readonly IAddressService _addressService;
         private readonly ITripService _tripService;
 
-        public ProfileModel(ParkeringspladsContext context, IRequestService requestService, IAddressService addressService, ITripService tripService)
+        public ProfileModel(IUser userService, IDriverService driverService, IRequestService requestService, IAddressService addressService, ITripService tripService)
         {
-            _context = context;
+            _userService = userService;
+            _driverService = driverService;
             _requestService = requestService;
             _addressService = addressService;
             _tripService = tripService;
@@ -32,9 +34,6 @@ namespace Parkeringsplads.Pages.Account
         public string LastName { get; set; }
         public string Phone { get; set; }
         public string Title { get; set; }
-
-        [TempData] public string? SuccessMessage { get; set; }
-        [TempData] public string? ErrorMessage { get; set; }
 
         public string TitleText
         {
@@ -65,7 +64,6 @@ namespace Parkeringsplads.Pages.Account
 
         public List<Address> AddressList { get; set; }
 
-
         public UserAddress UserAddress { get; set; }
 
         public string SchoolName { get; set; }
@@ -91,27 +89,15 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            var user = await _context.User
-                                     .Include(u => u.School)
-                                     .Include(u => u.Drivers)
-                                     .FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
+
 
             if (user == null)
             {
                 return RedirectToPage("./Login/Login");
             }
-
-            var driver = user.Drivers.FirstOrDefault();
-            IsDriver = driver != null;
-            Driver = driver;
-
-            AddressList = await _context.UserAddress
-                .Where(ua => ua.User_Id == user.UserId)
-                .Include(ua => ua.Address)
-                .ThenInclude(a => a.City)
-                .Select(ua => ua.Address)
-                .ToListAsync();
-
+            
+            AddressList = await _addressService.GetUserAddressesAsync(user.UserId);
             Requests = await _requestService.GetAllRequestsForUser(user);
             AllTripsOnUser = await _tripService.GetAllTripsOnUserAsync(user);
 
@@ -129,25 +115,10 @@ namespace Parkeringsplads.Pages.Account
             School = user.School;
             SchoolName = user.School?.SchoolName;
 
-            if (IsDriver)
-            {
-                var allDriverTrips = await _tripService.GetAllTripsForDriverAsync(user.UserId);
-                var now = DateTime.Now;
 
-                var pastOrTodayTrips = allDriverTrips
-                    .Where(t => t.TripDate.ToDateTime(t.TripTime) <= now)
-                    .ToList();
-
-                NumberOfPassengers = pastOrTodayTrips.Sum(t =>
-    t.Requests?.Count(r => r.RequestStatus == true && r.UserId != user.UserId) ?? 0);
-
-                NumberOfTrips = pastOrTodayTrips.Count;
-            }
-            else
-            {
-                NumberOfPassengers = 0;
-                NumberOfTrips = AllTripsOnUser?.Count(t => t.Requests != null && t.Requests.Any(r => r.UserId == user.UserId && r.RequestStatus == true)) ?? 0;
-            }
+            var driver = await _driverService.GetDriverByUserIdAsync(user.UserId);
+            IsDriver = driver != null;
+            Driver = driver;
 
             return Page();
         }
@@ -162,20 +133,16 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
             if (user == null)
             {
                 return RedirectToPage("./Login/Login");
             }
 
-            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId);
-            if (driver != null)
+            var success = await _driverService.UnbecomeDriver(user.UserId);
+            if (success)
             {
-                _context.Driver.Remove(driver);
-                await _context.SaveChangesAsync();
-
                 HttpContext.Session.Remove("IsDriver");
-
                 TempData["SuccessMessage"] = "Du er ikke længere chauffør.";
             }
             else
@@ -204,12 +171,7 @@ namespace Parkeringsplads.Pages.Account
                     TempData["ErrorMessage"] = "Ugyldig type til sletning.";
                     break;
             }
-
             return RedirectToPage();
         }
-
-
-
-
     }
 }
