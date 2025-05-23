@@ -26,6 +26,10 @@ public partial class Driver
     [Column("User_Id")]
     public int UserId { get; set; }
 
+    [Required]
+    [Column("NumberOfPassengers")]
+    public int NumberOfPassengers { get; set; } = 0;
+
     [ForeignKey("UserId")]
     [InverseProperty("Drivers")]
     public virtual User User { get; set; }

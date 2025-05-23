@@ -24,6 +24,8 @@ namespace Parkeringsplads.Pages.Account
             _tripService = tripService;
         }
 
+        public int NumberOfTrips { get; set; }
+        public int NumberOfPassengers { get; set; }
         public Driver? Driver { get; set; }
         public string UserEmail { get; set; }
         public string FirstName { get; set; }
@@ -79,7 +81,7 @@ namespace Parkeringsplads.Pages.Account
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
             if (!string.IsNullOrEmpty(isAdmin) && isAdmin == "true")
             {
-                return RedirectToPage("/Admin/AdminDashboard"); 
+                return RedirectToPage("/Admin/AdminDashboard");
             }
 
             var userEmail = HttpContext.Session.GetString("UserEmail");
@@ -91,46 +93,66 @@ namespace Parkeringsplads.Pages.Account
 
             var user = await _context.User
                                      .Include(u => u.School)
+                                     .Include(u => u.Drivers)
                                      .FirstOrDefaultAsync(u => u.Email == userEmail);
 
             if (user == null)
             {
                 return RedirectToPage("./Login/Login");
             }
-            AddressList = await _context.UserAddress
-           .Where(ua => ua.User_Id == user.UserId)
-            .Include(ua => ua.Address)
-            .ThenInclude(ua => ua.City)
-             .Select(ua => ua.Address)
-             .ToListAsync();
 
-           
+            var driver = user.Drivers.FirstOrDefault();
+            IsDriver = driver != null;
+            Driver = driver;
+
+            AddressList = await _context.UserAddress
+                .Where(ua => ua.User_Id == user.UserId)
+                .Include(ua => ua.Address)
+                .ThenInclude(a => a.City)
+                .Select(ua => ua.Address)
+                .ToListAsync();
 
             Requests = await _requestService.GetAllRequestsForUser(user);
-
             AllTripsOnUser = await _tripService.GetAllTripsOnUserAsync(user);
 
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-
             TodayTrips = AllTripsOnUser?
-            .Where(t => t.TripDate == today)
-           .ToList() ?? new List<Trip>();
+                .Where(t => t.TripDate == today)
+                .ToList() ?? new List<Trip>();
 
             User = user;
             UserEmail = user.Email;
             FirstName = user.FirstName;
             LastName = user.LastName;
             Phone = user.Phone;
-            Title= user.Title;
+            Title = user.Title;
             School = user.School;
             SchoolName = user.School?.SchoolName;
 
-            var driver = await _context.Driver.FirstOrDefaultAsync(d => d.UserId == user.UserId); 
-            IsDriver = driver != null;
-            Driver = driver;
+            if (IsDriver)
+            {
+                var allDriverTrips = await _tripService.GetAllTripsForDriverAsync(user.UserId);
+                var now = DateTime.Now;
+
+                var pastOrTodayTrips = allDriverTrips
+                    .Where(t => t.TripDate.ToDateTime(t.TripTime) <= now)
+                    .ToList();
+
+                NumberOfPassengers = pastOrTodayTrips.Sum(t =>
+    t.Requests?.Count(r => r.RequestStatus == true && r.UserId != user.UserId) ?? 0);
+
+                NumberOfTrips = pastOrTodayTrips.Count;
+            }
+            else
+            {
+                NumberOfPassengers = 0;
+                NumberOfTrips = AllTripsOnUser?.Count(t => t.Requests != null && t.Requests.Any(r => r.UserId == user.UserId && r.RequestStatus == true)) ?? 0;
+            }
 
             return Page();
         }
+
+
 
         public async Task<IActionResult> OnPostStopBeingDriverAsync()
         {

@@ -37,4 +37,5 @@ public partial class Address
     public virtual ICollection<School> Schools { get; set; } = new List<School>();
 
     public string FullAddress => $"{AddressRoad} {AddressNumber}, {City?.PostalCode} {City?.CityName}";
+
 }

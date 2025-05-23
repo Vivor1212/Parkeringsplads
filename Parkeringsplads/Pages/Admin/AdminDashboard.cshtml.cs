@@ -17,8 +17,9 @@ namespace Parkeringsplads.Pages.Admin
         private readonly IRequestService _requestService;
         private readonly ITripService _tripService;
         private readonly ISchoolService _schoolService;
+        private readonly IAddressService _addressService;
 
-        public AdminDashboardModel(ParkeringspladsContext context, ICarService carService, IUser userService, ICityService cityService, IDriverService driverService, IRequestService requestService, ITripService tripService, ISchoolService schoolService)
+        public AdminDashboardModel(ParkeringspladsContext context, ICarService carService, IUser userService, ICityService cityService, IDriverService driverService, IRequestService requestService, ITripService tripService, ISchoolService schoolService, IAddressService addressService)
         {
             _context = context;
             _carService = carService;
@@ -28,6 +29,7 @@ namespace Parkeringsplads.Pages.Admin
             _requestService = requestService;
             _tripService = tripService;
             _schoolService = schoolService;
+            _addressService = addressService;
         }
 
         //User Search
@@ -70,6 +72,7 @@ namespace Parkeringsplads.Pages.Admin
         public string RequestSearchTerm { get; set; }
         public List<Request> Requests { get; set; }
 
+        public Dictionary<int, bool> AddressUsageMap { get; set; } = new Dictionary<int, bool>();
 
 
         public async Task<IActionResult> OnGetAsync()
@@ -149,6 +152,17 @@ namespace Parkeringsplads.Pages.Admin
                 );
             }
             Addresses = await addressQuery.ToListAsync();
+
+            Addresses = await addressQuery.ToListAsync();
+
+            AddressUsageMap = new Dictionary<int, bool>();
+
+            foreach (var address in Addresses)
+            {
+                bool inUse = await IsAddressInUseAsync(address.AddressId);
+                AddressUsageMap[address.AddressId] = inUse;
+            }
+
 
             //Schoolsøgning
             var schoolQuery = _context.School
@@ -256,6 +270,15 @@ namespace Parkeringsplads.Pages.Admin
 
         }
 
+        private async Task<bool> IsAddressInUseAsync(int addressId)
+        {
+            bool usedInSchools = await _context.School.AnyAsync(s => s.AddressId == addressId);
+
+            bool usedInUserAddresses = await _context.UserAddress.AnyAsync(ua => ua.Address_Id == addressId);
+
+            return usedInSchools || usedInUserAddresses;
+        }
+
         public async Task<IActionResult> OnPostDeleteCarAsync(int carId)
         {
             try
@@ -357,15 +380,39 @@ namespace Parkeringsplads.Pages.Admin
             {
                 await _schoolService.DeleteSchoolAsync(schoolId);
                 TempData["SuccessMessage"] = "Skole slettet.";
-                return RedirectToPage();
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Fejl ved sletning af skole: {ex.Message}";
-                return RedirectToPage();
             }
 
+            return RedirectToPage();
         }
+
+        public async Task<IActionResult> OnPostDeleteAddressAsync(int id)
+        {
+            try
+            {
+                var deleted = await _addressService.DeleteAddressAsync(id);
+
+                if (!deleted)
+                {
+                    TempData["ErrorMessage"] = "Adresse kunne ikke slettes, da den er i brug.";
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Adressen er blevet slettet.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Fejl ved sletning af adresse: {ex.Message}";
+            }
+
+            return RedirectToPage();
+        }
+
+
 
     }
 }

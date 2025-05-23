@@ -64,7 +64,12 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task<OperationResult> AcceptRequestAsync(int requestId, int tripId)
         {
-            var trip = await _context.Trip.Include(t => t.Requests).FirstOrDefaultAsync(t => t.TripId == tripId);
+            var trip = await _context.Trip
+                .Include(t => t.Requests)
+                .Include(t => t.Car)
+                    .ThenInclude(c => c.Driver)
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+
             if (trip == null)
             {
                 return new OperationResult { Success = false, Message = "Tur blev ikke fundet." };
@@ -83,9 +88,25 @@ namespace Parkeringsplads.Services.EFServices
             }
 
             request.RequestStatus = true;
+
+            var driver = trip.Car?.Driver;
+            if (driver != null)
+            {
+                driver.NumberOfPassengers += 1;
+            }
+
+            var user = await _context.User.FindAsync(request.UserId);
+            if (user != null)
+            {
+                user.NumberOfTrips += 1;
+            }
+
             await _context.SaveChangesAsync();
+
             return new OperationResult { Success = true, Message = "Anmodningen blev accepteret." };
         }
+
+
 
         public async Task<IEnumerable<Request>> GetRequestsForTripAsync(int tripId)
         {

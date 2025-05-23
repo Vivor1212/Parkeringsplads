@@ -23,5 +23,6 @@ namespace Parkeringsplads.Services.Interfaces
         Task<TripValidation> GetDriverTripAsync(int tripId, int userId);
         Task<IEnumerable<Trip>> GetDriversFutureTripsAsync(int userId);
         Task<IEnumerable<Car>> GetDriversCarsAsync(int driverId);
+        Task<List<Trip>> GetAllTripsForDriverAsync(int userId);
     }
 }

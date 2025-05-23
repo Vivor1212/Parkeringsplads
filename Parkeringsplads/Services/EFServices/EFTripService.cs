@@ -184,5 +184,17 @@ namespace Parkeringsplads.Services.EFServices
 
             return trips;
         }
+
+        public async Task<List<Trip>> GetAllTripsForDriverAsync(int userId)
+        {
+            return await _context.Trip
+                .Include(t => t.Requests)
+                .Include(t => t.Car)
+                    .ThenInclude(c => c.Driver)
+                .Where(t => t.Car.Driver.UserId == userId)
+                .OrderBy(t => t.TripDate)
+                .ThenBy(t => t.TripTime)
+                .ToListAsync();
+        }
     }
 }
