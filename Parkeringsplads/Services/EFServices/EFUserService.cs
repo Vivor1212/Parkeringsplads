@@ -199,6 +199,7 @@ public class EFUserService : IUser
         var user = await _context.User
             .Include(u => u.School)
                 .ThenInclude(s => s.Address)
+                .ThenInclude(a => a.City)
             .FirstOrDefaultAsync(u => u.Email == userEmail);
 
         if (user == null)
