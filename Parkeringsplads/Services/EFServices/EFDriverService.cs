@@ -26,6 +26,11 @@ namespace Parkeringsplads.Services.EFServices
             return driver;
         }
 
+        public async Task<Driver?> GetDriverByUserIdAsync(int userId)
+        {
+            return await _context.Driver.FirstOrDefaultAsync(d => d.UserId == userId);
+        }
+
         public async Task<List<SelectListItem>> GetAllDriversAsync()
         {
             return await _context.Driver
