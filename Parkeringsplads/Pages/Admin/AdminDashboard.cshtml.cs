@@ -17,7 +17,6 @@ namespace Parkeringsplads.Pages.Admin
         private readonly IRequestService _requestService;
         private readonly ITripService _tripService;
         private readonly ISchoolService _schoolService;
-        private readonly IAddressService _addressService;
 
 
         public AdminDashboardModel(ICarService carService, IUser userService, ICityService cityService, IAddressService addressService, IDriverService driverService, IRequestService requestService, ITripService tripService, ISchoolService schoolService)
@@ -30,7 +29,6 @@ namespace Parkeringsplads.Pages.Admin
             _requestService = requestService;
             _tripService = tripService;
             _schoolService = schoolService;
-            _addressService = addressService;
         }
 
         //User Search
@@ -98,14 +96,14 @@ namespace Parkeringsplads.Pages.Admin
             return Page();
         }
 
-        private async Task<bool> IsAddressInUseAsync(int addressId)
-        {
-            bool usedInSchools = await _context.School.AnyAsync(s => s.AddressId == addressId);
+        //private async Task<bool> IsAddressInUseAsync(int addressId)
+        //{
+        //    bool usedInSchools = await _context.School.AnyAsync(s => s.AddressId == addressId);
 
-            bool usedInUserAddresses = await _context.UserAddress.AnyAsync(ua => ua.Address_Id == addressId);
+        //    bool usedInUserAddresses = await _context.UserAddress.AnyAsync(ua => ua.Address_Id == addressId);
 
-            return usedInSchools || usedInUserAddresses;
-        }
+        //    return usedInSchools || usedInUserAddresses;
+        //}
 
         public async Task<IActionResult> OnPostDeleteCarAsync(int carId)
         {

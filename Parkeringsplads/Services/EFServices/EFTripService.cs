@@ -140,7 +140,9 @@ namespace Parkeringsplads.Services.EFServices
 
         public async Task<TripValidation> GetDriverTripAsync(int tripId, int userId)
         {
-            var trip = await _context.Trip.Include(t => t.Requests).ThenInclude(r => r.Users).Include(t => t.Car).ThenInclude(c => c.Driver).FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == userId);
+            var trip = await _context.Trip.Include(t => t.Requests).ThenInclude(r => r.Users)
+                                          .Include(t => t.Car).ThenInclude(c => c.Driver)
+                                          .FirstOrDefaultAsync(t => t.TripId == tripId && t.Car != null && t.Car.Driver != null && t.Car.Driver.UserId == userId);
             if (trip == null)
             {
                 return new TripValidation
@@ -212,6 +214,7 @@ namespace Parkeringsplads.Services.EFServices
         public async Task<List<Trip>> GetTripsWithDetailsAsync()
         {
             return await _context.Trip.Include(t => t.Car).ThenInclude(c => c.Driver).ThenInclude(d => d.User).OrderByDescending(t => t.TripDate).ThenBy(t => t.TripTime).ToListAsync();
+        }
 
         public async Task<List<Trip>> GetAllTripsForDriverAsync(int userId)
         {

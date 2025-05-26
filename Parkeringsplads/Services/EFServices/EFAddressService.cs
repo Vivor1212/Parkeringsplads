@@ -109,6 +109,7 @@ namespace Parkeringsplads.Services.EFServices
             }
 
             return await query.ToListAsync();
+        }
 
         public async Task<bool> IsAddressInUseAsync(int addressId)
         {
