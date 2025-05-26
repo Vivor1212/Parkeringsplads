@@ -12,7 +12,7 @@ public class CreateUserModel : PageModel
     private readonly ISchoolService _schoolService;
     private readonly ICityService _cityService;
 
-    public CreateUserModel(IUser createUserService, ISchoolService schoolService,ICityService cityService ,ParkeringspladsContext context)
+    public CreateUserModel(IUser createUserService, ISchoolService schoolService,ICityService cityService)
     {
         _createUserService = createUserService;
         _schoolService = schoolService;
@@ -32,16 +32,12 @@ public class CreateUserModel : PageModel
     [BindProperty]
     public int CityId { get; set; }
 
-  
-
-
     public Dictionary<string, string> TitleOptions = new()
     {
        
         {"P", "Personale" },
         {"S", "Studerende" },
     };
-
 
     public List<SelectListItem> Schools { get; set; }
     public List<SelectListItem> City { get; set; }
@@ -78,7 +74,7 @@ public class CreateUserModel : PageModel
 
             bool createUser = await _createUserService.CreateUserAsync(User, AddressRoad, AddressNumber, CityId);
 
-            TempData["SuccesMessage"] = "Bruger er nu oprettet. Klar til at logge ind";
+            TempData["SuccessMessage"] = "Bruger er nu oprettet. Klar til at logge ind";
 
             if (createUser)
             {

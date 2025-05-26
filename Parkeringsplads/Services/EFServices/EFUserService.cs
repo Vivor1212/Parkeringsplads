@@ -18,13 +18,13 @@ public class EFUserService : IUser
     {
         if (user == null) return false;
 
-        // 1. Check if the address already exists
+        // 1. Tjek for eksisterende adresse
         var existingAddress = await _context.Address
             .FirstOrDefaultAsync(a => a.AddressRoad == addressRoad && a.AddressNumber == addressNumber && a.CityId == cityId);
 
         int addressId;
 
-        // If the address doesn't exist, create a new one
+        // Hvis ingen adresse, opret
         if (existingAddress == null)
         {
             var newAddress = new Address
@@ -39,26 +39,20 @@ public class EFUserService : IUser
         }
         else
         {
-            // If the address exists, use the existing one
+            // Hvis addresse eksisterer, brug den
             addressId = existingAddress.AddressId;
         }
 
-        // 2. Check if the email already exists
+        // Tjek om email allerede eksisterer
         var existingUser = await _context.User.FirstOrDefaultAsync(u => u.Email == user.Email);
         if (existingUser != null)
         {
-            return false;  // Email is already in use
+            return false;  // User eksisterer allerede
         }
 
-        //  ---- Hash the password before saving
-        // var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<User>();
-        //user.Password = passwordHasher.HashPassword(user, user.Password); 
-
-        // 4. Add the new user
         _context.User.Add(user);
         await _context.SaveChangesAsync();
 
-        // 5. Create the UserAddress linking table entry
         var userAddress = new UserAddress
         {
             User_Id = user.UserId,
