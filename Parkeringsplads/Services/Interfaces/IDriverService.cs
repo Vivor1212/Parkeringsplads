@@ -7,8 +7,6 @@ namespace Parkeringsplads.Services.Interfaces
 
     public interface IDriverService
     {
-        Task<Driver> GetDriverByUserIdAsync(int userId);
-        
         Task<Driver> CreateDriverAsync(Driver driver);
         Task<List<Driver>> GetDriversWithUserAsync(string? searchTerm = null);
         Task<List<SelectListItem>> GetAllDriversAsync();

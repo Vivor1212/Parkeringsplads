@@ -28,6 +28,7 @@ namespace Parkeringsplads.Pages.Admin
             _requestService = requestService;
             _tripService = tripService;
             _schoolService = schoolService;
+            _addressService = addressService;
         }
 
         //User Search

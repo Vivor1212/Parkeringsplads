@@ -66,10 +66,6 @@ namespace Parkeringsplads.Pages.TripPages
                 return redirectResult;
             }
 
-            SchoolName = userResult.User.School.SchoolName;
-            SchoolAddress = userResult.User.School.Address.FullAddress;
-
-
             Trips = await _tripService.GetAllAvailableTripsAsync(
                 DirectionFilter,
                 DateFilter,
@@ -77,6 +73,11 @@ namespace Parkeringsplads.Pages.TripPages
                 CityFilter,
                 SchoolAddress
             );
+
+            SchoolName = userResult.User.School.SchoolName;
+            SchoolAddress = userResult.User.School.Address.FullAddress;
+
+
 
             var destinations = DirectionFilter switch
             {
@@ -93,9 +94,6 @@ namespace Parkeringsplads.Pages.TripPages
                 .OrderBy(c => c)
                 .Select(c => new SelectListItem { Value = c, Text = c })
                 .ToList();
-
-            Console.WriteLine("SchoolAddress: " + userResult.User.School.Address.FullAddress);
-            Console.WriteLine("City null?: " + (userResult.User.School.Address.City == null));
 
             return Page();
         }
@@ -117,15 +115,6 @@ namespace Parkeringsplads.Pages.TripPages
                 return RedirectToPage();
             }
 
-            var request = new Request
-            {
-                TripId = tripId,
-                UserId = userResult.User.UserId,
-                RequestStatus = null,
-                RequestTime = TimeOnly.FromDateTime(DateTime.Now)
-            };
-
-            await _requestService.CreateRequestAsync(request);
             TempData["SuccessMessage"] = "Anmodning blev sent.";
             return RedirectToPage();
         }
