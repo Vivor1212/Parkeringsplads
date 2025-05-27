@@ -8,12 +8,12 @@ namespace Parkeringsplads.Pages.Account
 {
     public class BecomeDriverModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
         private readonly IDriverService _driverService;
 
-        public BecomeDriverModel(ParkeringspladsContext context, IDriverService driverService)
+        public BecomeDriverModel(IUser userService, IDriverService driverService)
         {
-            _context = context;
+            _userService = userService;
             _driverService = driverService;
         }
 
@@ -28,8 +28,8 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
-            if (user != null && await _context.Driver.AnyAsync(d => d.UserId == user.UserId))
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
+            if (user != null && await _driverService.DriverExistsAsync(user.UserId))
             {
                 TempData["ErrorMessage"] = "Du er allerede registeret som kører.";
                 return RedirectToPage("/Account/Profile");
@@ -46,13 +46,13 @@ namespace Parkeringsplads.Pages.Account
                 return RedirectToPage("./Login/Login");
             }
 
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
             if (user == null)
             {
                 return RedirectToPage("./Login/Login");
             }
 
-            if ( await _context.Driver.AnyAsync(d => d.UserId == user.UserId))
+            if (await _driverService.DriverExistsAsync(user.UserId))
             {
                 TempData["ErrorMessage"] = "Du er allerede chauffør.";
                 return RedirectToPage("/Account/Profile");

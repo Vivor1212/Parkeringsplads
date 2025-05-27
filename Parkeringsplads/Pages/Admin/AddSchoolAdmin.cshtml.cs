@@ -12,13 +12,13 @@ namespace Parkeringsplads.Pages.Admin
 {
     public class AddSchoolAdminModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
         private readonly ISchoolService _schoolService;
+        private readonly ICityService _cityService;
 
-        public AddSchoolAdminModel(ParkeringspladsContext context, ISchoolService schoolService)
+        public AddSchoolAdminModel(ISchoolService schoolService, ICityService cityService)
         {
-            _context = context;
             _schoolService = schoolService;
+            _cityService = cityService;
         }
 
         [BindProperty]
@@ -74,13 +74,7 @@ namespace Parkeringsplads.Pages.Admin
 
         private async Task LoadCitiesAsync()
         {
-            Cities = await _context.City
-                .OrderBy(c => c.CityName) 
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CityId.ToString(),
-                    Text = $"{c.CityName} - {c.PostalCode}" 
-                }).ToListAsync();
+            Cities = await _cityService.CityDropDownAsync();
         }
     }
 }

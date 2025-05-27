@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace Parkeringsplads.Pages.TripPages
 {
-    public class CreateTripModel : PageModel
+    public class CreateTripModel : BasePageModel
     {
         private readonly ITripService _tripService;
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
 
-        public CreateTripModel(ITripService tripService, ParkeringspladsContext context)
+        public CreateTripModel(IUser userService, ITripService tripService, ParkeringspladsContext context) : base(userService)
         {
             _tripService = tripService;
-            _context = context;
+            _userService = userService;
         }
 
         [BindProperty] public Trip Trip { get; set; } = new();
@@ -40,29 +40,28 @@ namespace Parkeringsplads.Pages.TripPages
             if (string.IsNullOrEmpty(userEmail))
                 return RedirectToPage("/Account/Login/Login");
 
-            var driver = await _context.Driver
-                .Include(d => d.Cars)
-                .FirstOrDefaultAsync(d => d.User.Email == userEmail);
-
+            var driver = await _tripService.GetDriverWithCarsByEmailAsync(userEmail);
             if (driver == null || !driver.Cars.Any())
             {
                 TempData["ErrorMessage"] = "Ingen biler fundet. Tilføj en bil <a href='/CarPages/Car'>her</a>.";
                 return RedirectToPage("/Account/Profile");
             }
 
-            var user = await _context.User
-                .Include(u => u.School).ThenInclude(s => s.Address).ThenInclude(a => a.City)
-                .Include(u => u.UserAddresses).ThenInclude(ua => ua.Address).ThenInclude(a => a.City)
-                .FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Bruger ikke fundet.";
+                return RedirectToPage("/Account/Login/Login");
+            }
 
             UserAddresses = user.UserAddresses.Select(ua => ua.Address.FullAddress).ToList();
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
 
+            Cars = driver.Cars.ToList();
             var selectedCar = Cars.FirstOrDefault(c => c.CarId == SelectedCarId) ?? Cars.FirstOrDefault();
             int carCapacity = selectedCar?.CarCapacity ?? 4;
             SeatOptions = Enumerable.Range(1, carCapacity).ToList();
 
-            Cars = driver.Cars.ToList();
             Trip.TripSeats = carCapacity;
             Trip.TripDate = DateOnly.FromDateTime(DateTime.Today);
             Trip.TripTime = new TimeOnly(DateTime.Now.Hour, 0);
@@ -91,27 +90,27 @@ namespace Parkeringsplads.Pages.TripPages
         {
             var userEmail = HttpContext.Session.GetString("UserEmail");
             if (string.IsNullOrEmpty(userEmail))
+            {
                 return RedirectToPage("/Account/Login/Login");
+            }
 
-            var driver = await _context.Driver
-                .Include(d => d.Cars)
-                .FirstOrDefaultAsync(d => d.User.Email == userEmail);
-
+            var driver = await _tripService.GetDriverWithCarsByEmailAsync(userEmail);
             if (driver == null || !driver.Cars.Any())
             {
                 TempData["ErrorMessage"] = "Ingen biler fundet. Tilføj en bil under Mine Biler.";
                 return RedirectToPage("/Account/Profile");
             }
 
-            Cars = driver.Cars.ToList();
-
-            var user = await _context.User
-                .Include(u => u.School).ThenInclude(s => s.Address).ThenInclude(a => a.City)
-                .Include(u => u.UserAddresses).ThenInclude(ua => ua.Address).ThenInclude(a => a.City)
-                .FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Bruger ikke fundet.";
+                return RedirectToPage("/Account/Login/Login");
+            }
 
             UserAddresses = user.UserAddresses.Select(ua => ua.Address.FullAddress).ToList();
             SchoolAddress = user.School?.Address?.FullAddress ?? "Ukendt skoleadresse";
+            Cars = driver.Cars.ToList();
 
             var car = Cars.FirstOrDefault(c => c.CarId == SelectedCarId);
             if (car == null)

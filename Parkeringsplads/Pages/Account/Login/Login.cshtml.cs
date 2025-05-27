@@ -25,7 +25,6 @@ namespace Parkeringsplads.Pages.Account
         [BindProperty]
         public string Password { get; set; }
 
-
         public IActionResult OnGet() 
         {
             var UserEmail = HttpContext.Session.GetString("UserEmail");

@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Parkeringsplads.Pages.TripPages
 {
-    public class CreateRequestModel : PageModel
+    public class CreateRequestModel : BasePageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly ITripService _tripService;
         private readonly IRequestService _requestService;
 
-        public CreateRequestModel(ParkeringspladsContext context, IRequestService requestService)
+        public CreateRequestModel(IUser userService,ITripService tripService, IRequestService requestService) : base(userService)
         {
-            _context = context;
+            _tripService = tripService;
             _requestService = requestService;
         }
 
@@ -29,12 +29,7 @@ namespace Parkeringsplads.Pages.TripPages
         public string? Address { get; set; }
         public async Task<IActionResult> OnGetAsync(int tripId)
         {
-            Trip = await _context.Trip
-                .Include(t => t.Car)
-                    .ThenInclude(c => c.Driver)
-                        .ThenInclude(d => d.User)
-                .FirstOrDefaultAsync(t => t.TripId == tripId);
-
+            Trip = await _tripService.GetTripByIdAsync(tripId);
             if (Trip == null)
                 return NotFound();
 
@@ -47,12 +42,16 @@ namespace Parkeringsplads.Pages.TripPages
             if (string.IsNullOrEmpty(userEmail))
                 return RedirectToPage("/Account/Login");
 
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var user = await _userService.GetUserWithDetailsByEmailAsync(userEmail);
             if (user == null)
                 return RedirectToPage("/Account/Login");
 
-            var alreadyRequested = await _context.Request
-                .AnyAsync(r => r.TripId == tripId && r.UserId == user.UserId);
+            var alreadyRequested = await _requestService.RequestExistsAsync(tripId, user.UserId);
+            if (alreadyRequested)
+            {
+                TempData["ErrorMessage"] = "Du har allerede anmodet om denne tur.";
+                return RedirectToPage("/TripPages/AvailableTrips");
+            }
 
             var request = new Request
             {
@@ -64,6 +63,7 @@ namespace Parkeringsplads.Pages.TripPages
             };
 
             await _requestService.CreateRequestAsync(request);
+            TempData["SuccessMessage"] = "Anmodningen blev oprettet!";
             return RedirectToPage("/TripPages/AvailableTrips");
 
         }

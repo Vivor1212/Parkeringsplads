@@ -3,16 +3,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Parkeringsplads.Models;
+using Parkeringsplads.Services.Interfaces;
 
 namespace Parkeringsplads.Pages.Admin
 {
     public class EditSchoolAdminModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly ISchoolService _schoolService;
+        private readonly IAddressService _addressService;
+        private readonly ICityService _cityService;
 
-        public EditSchoolAdminModel(ParkeringspladsContext context)
+        public EditSchoolAdminModel(ISchoolService schoolService, IAddressService addressService, ICityService cityService)
         {
-            _context = context;
+            _schoolService = schoolService;
+            _addressService = addressService;
+            _cityService = cityService;
         }
 
         [BindProperty]
@@ -48,12 +53,7 @@ namespace Parkeringsplads.Pages.Admin
             }
 
             SchoolId = schoolId.Value;
-
-            var school = await _context.School
-                .Include(s => s.Address)
-                    .ThenInclude(a => a.City)
-                .FirstOrDefaultAsync(s => s.SchoolId == SchoolId);
-
+            var school = await _schoolService.GetSchoolWithAddressAsync(SchoolId);
             if (school == null)
             {
                 TempData["ErrorMessage"] = "Skolen blev ikke fundet.";
@@ -82,13 +82,6 @@ namespace Parkeringsplads.Pages.Admin
                     return Page();
                 }
 
-                var school = await _context.School.FirstOrDefaultAsync(s => s.SchoolId == SchoolId);
-                if (school == null)
-                {
-                    TempData["ErrorMessage"] = "Skolen blev ikke fundet.";
-                    return Page();
-                }
-
                 var newAddress = new Address
                 {
                     AddressRoad = AddressRoad,
@@ -96,13 +89,13 @@ namespace Parkeringsplads.Pages.Admin
                     CityId = SelectedCityId
                 };
 
-                _context.Address.Add(newAddress);
-                await _context.SaveChangesAsync();
-
-                school.SchoolName = SchoolName;
-                school.AddressId = newAddress.AddressId;
-
-                await _context.SaveChangesAsync();
+                var createdAddress = await _addressService.CreateAddressAsync(newAddress);
+                var success = await _schoolService.UpdateSchoolAsync(SchoolId, SchoolName, createdAddress.AddressId);
+                if (!success)
+                {
+                    TempData["ErrorMessage"] = "Skolen blev ikke fundet.";
+                    return Page();
+                }
 
                 TempData["SuccessMessage"] = "Skolen er opdateret.";
                 return RedirectToPage("/Admin/AdminDashboard");
@@ -117,13 +110,7 @@ namespace Parkeringsplads.Pages.Admin
 
         private async Task LoadCitiesAsync()
         {
-            Cities = await _context.City
-                .OrderBy(c => c.PostalCode)
-                .Select(c => new SelectListItem
-                {
-                    Value = c.CityId.ToString(),
-                    Text = $"{c.PostalCode} {c.CityName}"
-                }).ToListAsync();
+            Cities = await _cityService.CityDropDownAsync();
         }
     }
 }

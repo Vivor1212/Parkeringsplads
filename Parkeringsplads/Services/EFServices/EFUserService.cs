@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Parkeringsplads.Models;
@@ -71,7 +72,6 @@ public class EFUserService : IUser
         };
         _context.UserAddress.Add(userAddress);
         await _context.SaveChangesAsync();
-
         return true;
     }
     public async Task<bool> UpdateUserAsync(User updatedUser)
@@ -100,13 +100,9 @@ public class EFUserService : IUser
         existingUser.SchoolId = updatedUser.SchoolId;
 
         // --- Address handling ---
-
-      
         await _context.SaveChangesAsync();
-
         return true;
     }
-
 
     public async Task<bool> DeleteUserAsync(int userId)
     {
@@ -126,16 +122,13 @@ public class EFUserService : IUser
 
         _context.User.Remove(user);
         await _context.SaveChangesAsync();
-
         return true;
     }
 
     public async Task<User> GetUserAsync(int userId)
     {
         return await _context.User
-
           .FirstOrDefaultAsync(u => u.UserId == userId);
-
     }
 
     public async Task<List<User>> GetAllUsersAsync()
@@ -193,5 +186,125 @@ public class EFUserService : IUser
     public async Task<IEnumerable<Car>> GetDriverCarsAsync(int driverId)
     {
         return await _context.Car.Where(c => c.DriverId == driverId).ToListAsync();
+    }
+
+    public async Task<UserValidation> ValidateUserAsync(HttpContext httpContext)
+    {
+        var userEmail = httpContext.Session.GetString("UserEmail");
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            return new UserValidation
+            {
+                IsValid = false,
+                ErrorMessage = "Please log in to continue.",
+                RedirectPage = "/Account/Login/Login"
+            };
+        }
+
+        var user = await _context.User
+            .Include(u => u.School)
+                .ThenInclude(s => s.Address)
+                .ThenInclude(a => a.City)
+            .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+        if (user == null)
+        {
+            return new UserValidation
+            {
+                IsValid = false,
+                ErrorMessage = "User not found.",
+                RedirectPage = "/Account/Login/Login"
+            };
+        }
+
+        return new UserValidation
+        {
+            IsValid = true,
+            User = user,
+            ErrorMessage = null,
+            RedirectPage = null
+        };
+    }
+
+    public async Task<User?> GetUserWithDetailsByEmailAsync(string email)
+    {
+        return await _context.User.Include(u => u.School).ThenInclude(s => s.Address).ThenInclude(a => a.City).Include(u => u.UserAddresses).ThenInclude(ua => ua.Address).ThenInclude(a => a.City).FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task<User?> GetUserWithDetailsByIdAsync(int userId)
+    {
+        return await _context.User.Include(u => u.School).Include(u => u.UserAddresses).ThenInclude(ua => ua.Address).ThenInclude(a => a.City).FirstOrDefaultAsync(u => u.UserId == userId);
+    }
+
+    public async Task<User?> GetUserByEmailAsync(string email)
+    {
+        return await _context.User.FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    public async Task<bool> ChangePasswordAsync(string email, string currentPassword, string newPassword)
+    {
+        var user = await _context.User.FirstOrDefaultAsync(u => u.Email == email);
+        if (user == null || !BCrypt.Net.BCrypt.Verify(currentPassword, user.Password))
+        {
+            return false;
+        }
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+    {
+        var user = await _context.User.FirstOrDefaultAsync(u => u.Email == email);
+        if (user == null)
+        {
+            return false;
+        }
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<List<SelectListItem>> UserDropDownAsync()
+    {
+        return await _context.User.Select(u => new SelectListItem
+        {
+            Value = u.UserId.ToString(),
+            Text = $"{u.FirstName} {u.LastName} ({u.Email})"
+        }).ToListAsync();
+    }
+
+    public async Task<List<User>> GetUsersWithSchoolAsync(string? searchTerm = null)
+    {
+        var query = _context.User.Include(u => u.School).AsQueryable();
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lowerTerm = searchTerm.ToLower();
+            query = query.Where(u => u.FirstName.ToLower().Contains(lowerTerm) ||
+            u.LastName.ToLower().Contains(lowerTerm) ||
+            u.Email.ToLower().Contains(lowerTerm) ||
+            u.Phone.ToLower().Contains(lowerTerm) ||
+            u.Title.ToLower().Contains(lowerTerm) ||
+            u.SchoolId.ToString().Contains(lowerTerm) ||
+            (u.School != null && u.School.SchoolName.ToLower().Contains(lowerTerm)));
+        }
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<User?> GetUserWithAddressesAsync(int userId)
+    {
+        return await _context.User.Include(u => u.UserAddresses).ThenInclude(ua => ua.Address).ThenInclude(a => a.City).FirstOrDefaultAsync(u => u.UserId == userId);
+    }
+
+    public async Task<List<SelectListItem>> GetNonDriverUsersAsync()
+    {
+        return await _context.User.Where(u => !_context.Driver.Any(d => d.UserId == u.UserId)).Select(u => new SelectListItem
+        {
+            Value = u.UserId.ToString(),
+            Text = $"{u.FirstName} {u.LastName}"
+        }).ToListAsync();
     }
 }

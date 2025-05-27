@@ -13,12 +13,12 @@ namespace Parkeringsplads.Pages.Admin
     public class AddDriverAdminModel : PageModel
     {
         private readonly IDriverService _driverService;
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
 
-        public AddDriverAdminModel(IDriverService driverService, ParkeringspladsContext context)
+        public AddDriverAdminModel(IDriverService driverService, IUser userService)
         {
             _driverService = driverService;
-            _context = context;
+            _userService = userService;
         }
 
         public List<User> UsersNotDrivers { get; set; } = new List<User>();
@@ -29,61 +29,43 @@ namespace Parkeringsplads.Pages.Admin
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var isAdmin = HttpContext.Session.GetString("IsAdmin");
-
-            if (string.IsNullOrEmpty(isAdmin) || isAdmin != "true")
+            var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
+            if (!isAdmin)
             {
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
-            UsersNotDrivers = await _context.User
-                .Where(u => !_context.Driver.Any(d => d.UserId == u.UserId))
-                .ToListAsync();
-
-            Users = UsersNotDrivers.Select(u => new SelectListItem
-            {
-                Value = u.UserId.ToString(),
-                Text = u.FirstName + " " + u.LastName
-            }).ToList();
-
+            Users = await _userService.GetNonDriverUsersAsync();
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (NewDriver.UserId == 0)
+            var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
+            if (!isAdmin)
             {
-                TempData["ErrorMessage"] = "Vælg en bruger for chaufføren.";
-                return Page();
+                return RedirectToPage("/Admin/NotAdmin");
             }
 
-            var user = await _context.User.FindAsync(NewDriver.UserId);
-            if (user == null)
+            try
             {
-                TempData["ErrorMessage"] = "Brugeren blev ikke fundet.";
+                var driverResult = await _driverService.ValidateAndCreateDriverAdync(NewDriver);
+                if (!driverResult.IsValid)
+                {
+                    Users = await _userService.GetNonDriverUsersAsync();
+                    TempData["ErrorMessage"] = driverResult.ErrorMessage;
+                    return Page();
+                }
+
+                TempData["SuccessMessage"] = "Chauffør tilføjet med succes!";
+                return RedirectToPage("/Admin/AdminDashboard");
+            }
+            catch (Exception ex)
+            {
+                Users = await _userService.GetNonDriverUsersAsync();
+                TempData["ErrorMessage"] = $"Fejl ved tilføjelse af chauffør: {ex.Message}";
                 return Page();
             }
-
-            var existingDriver = await _context.Driver
-                .FirstOrDefaultAsync(d => d.UserId == NewDriver.UserId);
-            if (existingDriver != null)
-            {
-                TempData["ErrorMessage"] = "Brugeren er allerede tilknyttet som chauffør.";
-                return Page();
-            }
-
-            var driver = new Driver
-            {
-                UserId = NewDriver.UserId,
-                DriverLicense = NewDriver.DriverLicense,
-                DriverCpr = NewDriver.DriverCpr
-            };
-
-            _context.Driver.Add(driver);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Chauffør tilføjet med succes!";
-            return RedirectToPage("/Admin/AdminDashboard");
         }
 
     }

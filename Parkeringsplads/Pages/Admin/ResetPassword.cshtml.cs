@@ -2,16 +2,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Parkeringsplads.Models;
 using BCrypt.Net;
+using Parkeringsplads.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace Parkeringsplads.Pages.Admin
 {
     public class ResetPasswordModel : PageModel
     {
-        private readonly ParkeringspladsContext _context;
+        private readonly IUser _userService;
 
-        public ResetPasswordModel(ParkeringspladsContext context)
+        public ResetPasswordModel(IUser userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [BindProperty]
@@ -36,7 +38,7 @@ namespace Parkeringsplads.Pages.Admin
             return Page();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPost()
         {
             if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(NewPassword) || string.IsNullOrEmpty(ConfirmNewPassword))
             {
@@ -50,20 +52,14 @@ namespace Parkeringsplads.Pages.Admin
                 return Page();
             }
 
-            var user = _context.User.FirstOrDefault(u => u.Email == Email);
-
-            if (user == null)
+            var success = await _userService.ResetPasswordAsync(Email, NewPassword);
+            if (!success)
             {
                 TempData["ErrorMessage"] = "User not found.";
                 return Page();
             }
 
-            user.Password = BCrypt.Net.BCrypt.HashPassword(NewPassword);
-
-            _context.SaveChanges();
-
-            TempData["SuccessMessage"] = "Password updated successfully.";
-
+            TempData["SuccessMessage"] = "Password reset successfully.";
             return RedirectToPage("/Admin/AdminDashboard");
         }
     }

@@ -23,5 +23,22 @@ namespace Parkeringsplads.Pages
             }
             return null;
         }
+
+        protected async Task<IActionResult> HandleValidationAndRedirect(UserValidation userResult, TripValidation tripResult = null)
+        {
+            if (!userResult.IsValid)
+            {
+                TempData["ErrorMessage"] = userResult.ErrorMessage;
+                return RedirectToPage(userResult.RedirectPage);
+            }
+
+            if (tripResult != null && !tripResult.IsValid)
+            {
+                TempData["ErrorMessage"] = tripResult.ErrorMessage;
+                return RedirectToPage(tripResult.RedirectPage);
+            }
+
+            return null;
+        }
     }
 }

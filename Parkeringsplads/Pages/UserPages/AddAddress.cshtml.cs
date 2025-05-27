@@ -9,15 +9,14 @@ using Parkeringsplads.Services.Interfaces;
 
 public class AddAddressModel : PageModel
 {
-    private readonly ParkeringspladsContext _context;
     private readonly ICityService _cityService;
     private readonly IAddressService _addressService;
     private readonly IUser _userService;
 
 
-    public AddAddressModel(ParkeringspladsContext context, ICityService cityService, IAddressService addressService, IUser userService)
+
+    public AddAddressModel(ICityService cityService, IAddressService addressService, IUser userService)
     {
-        _context = context;
         _addressService = addressService;
         _cityService = cityService;
         _userService = userService;
@@ -40,10 +39,9 @@ public class AddAddressModel : PageModel
 
     public List<SelectListItem> City { get; set; }
 
+
     private async Task LoadDropdownDataAsync()
     {
-        // Fetch the dropdown data
-   
         City = await _cityService.CityDropDownAsync();
     }
 
