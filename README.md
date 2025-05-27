@@ -10,7 +10,6 @@ Funktionalitet
 Brugeroprettelse
 Brugere kan oprette sig som chauffør, passager, eller begge dele.
 
-Kørselsruter
 Brugere kan registrere deres kørselsruter med opsamlings- og afstigningssteder.
 
 Chaufførfunktioner
