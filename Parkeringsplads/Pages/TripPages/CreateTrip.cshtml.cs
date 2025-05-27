@@ -13,12 +13,10 @@ namespace Parkeringsplads.Pages.TripPages
     public class CreateTripModel : BasePageModel
     {
         private readonly ITripService _tripService;
-        private readonly IUser _userService;
 
-        public CreateTripModel(IUser userService, ITripService tripService, ParkeringspladsContext context) : base(userService)
+        public CreateTripModel(IUser userService, ITripService tripService) : base(userService)
         {
             _tripService = tripService;
-            _userService = userService;
         }
 
         [BindProperty] public Trip Trip { get; set; } = new();

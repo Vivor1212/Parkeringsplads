@@ -8,6 +8,7 @@ namespace Parkeringsplads.Services.Interfaces
         Task<Address> CreateAddressAsync(Address address);
         Task<bool> LinkAddressToUserAsync(int userId, int addressId);
         Task<bool> DeleteAddressAsync(int addressId);
+        Task<bool> IsAddressInUseAsync(int addressId);
         Task<List<Address>> GetUserAddressesAsync(int userId);
         Task<List<Address>> GetAddressesWithCityAsync(string? searchTerm = null);
     }

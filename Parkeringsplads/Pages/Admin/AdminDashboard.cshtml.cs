@@ -82,7 +82,6 @@ namespace Parkeringsplads.Pages.Admin
                 return RedirectToPage("/Admin/NotAdmin");
             }
 
-
             Users = await _userService.GetUsersWithSchoolAsync(SearchTerm);
             Cars = await _carService.GetCarsAsync(CarSearchTerm);
             Cities = await _cityService.GetCitiesAsync(CitySearchTerm);
@@ -92,18 +91,15 @@ namespace Parkeringsplads.Pages.Admin
             Trips = await _tripService.GetTripsWithDriverAsync(TripSearchTerm);
             Requests = await _requestService.GetRequestsWithDetailsAsync(RequestSearchTerm);
 
+            AddressUsageMap = new Dictionary<int, bool>();
+            foreach (var address in Addresses)
+            {
+                bool isInUse = await _addressService.IsAddressInUseAsync(address.AddressId);
+                AddressUsageMap[address.AddressId] = isInUse;
+            }
 
             return Page();
         }
-
-        //private async Task<bool> IsAddressInUseAsync(int addressId)
-        //{
-        //    bool usedInSchools = await _context.School.AnyAsync(s => s.AddressId == addressId);
-
-        //    bool usedInUserAddresses = await _context.UserAddress.AnyAsync(ua => ua.Address_Id == addressId);
-
-        //    return usedInSchools || usedInUserAddresses;
-        //}
 
         public async Task<IActionResult> OnPostDeleteCarAsync(int carId)
         {
@@ -234,9 +230,5 @@ namespace Parkeringsplads.Pages.Admin
 
             return RedirectToPage();
         }
-
-
-
-
     }
 }

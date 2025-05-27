@@ -52,13 +52,5 @@ namespace Parkeringsplads.Pages.UserPages
             Requests = await _requestService.GetAllRequestsForUser(user);
             return Page();
         }
-
-        public async Task OnPost()
-        {
-      
-          
-        }
-
-
     }
 }

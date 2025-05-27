@@ -14,9 +14,6 @@ namespace Parkeringsplads.Pages.CarPages
             _carService = carService;
         }
 
-
-        public string ErrorMessage { get; set; }
-
         [BindProperty]
         public Car CarToEdit { get; set; }
 
