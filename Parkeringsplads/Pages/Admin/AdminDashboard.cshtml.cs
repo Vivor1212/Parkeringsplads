@@ -28,7 +28,6 @@ namespace Parkeringsplads.Pages.Admin
             _requestService = requestService;
             _tripService = tripService;
             _schoolService = schoolService;
-            _addressService = addressService;
         }
 
         //User Search
@@ -95,15 +94,6 @@ namespace Parkeringsplads.Pages.Admin
 
             return Page();
         }
-
-        //private async Task<bool> IsAddressInUseAsync(int addressId)
-        //{
-        //    bool usedInSchools = await _context.AnyAsync(s => s.AddressId == addressId);
-
-        //    bool usedInUserAddresses = await _context.UserAddress.AnyAsync(ua => ua.Address_Id == addressId);
-
-        //    return usedInSchools || usedInUserAddresses;
-        //}
 
         public async Task<IActionResult> OnPostDeleteCarAsync(int carId)
         {

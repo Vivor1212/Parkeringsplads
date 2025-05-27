@@ -68,35 +68,29 @@ namespace Parkeringsplads.Services.EFServices
             {
                 return new OperationResult { Success = false, Message = "Tur blev ikke fundet." };
             }
-
             var acceptedRequests = trip.Requests.Count(r => r.RequestStatus == true);
             if (acceptedRequests >= trip.TripSeats)
             {
                 return new OperationResult { Success = false, Message = "Kunne ikke acceptere anmodningen: Alle pladser er fuldt." };
             }
-
             var request = await _context.Request.FindAsync(requestId);
             if (request == null)
             {
                 return new OperationResult { Success = false, Message = "Anmodning blev ikke fundet." };
             }
-
             request.RequestStatus = true;
-
+            trip.TripSeats--;
             var driver = trip.Car?.Driver;
             if (driver != null)
             {
                 driver.NumberOfPassengers += 1;
             }
-
             var user = await _context.User.FindAsync(request.UserId);
             if (user != null)
             {
                 user.NumberOfTrips += 1;
             }
-
             await _context.SaveChangesAsync();
-
             return new OperationResult { Success = true, Message = "Anmodningen blev accepteret." };
         }
 
@@ -112,14 +106,27 @@ namespace Parkeringsplads.Services.EFServices
             return await _context.Request.Where(r => r.TripId == tripId).OrderBy(r => r.RequestTime).ToListAsync();
         }
 
-        public async Task<OperationResult> RejectRequestAsync(int requestId)
+        public async Task<OperationResult> RejectRequestAsync(int requestId, int tripId)
         {
+            var trip = await _context.Trip
+                .Include(t => t.Requests)
+                .Include(t => t.Car)
+                    .ThenInclude(c => c.Driver)
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+            if (trip == null)
+            {
+                return new OperationResult { Success = false, Message = "Tur blev ikke fundet." };
+            }
             var request = await _context.Request.FindAsync(requestId);
             if (request == null)
             {
                 return new OperationResult { Success = false, Message = "Anmodningen blev ikke fundet." };
             }
-
+            
+            if (request.RequestStatus == true)
+            {
+                trip.TripSeats++;
+            }
             request.RequestStatus = false;
             await _context.SaveChangesAsync();
             return new OperationResult { Success = true, Message = "Anmodningen blev afvist." };

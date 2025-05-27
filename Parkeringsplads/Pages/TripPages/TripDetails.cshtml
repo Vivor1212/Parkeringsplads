@@ -83,8 +83,8 @@
                                         @request.Users?.FirstName @request.Users?.LastName
                                         <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
                                     </td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "Jeg møder op på start addressen.")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "Ingen besked.")</td>
                                     <td><span class="badge bg-success">Accepter</span></td>
                                     <td>
                                         <form method="post" asp-page-handler="RejectRequest" asp-route-tripId="@Model.Trip.TripId" asp-route-requestId="@request.RequestId" class="d-inline">
@@ -182,8 +182,8 @@
                                         @request.Users?.FirstName @request.Users?.LastName
                                         <small class="text-muted d-block">tlf. @request.Users?.Phone</small>
                                     </td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "No pickup needed. I will show up at start address")</td>
-                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "No message provided")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestAddress) ? request.RequestAddress : "Jeg møder op på start addressen.")</td>
+                                    <td>@(!string.IsNullOrWhiteSpace(request.RequestMessage) ? request.RequestMessage : "Ingen besked.")</td>
                                     <td><span class="badge bg-danger">Afvist</span></td>
                                 </tr>
                             }

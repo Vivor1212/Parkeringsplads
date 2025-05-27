@@ -79,7 +79,7 @@ namespace Parkeringsplads.Pages.TripPages
                 return redirectResult;
             }
 
-            var result = await _requestService.RejectRequestAsync(requestId);
+            var result = await _requestService.RejectRequestAsync(requestId, tripId);
             TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Message;
             return RedirectToPage(new { tripId });
         }

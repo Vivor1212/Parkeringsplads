@@ -153,7 +153,6 @@ public class EFUserService : IUser
                 ErrorMessage = "Bruger er ikke logget ind."
             };
         }
-
         var user = await _context.User.FirstOrDefaultAsync(u => u.Email == userEmail);
         if (user == null)
         {
@@ -164,7 +163,6 @@ public class EFUserService : IUser
                 ErrorMessage = "Bruger ikke fundet."
             };
         }
-
         var isDriver = await _context.Driver.AnyAsync(d => d.UserId == user.UserId);
         if (!isDriver)
         {
@@ -175,7 +173,6 @@ public class EFUserService : IUser
                 ErrorMessage = "Du skal være en chauffør for at udføre denne handling."
             };
         }
-
         return new UserValidation
         {
             IsValid = true,
