@@ -45,6 +45,7 @@ namespace Parkeringsplads.Pages.Account
 
             if (user != null && VerifyPassword(Password, user.Password))
             {
+                HttpContext.Session.SetInt32("UserId", user.UserId);
 
                 if (user.Title == "A" || user.Title == "a")
                 {
