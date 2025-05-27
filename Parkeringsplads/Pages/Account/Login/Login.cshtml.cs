@@ -12,13 +12,11 @@ namespace Parkeringsplads.Pages.Account
     {
         private readonly IUser _userService;
         private readonly IDriverService _driverService;
-        private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(IUser userService, IDriverService driverService, ILogger<LoginModel> logger)
-        {
+        public LoginModel( IUser userService, IDriverService driverService)
+        { 
             _userService = userService;
             _driverService = driverService;
-            _logger = logger;
         }
 
         [BindProperty]
@@ -46,6 +44,7 @@ namespace Parkeringsplads.Pages.Account
 
             if (user != null && VerifyPassword(Password, user.Password))
             {
+                HttpContext.Session.SetInt32("UserId", user.UserId);
 
                 if (user.Title == "A" || user.Title == "a")
                 {
