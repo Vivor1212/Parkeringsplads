@@ -138,7 +138,6 @@ namespace Parkeringsplads.Pages.UserPages
                 }
 
                 User.UserId = userBeingUpdated.UserId;
-                Console.WriteLine($"Updating user: ID={User.UserId}, Email={User.Email}");
 
                 bool updateSuccessful = await _userService.UpdateUserAsync(User);
 

@@ -44,13 +44,28 @@ namespace Parkeringsplads.Services.EFServices
                 .ThenBy(t => t.TripTime)
                 .AsQueryable();
 
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var now = TimeOnly.FromDateTime(DateTime.Now);
+            query = query.Where(t =>
+                t.TripDate > today || (t.TripDate == today && t.TripTime >= now));
+
+
             if (!string.IsNullOrEmpty(directionFilter))
             {
+                var schoolAddressLower = schoolAddress.ToLower();
+
                 if (directionFilter == "ToSchool")
-                    query = query.Where(t => t.ToDestination != null && t.ToDestination.ToLower().Contains(schoolAddress.ToLower()));
+                {
+                    query = query.Where(t => t.ToDestination == schoolAddress);
+                }
                 else if (directionFilter == "FromSchool")
-                    query = query.Where(t => t.FromDestination != null && t.FromDestination.ToLower().Contains(schoolAddress.ToLower()));
+                {
+                    query = query.Where(t => t.FromDestination == schoolAddress);
+                }
+
             }
+
+
 
             if (dateFilter.HasValue)
             {
@@ -66,13 +81,13 @@ namespace Parkeringsplads.Services.EFServices
             {
                 string cityLower = cityFilter.ToLower();
 
-                if (directionFilter == "Til Skole")
+                if (directionFilter == "ToSchool")
                 {
                     query = query.Where(t =>
                         !string.IsNullOrEmpty(t.FromDestination) &&
                         t.FromDestination.ToLower().Contains(cityLower));
                 }
-                else if (directionFilter == "Fra Skole")
+                else if (directionFilter == "FromSchool")
                 {
                     query = query.Where(t =>
                         !string.IsNullOrEmpty(t.ToDestination) &&
@@ -227,6 +242,16 @@ namespace Parkeringsplads.Services.EFServices
                 .ThenBy(t => t.TripTime)
                 .ToListAsync();
 
+        }
+
+
+        public string ExtractCity(string? address)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+                return "";
+
+            var parts = address.Split(',');
+            return parts.Length >= 1 ? parts[parts.Length - 1] : address;
         }
     }
 }
