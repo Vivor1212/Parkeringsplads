@@ -106,12 +106,12 @@ namespace Parkeringsplads.Pages.UserPages
             var isAdmin = HttpContext.Session.GetString("IsAdmin");
             var sessionEmail = HttpContext.Session.GetString("UserEmail");
 
-            if (!ModelState.IsValid)
-            {
-                TempData["ErrorMessage"] = "Ugyldige data indsendt: " + string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                await LoadDropdownDataAsync();
-                return Page();
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    TempData["ErrorMessage"] = "Ugyldige data indsendt: " + string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            //    await LoadDropdownDataAsync();
+            //    return Page();
+            //}
 
             User userBeingUpdated;
 
@@ -143,7 +143,7 @@ namespace Parkeringsplads.Pages.UserPages
 
                 if (updateSuccessful)
                 {
-                    TempData["SuccesMessage"] = "Bruger opdateret";
+                    TempData["SuccessMessage"] = "Bruger opdateret";
 
                     if (isAdmin == "true")
                     {
