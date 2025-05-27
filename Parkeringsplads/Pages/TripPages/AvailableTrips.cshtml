@@ -109,7 +109,7 @@
             {
                 <tr>
                     <td>@trip.TripDate.ToShortDateString()</td>
-                    <td>@trip.TripTime.ToString(@"hh\:mm")</td>
+                    <td>@trip.TripTime.ToString(@"HH\:mm")</td>
                     <td>@Model.DisplayDestination(trip.FromDestination)</td>
                     <td>@Model.DisplayDestination(trip.ToDestination)</td>
                     <td>@trip.Car.Driver.User.FirstName @trip.Car.Driver.User.LastName</td>
