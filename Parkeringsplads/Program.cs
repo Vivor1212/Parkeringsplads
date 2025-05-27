@@ -47,7 +47,6 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-// Add session middleware support
 app.UseSession();
 
 app.MapRazorPages();

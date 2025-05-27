@@ -6,6 +6,7 @@ namespace Parkeringsplads.Services.Interfaces
 {
     public interface IUser
     {
+        Task<User> GetUserByEmailAsync(string email);
         Task<bool> CreateUserAsync(User user, string addressRoad, string addressNumber, int cityId);
         Task<bool> UpdateUserAsync(User updatedUser);
         Task<bool> DeleteUserAsync(int userId);

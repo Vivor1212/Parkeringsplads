@@ -59,15 +59,16 @@ namespace Parkeringsplads.Pages.TripPages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var userResult = await _userService.ValidateUserAsync(HttpContext); // Assuming a generic ValidateUserAsync
+            var userResult = await _userService.ValidateUserAsync(HttpContext);
             var redirectResult = await HandleValidationAndRedirect(userResult);
             if (redirectResult != null)
             {
                 return redirectResult;
             }
 
-            SchoolAddress = userResult.User.School.Address.FullAddress;
             SchoolName = userResult.User.School.SchoolName;
+            SchoolAddress = userResult.User.School.Address.FullAddress;
+
 
             Trips = await _tripService.GetAllAvailableTripsAsync(
                 DirectionFilter,
@@ -86,15 +87,19 @@ namespace Parkeringsplads.Pages.TripPages
 
             CityOptions = destinations
                 .Where(d => !string.IsNullOrWhiteSpace(d))
-                .Select(ExtractCity)
+                .Select(_tripService.ExtractCity)
                 .Where(c => !string.IsNullOrWhiteSpace(c))
-                .Distinct()
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(c => c)
                 .Select(c => new SelectListItem { Value = c, Text = c })
                 .ToList();
 
+            Console.WriteLine("SchoolAddress: " + userResult.User.School.Address.FullAddress);
+            Console.WriteLine("City null?: " + (userResult.User.School.Address.City == null));
+
             return Page();
         }
+
 
         public async Task<IActionResult> OnPostRequestAsync(int tripId)
         {
@@ -127,19 +132,11 @@ namespace Parkeringsplads.Pages.TripPages
 
         public string DisplayDestination(string? destination)
         {
-            if (string.IsNullOrWhiteSpace(destination)) return "";
-
-            var normalizedDest = destination.Trim().ToLower();
-            var normalizedSchool = SchoolAddress.Trim().ToLower();
-
-            return normalizedDest.Contains(normalizedSchool) ? SchoolName : destination;
+            return destination == SchoolAddress ? SchoolName : destination ?? "";
         }
 
-        private string ExtractCity(string? address)
-        {
-            if (string.IsNullOrWhiteSpace(address)) return "";
-            var parts = address.Split(',');
-            return parts.Length > 1 ? parts[^1].Trim() : "";
-        }
+
+
+
     }
 }

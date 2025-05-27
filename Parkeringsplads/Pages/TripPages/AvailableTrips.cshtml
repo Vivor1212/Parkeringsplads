@@ -62,7 +62,8 @@
             <label for="dateFilter" class="form-label">Filtrer dato:</label>
         </div>
         <div class="col-auto">
-            <input asp-for="DateFilter" type="date" class="form-control w-auto d-inline-block" />
+                <input asp-for="DateFilter" type="date" class="form-control w-auto d-inline-block" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+
         </div>
 
         <div class="col-auto">

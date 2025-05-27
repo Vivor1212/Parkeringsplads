@@ -20,6 +20,7 @@ namespace Parkeringsplads.Services.Interfaces
         Task<IEnumerable<Car>> GetDriversCarsAsync(int driverId);
         Task<Driver?> GetDriverWithCarsByEmailAsync(string email);
         Task<List<Trip>> GetAllTripsForDriverAsync(int userId);
+        public string ExtractCity(string? address);
 
     }
 }

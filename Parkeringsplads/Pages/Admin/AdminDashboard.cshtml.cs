@@ -24,7 +24,6 @@ namespace Parkeringsplads.Pages.Admin
             _carService = carService;
             _userService = userService;
             _cityService = cityService;
-            _addressService = addressService;
             _driverService = driverService;
             _requestService = requestService;
             _tripService = tripService;
