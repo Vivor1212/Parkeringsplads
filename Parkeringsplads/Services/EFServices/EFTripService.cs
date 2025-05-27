@@ -33,7 +33,7 @@ namespace Parkeringsplads.Services.EFServices
             DateTime? dateFilter,
             int? hourFilter,
             string? cityFilter,
-            string schoolAddress)
+            string? schoolAddress)
         {
             var query = _context.Trip
                 .Include(t => t.Car.Driver)
@@ -52,8 +52,6 @@ namespace Parkeringsplads.Services.EFServices
 
             if (!string.IsNullOrEmpty(directionFilter))
             {
-                var schoolAddressLower = schoolAddress.ToLower();
-
                 if (directionFilter == "ToSchool")
                 {
                     query = query.Where(t => t.ToDestination == schoolAddress);

@@ -1,4 +1,4 @@
-﻿xx@page
+﻿@page
 @model Parkeringsplads.Pages.TripPages.CreateTripModel
 @{
     ViewData["Title"] = "Opret tur";
@@ -147,7 +147,7 @@
                 <p><strong>Fra:</strong> @Model.Trip.FromDestination</p>
                 <p><strong>Til:</strong> @Model.Trip.ToDestination</p>
                 <p><strong>Dato:</strong> @Model.Trip.TripDate.ToString("dd-MM-yyyy")</p>
-                <p><strong>Tid:</strong> @Model.Trip.TripTime.ToString(@"hh\:mm")</p>
+                <p><strong>Tid:</strong> @Model.Trip.TripTime.ToString(@"HH\:mm")</p>
                 <p><strong>Pladser:</strong> @Model.Trip.TripSeats</p>
             </div>
         </div>

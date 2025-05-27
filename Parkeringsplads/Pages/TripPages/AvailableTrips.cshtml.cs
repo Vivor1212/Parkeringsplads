@@ -66,6 +66,9 @@ namespace Parkeringsplads.Pages.TripPages
                 return redirectResult;
             }
 
+            SchoolName = userResult.User.School.SchoolName;
+            SchoolAddress = userResult.User.School.Address.FullAddress;
+
             Trips = await _tripService.GetAllAvailableTripsAsync(
                 DirectionFilter,
                 DateFilter,
@@ -73,10 +76,6 @@ namespace Parkeringsplads.Pages.TripPages
                 CityFilter,
                 SchoolAddress
             );
-
-            SchoolName = userResult.User.School.SchoolName;
-            SchoolAddress = userResult.User.School.Address.FullAddress;
-
 
 
             var destinations = DirectionFilter switch
